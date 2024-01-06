@@ -5,3 +5,12 @@
 .error {
     color: red;
 }
+
+#parametersTable td, th
+{
+    text-align: center; 
+    vertical-align: middle;
+}
+#parametersTable td:nth-child(1), th:nth-child(1) {
+  text-align: left;
+}

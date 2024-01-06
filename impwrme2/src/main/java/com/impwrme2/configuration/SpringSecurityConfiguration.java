@@ -31,7 +31,7 @@ class SpringSecurityConfiguration {
 
 		// Allow various paths.
 		http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/", "/index", "/error", "/resources/**", "/css/**", "/img/**", "/js/**").permitAll());
+                .requestMatchers("/", "/index", "/public/**", "/error", "/resources/**", "/css/**", "/img/**", "/js/**").permitAll());
 		
 		// Deny everything else.
 		http.authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());

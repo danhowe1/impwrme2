@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<div id="dashboardScenario" th:fragment="dashboardScenario"
+		class="container p-2 mt-3 bg-dark-subtle rounded-3">
+		<div class="row">
+			<div class="col">
+				<h2>My first Scenario</h2>
+			</div>
+
+			<div class="col d-flex justify-content-end">
+				<div class="btn-group" role="group" aria-label="Scenario group">
+
+					<button type="button" class="btn btn-outline-primary"
+						data-bs-toggle="collapse"
+						data-bs-target="#collapse-scenarioSettings" aria-expanded="false"
+						aria-controls="collapse-scenarioSettings">Settings</button>
+
+					<button type="button" class="btn btn-outline-primary"
+						data-bs-toggle="collapse" data-bs-target="#collapse-scenarioGoals"
+						aria-expanded="false" aria-controls="collapse-scenarioGoals">Goals</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-auto">
+				<div id="scenarioButtonGroup">
+
+					<div class="collapse" id="collapse-scenarioSettings"
+						data-bs-parent="#scenarioButtonGroup">
+						<table id="parametersTable"
+							class="table p-2 my-2 rounded-3 overflow-hidden">
+							<thead>
+								<tr>
+									<th>Setting</th>
+									<th>01 2024</th>
+									<th>05 2027</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>CPI</td>
+									<td>2.0%</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td>Housing market growth rate</td>
+									<td>3.2%</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td>Share market growth rate</td>
+									<td>5.5%</td>
+									<td>8.0%</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div class="collapse" id="collapse-scenarioGoals"
+						data-bs-parent="#scenarioButtonGroup">
+						<table id="parametersTable"
+							class="table p-2 my-2 rounded-3 overflow-hidden">
+							<thead>
+								<tr>
+									<th>Goal</th>
+									<th>By</th>
+									<th>Achieved?</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="table-success">
+									<td>Never run out of money</td>
+									<td></td>
+									<td>Y</td>
+								</tr>
+								<tr class="table-danger">
+									<td>Pay off credit card</td>
+									<td>06 2024</td>
+									<td>N</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
