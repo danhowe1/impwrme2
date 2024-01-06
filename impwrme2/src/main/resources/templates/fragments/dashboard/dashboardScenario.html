@@ -18,78 +18,122 @@
 
 					<button type="button" class="btn btn-outline-primary"
 						data-bs-toggle="collapse"
-						data-bs-target="#collapse-scenarioSettings" aria-expanded="false"
-						aria-controls="collapse-scenarioSettings">Settings</button>
+						data-bs-target=".scenarioSettings-collapse" aria-expanded="false"
+						aria-controls="collapse-scenarioSettings collapse-scenarioWhatIf">Settings</button>
 
 					<button type="button" class="btn btn-outline-primary"
-						data-bs-toggle="collapse" data-bs-target="#collapse-scenarioGoals"
-						aria-expanded="false" aria-controls="collapse-scenarioGoals">Goals</button>
+						data-bs-toggle="collapse" data-bs-target=".scenarioGoals-collapse"
+						aria-expanded="false"
+						aria-controls="collapse-scenarioGoals collapse-scenarioNewGoal">Goals</button>
 				</div>
 			</div>
 		</div>
 
-		<div class="row">
-			<div class="col-auto">
-				<div id="scenarioButtonGroup">
-
-					<div class="collapse" id="collapse-scenarioSettings"
-						data-bs-parent="#scenarioButtonGroup">
-						<table id="parametersTable"
-							class="table p-2 my-2 rounded-3 overflow-hidden">
-							<thead>
-								<tr>
-									<th>Setting</th>
-									<th>01 2024</th>
-									<th>05 2027</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>CPI</td>
-									<td>2.0%</td>
-									<td></td>
-								</tr>
-								<tr>
-									<td>Housing market growth rate</td>
-									<td>3.2%</td>
-									<td></td>
-								</tr>
-								<tr>
-									<td>Share market growth rate</td>
-									<td>5.5%</td>
-									<td>8.0%</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-
-					<div class="collapse" id="collapse-scenarioGoals"
-						data-bs-parent="#scenarioButtonGroup">
-						<table id="parametersTable"
-							class="table p-2 my-2 rounded-3 overflow-hidden">
-							<thead>
-								<tr>
-									<th>Goal</th>
-									<th>By</th>
-									<th>Achieved?</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr class="table-success">
-									<td>Never run out of money</td>
-									<td></td>
-									<td>Y</td>
-								</tr>
-								<tr class="table-danger">
-									<td>Pay off credit card</td>
-									<td>06 2024</td>
-									<td>N</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-
+		<div id="scenarioButtonGroup">
+			<div class="row">
+				<div class="col-auto collapse
+				scenarioSettings-collapse"
+					id="collapse-scenarioSettings"
+					data-bs-parent="#scenarioButtonGroup">
+					<table id="parametersTable"
+						class="table p-2 my-2 rounded-3 overflow-hidden">
+						<thead>
+							<tr>
+								<th>Setting</th>
+								<th>01 2024</th>
+								<th>05 2027</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>CPI</td>
+								<td>2.0%</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>Housing market growth rate</td>
+								<td>3.2%</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>Stock market growth rate</td>
+								<td>5.5%</td>
+								<td>8.0%&nbsp;<i class="bi-x"
+									style="font-size: 1rem; color: red;"></i>
+								</td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
+
+				<div class="col-auto collapse
+				scenarioSettings-collapse"
+					id="collapse-scenarioWhatIf" data-bs-parent="#scenarioButtonGroup">
+					<div class="dropdown">
+						<button class="btn btn-secondary dropdown-toggle p-2 my-2"
+							type="button" data-bs-toggle="dropdown" aria-expanded="false">
+							What if?...</button>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item" href="#">CPI changes</a></li>
+							<li><a class="dropdown-item" href="#">Housing market
+									growth rate changes</a></li>
+							<li><a class="dropdown-item" href="#">Stock market
+									growth rate changes</a></li>
+							<li><a class="dropdown-item" href="#">Stock market
+									crashes</a></li>
+							<li><a class="dropdown-item" href="#">Interest rates
+									change</a></li>
+						</ul>
+					</div>
+				</div>
+
+			</div>
+			<div class="row">
+				<div class="col-auto collapse scenarioGoals-collapse"
+					id="collapse-scenarioGoals" data-bs-parent="#scenarioButtonGroup">
+					<table id="parametersTable"
+						class="table p-2 my-2 rounded-3 overflow-hidden">
+						<thead>
+							<tr>
+								<th>Goal</th>
+								<th>By</th>
+								<th>Achieved?</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="table-success">
+								<td>Never run out of money</td>
+								<td></td>
+								<td>Y</td>
+							</tr>
+							<tr class="table-danger">
+								<td>Pay off credit card</td>
+								<td>06 2024</td>
+								<td>N</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div class="col-auto collapse
+				scenarioGoals-collapse"
+					id="collapse-scenarioNewGoal" data-bs-parent="#scenarioButtonGroup">
+					<div class="dropdown">
+						<button class="btn btn-secondary dropdown-toggle p-2 my-2"
+							type="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Why not add a new goal?...</button>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item" href="#">Take early
+									retirement</a></li>
+							<li><a class="dropdown-item" href="#">Buy an investment
+									property</a></li>
+							<li><a class="dropdown-item" href="#">Have an annual
+									holiday</a></li>
+							<li><a class="dropdown-item" href="#">...</a></li>
+						</ul>
+					</div>
+				</div>
+
 			</div>
 		</div>
 	</div>
