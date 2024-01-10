@@ -7,13 +7,26 @@
 
 </head>
 <body>
-	<div id="dashboardChart" th:fragment="dashboardChart">
+	<div id="dashboardChart" th:fragment="dashboardChart"
+		class="container p-2 mt-3 bg-dark-subtle rounded-3">
 
-		<div class="container-lg">
-			<div class="container my-5" style="overflow: auto;">
-				<div id="chart_div"></div>
+		<div class="row">
+			<div class="col">
+				<ul class="nav nav-tabs">
+					<li class="nav-item"><a class="nav-link active"
+						aria-current="page" href="#">Chart</a></li>
+					<li class="nav-item"><a class="nav-link" href="#">Timeline</a></li>
+					<li class="nav-item"><a class="nav-link" href="#">Table</a></li>
+				</ul>
 			</div>
 		</div>
+
+		<div class="row">
+			<div class="col">
+				<div id="chart_div" class="chart"></div>
+			</div>
+		</div>
+
 	</div>
 </body>
 </html>

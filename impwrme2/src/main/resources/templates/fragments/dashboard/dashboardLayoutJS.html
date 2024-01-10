@@ -94,18 +94,16 @@
 		            fontSize: 11
 		        }
 			},
+			title : "Liquid funds",
+		    titleFontSize : 24
 		};
 		chart.draw(data, options);
 	}
 	
-	/* We use a resize to trigger the redraw of the chart. We need to delay	*/
-	/* so that the side bar closes before redrawing.						*/
+	/* We use a resize to trigger the redraw of the chart.	*/
 	$(window).resize(function(){
-		setTimeout(function(){
-			drawLineChart();
-		}, 500);
+		drawLineChart();
 	});
-
 				
 </script>
 

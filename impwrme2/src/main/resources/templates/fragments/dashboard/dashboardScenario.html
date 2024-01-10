@@ -8,6 +8,55 @@
 <body>
 	<div id="dashboardScenario" th:fragment="dashboardScenario"
 		class="container p-2 mt-3 bg-dark-subtle rounded-3">
+
+		<!-- Modal -->
+		<div class="modal fade" id="exampleModal" tabindex="-1"
+			aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="exampleModalLabel">Change
+							housing market growth rate</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+
+						<div class="container">
+							<form action="#">
+								<div class="row">
+									<div class="col">
+										<label class="col-form-label">Date:</label>
+									</div>
+									<div class="col">
+										<input type="text" class="form-control"
+											pattern="^[0-9]{1,2}.[0-9]{4}" maxLength="7" value="05 2027">
+									</div>
+								</div>
+								<div class="row">
+									<div class="col">
+										<label class="col-form-label">Value:</label>
+									</div>
+									<div class="col">
+										<input type="text" class="form-control"
+											pattern="^[0-9]{1,2}.[0-9]{4}" maxLength="7" value="5.0">
+									</div>
+								</div>
+							</form>
+						</div>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger">Delete</button>
+						<button type="button" class="btn btn-secondary"
+							data-bs-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary">Save
+							changes</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<div class="row">
 			<div class="col">
 				<h2>My first Scenario</h2>
@@ -53,14 +102,15 @@
 							<tr>
 								<td>Housing market growth rate</td>
 								<td>3.2%</td>
-								<td></td>
+								<td><a href="#exampleModal" data-bs-toggle="modal">5.0%</a></td>
 							</tr>
 							<tr>
 								<td>Stock market growth rate</td>
 								<td>5.5%</td>
-								<td>8.0%&nbsp;<i class="bi-x"
-									style="font-size: 1rem; color: red;"></i>
-								</td>
+								<td>8.0%</td>
+<!-- 								<td>8.0%&nbsp;<i class="bi-x" -->
+<!-- 									style="font-size: 1rem; color: red;"></i> -->
+<!-- 								</td> -->
 							</tr>
 						</tbody>
 					</table>
