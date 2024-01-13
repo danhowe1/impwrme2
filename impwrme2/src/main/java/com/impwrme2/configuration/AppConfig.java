@@ -1,7 +1,5 @@
 package com.impwrme2.configuration;
 
-import java.util.Locale;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -29,7 +27,7 @@ public class AppConfig implements WebMvcConfigurer {
 	@Bean
 	protected LocaleResolver localeResolver() {
 	    SessionLocaleResolver slr = new SessionLocaleResolver();
-	    slr.setDefaultLocale(Locale.ENGLISH);
+//	    slr.setDefaultLocale(Locale.ENGLISH);
 	    return slr;
 	}
 		
