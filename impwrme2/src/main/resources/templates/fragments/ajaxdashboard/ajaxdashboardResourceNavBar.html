@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+
+</head>
+<body>
+	<div id="dashboardResources" th:fragment="ajaxdashboardResourceNavBar"
+		class="p-2 mt-3 bg-dark-subtle rounded-3">
+
+		<script type="text/javascript" th:inline="javascript">
+			var baseUrl = window.location.origin + window.location.pathname + '/';
+
+			function showChart() {
+				$("#dashboardChart").load(baseUrl + 'showChart', function(responseTxt, statusTxt, xhr) {
+					if (statusTxt == "error")
+						alert("Error: " + xhr.status + ": " + xhr.statusText);
+				});
+			}
+
+			function showResources() {
+				$("#dashboardResources").load(baseUrl + 'showResources', function(responseTxt, statusTxt, xhr) {
+					if (statusTxt == "error")
+						alert("Error: " + xhr.status + ": " + xhr.statusText);
+				});
+			}
+
+			function saveResource() {
+
+				var token = $("meta[name='_csrf']").attr("content");
+				var header = $("meta[name='_csrf_header']").attr("content");
+				var data = $("#formResource").serialize();
+
+				return $.ajax({
+					type : 'post',
+					url : baseUrl + 'saveResource',
+					data : data,
+					beforeSend : function(xhr) {
+						xhr.setRequestHeader(header, token);
+					},
+					success : function(text) {
+					},
+					error : function(jqXHR) {
+						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
+					}
+				});
+			}
+
+			function saveResourceAndRefresh() {
+
+				saveResource().done(function(data) {
+					showChart();
+					showResources();
+				});
+			}
+
+			function setAllResourceTabsToInactive() {
+				const resourcesTabs = Array.from(document.querySelectorAll('#resourcesTabs>ul>li>a'));
+
+				resourcesTabs.forEach(function(currentTab) {
+					currentTab.classList.remove("active");
+				});
+			}
+
+			function addEventListenersToResourcesTab() {
+
+				const resourcesTabs = Array.from(document.querySelectorAll('#resourcesTabs>ul>li>a'));
+
+				resourcesTabs.forEach(function(currentTab) {
+					if (currentTab.className.includes("dropdown")) {
+						var ulElement = currentTab.nextElementSibling;
+						var liElements = ulElement.querySelectorAll('li');
+						liElements.forEach(function(li) {
+							li.addEventListener("click", function() {
+								setAllResourceTabsToInactive();
+								li.parentElement.parentElement.getElementsByTagName("a")[0].classList.add("active");
+							});
+
+						})
+					} else {
+						// Non-dropdown tab.
+						currentTab.addEventListener("click", function() {
+							setAllResourceTabsToInactive();
+							this.classList.add("active");
+						});
+					}
+				});
+			}
+		</script>
+
+		<div id="resourcesTabs">
+			<ul class="nav nav-tabs">
+				<li class="nav-item"><a class="nav-link" aria-current="page"
+					href="#">Scenario</a></li>
+
+				<li th:each="resourceTab, resourceTabStat : ${resourceDropdownTabs}"
+					class="nav-item dropdown"><a class="nav-link dropdown-toggle"
+					data-bs-toggle="dropdown" href="#" role="button"
+					aria-expanded="false" th:text="${resourceTab.resourceTabLabel}">XXX</a>
+
+					<ul class="dropdown-menu">
+						<li
+							th:each="resourceTabItem, resourceTabItemStat : ${resourceTab.resourceTabItems}"><a
+							class="dropdown-item" href="#"
+							th:text="${resourceTabItem.resourceItemLabel}">XXX</a></li>
+					</ul></li>
+			</ul>
+		</div>
+
+		<script th:inline="javascript">
+			addEventListenersToResourcesTab();
+		</script>
+
+		<div th:each="resourceDto, resourceStat : ${scenarioDto.resourceDtos}">
+		</div>
+
+		<!-- 		RESOURCES Name =
+		<p th:text="*{resource.name}"></p>
+
+		<form id="formResource" name="formResource" action="#"
+			th:action="@{/app/ajaxdashboard/saveResource}"
+			th:object="${resource}" method="post">
+
+			<label class="col-form-label">Name</label> <input id="name"
+				name="name" type="text" class="form-control" th:field="*{name}">
+
+						<input type="hidden" name="${_csrf.parameterName}"
+							value="${_csrf.token}" />
+
+			<button type="button" class="btn btn-success" id="save"
+				onclick="saveResourceAndRefresh()">Save</button>
+
+		</form>
+ -->
+	</div>
+</body>
+</html>
