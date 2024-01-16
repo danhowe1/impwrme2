@@ -7,13 +7,14 @@ import java.util.stream.Stream;
 
 public enum ResourceType {
 
+	SCENARIO(Values.SCENARIO),
 	CREDIT_CARD(Values.CREDIT_CARD),
 	MORTGAGE_OFFSET_ACCOUNT(Values.MORTGAGE_OFFSET_ACCOUNT),
 	SUPERANNUATION(Values.SUPERANNUATION),
 	SHARES(Values.SHARES),
 	CURRENT_ACCOUNT(Values.CURRENT_ACCOUNT),
 	SAVINGS_ACCOUNT(Values.SAVINGS_ACCOUNT),
-	FAMILY(Values.FAMILY),
+	HOUSEHOLD(Values.HOUSEHOLD),
 	PERSON(Values.PERSON),
 	PROPERTY_EXISTING(Values.PROPERTY_EXISTING),
 	PROPERTY_NEW(Values.PROPERTY_NEW),
@@ -30,9 +31,10 @@ public enum ResourceType {
 	}
 
 	public static class Values {
+		public static final String SCENARIO = "SCENARIO";
 		public static final String CREDIT_CARD = "CREDIT_CARD";
 		public static final String CURRENT_ACCOUNT = "CURRENT_ACCOUNT";
-		public static final String FAMILY = "FAMILY";
+		public static final String HOUSEHOLD = "HOUSEHOLD";
 		public static final String MORTGAGE_EXISTING = "MORTGAGE_EXISTING";
 		public static final String MORTGAGE_NEW = "MORTGAGE_NEW";
 		public static final String MORTGAGE_OFFSET_ACCOUNT = "MORTGAGE_OFFSET_ACCOUNT";

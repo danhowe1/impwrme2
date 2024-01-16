@@ -63,10 +63,18 @@
 			</div>
 		</div>
 
-		<div class="row py-2">
-			<div class="col">
-				<div
-					th:replace="~{fragments/ajaxdashboard/ajaxdashboardResourceNavBar :: ajaxdashboardResourceNavBar}"></div>
+		<div class="p-2 mt-3 bg-dark-subtle rounded-3">
+			<div class="row">
+				<div class="col">
+					<div
+						th:replace="~{fragments/ajaxdashboard/ajaxdashboardResourceNavBar :: ajaxdashboardResourceNavBar}"></div>
+				</div>
+			</div>
+			<div class="row bg-white mx-1">
+				<div class="col">
+					<div
+						th:replace="~{fragments/ajaxdashboard/ajaxdashboardResourceDisplay :: ajaxdashboardResourceDisplay}"></div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -74,8 +82,7 @@
 
 <!--  Bootstrap tooltips (must go after body). -->
 <script>
-	var tooltipTriggerList = [].slice.call(document
-			.querySelectorAll('[data-bs-toggle="tooltip"]'))
+	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 	var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
 		return new bootstrap.Tooltip(tooltipTriggerEl, {
 			html : true

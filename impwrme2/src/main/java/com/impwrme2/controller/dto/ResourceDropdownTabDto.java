@@ -5,16 +5,19 @@ import java.util.List;
 
 public class ResourceDropdownTabDto {
 
-	private String resourceTabLabel;
+	ResourceDropdownTabDto(final String resourceTabLabel) {
+		this.resourceTabLabel = resourceTabLabel;
+	}
+	private final String resourceTabLabel;
 
 	private List<ResourceDropdownTabItemDto> resourceTabItems = new ArrayList<ResourceDropdownTabItemDto>();
 
+	//-------------------
+	// Getters & setters.
+	//-------------------
+	
 	public String getResourceTabLabel() {
 		return resourceTabLabel;
-	}
-
-	public void setResourceTabLabel(String resourceTabLabel) {
-		this.resourceTabLabel = resourceTabLabel;
 	}
 
 	public List<ResourceDropdownTabItemDto> getResourceTabItems() {

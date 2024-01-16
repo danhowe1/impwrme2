@@ -1,13 +1,15 @@
 package com.impwrme2.model.resource;
 
 import java.io.Serializable;
+import java.time.YearMonth;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.impwrme2.model.scenario.Scenario;
+import com.impwrme2.model.YearMonthIntegerAttributeConverter;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
@@ -23,18 +25,29 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "resource", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "scenario_id"}))
+@Table(name = "resource", uniqueConstraints = @UniqueConstraint(columnNames = {"name"})) // TODO Need another contstraint here to do with user.
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "resource_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Resource implements IResource, Comparable<Resource>, Serializable {
 
 	private static final long serialVersionUID = -6863611557805664844L;
 	
-	public Resource(String name, Scenario scenario) {
-		setName(name);
-		setScenario(scenario);
+	/**
+	 * Protected constructor required for Hibernate only.
+	 */
+	protected Resource() {}
+	
+	public Resource(final String name) {
+		this.name = name;
+	}
+
+	public Resource(final String name, final Resource parent) {
+		this.name = name;
+		setParent(parent);
+		parent.addChild(this);
 	}
 
 	@Id
@@ -46,9 +59,10 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 	@NotEmpty(message = "*Please provide a resource name.")
 	private String name;
 	
-	@ManyToOne(fetch = FetchType.EAGER, optional = false)
-	@JoinColumn(name="scenario_id")
-	private Scenario scenario;
+	@Column(name = "start_year_month", columnDefinition = "int")
+	@Convert(converter = YearMonthIntegerAttributeConverter.class)
+	@NotNull(message = "Please provide a start year and month")
+	private YearMonth startYearMonth;
 
 	@ManyToOne(fetch = FetchType.EAGER, optional = true)
 	@JoinColumn(name="parent_id")
@@ -99,16 +113,12 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public YearMonth getStartYearMonth() {
+		return startYearMonth;
 	}
 
-	public Scenario getScenario() {
-		return scenario;
-	}
-
-	public void setScenario(Scenario scenario) {
-		this.scenario = scenario;
+	public void setStartYearMonth(YearMonth startYearMonth) {
+		this.startYearMonth = startYearMonth;
 	}
 
 	public Set<Resource> getChildren() {

@@ -2,23 +2,23 @@ package com.impwrme2.controller.dto;
 
 public class ResourceDropdownTabItemDto {
 
-	private String resourceItemLabel;
+	ResourceDropdownTabItemDto(final String resourceItemLabel, final Long resourceId) {
+		this.resourceItemLabel = resourceItemLabel;
+		this.resourceId = resourceId;
+	}
 	
+	private String resourceItemLabel;
 	private Long resourceId;
 
+	//-------------------
+	// Getters & setters.
+	//-------------------
+	
 	public String getResourceItemLabel() {
 		return resourceItemLabel;
 	}
 
-	public void setResourceItemLabel(String resourceItemLabel) {
-		this.resourceItemLabel = resourceItemLabel;
-	}
-
 	public Long getResourceId() {
 		return resourceId;
-	}
-
-	public void setResourceId(Long resourceId) {
-		this.resourceId = resourceId;
 	}
 }

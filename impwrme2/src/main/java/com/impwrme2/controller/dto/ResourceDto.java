@@ -1,15 +1,11 @@
 package com.impwrme2.controller.dto;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public class ResourceDto {
 
 	private Long id;
-	
-	@NotNull(message = "{msg.validation.resource.scenarioId.notNull}")
-	private Long scenarioId;
 	
 	@NotEmpty(message = "{msg.validation.resource.name.notEmpty}")
 	private String name;
@@ -31,14 +27,6 @@ public class ResourceDto {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public Long getScenarioId() {
-		return scenarioId;
-	}
-
-	public void setScenarioId(Long scenarioId) {
-		this.scenarioId = scenarioId;
 	}
 
 	public String getName() {

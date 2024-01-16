@@ -6,12 +6,12 @@
 
 </head>
 <body>
-	<div id="dashboardResources" th:fragment="ajaxdashboardResourceNavBar"
-		class="p-2 mt-3 bg-dark-subtle rounded-3">
+	<div id="ajaxdashboardResourceNavBar"
+		th:fragment="ajaxdashboardResourceNavBar">
 
 		<script type="text/javascript" th:inline="javascript">
 			var baseUrl = window.location.origin + window.location.pathname + '/';
-
+			
 			function showChart() {
 				$("#dashboardChart").load(baseUrl + 'showChart', function(responseTxt, statusTxt, xhr) {
 					if (statusTxt == "error")
@@ -55,14 +55,6 @@
 				});
 			}
 
-			function setAllResourceTabsToInactive() {
-				const resourcesTabs = Array.from(document.querySelectorAll('#resourcesTabs>ul>li>a'));
-
-				resourcesTabs.forEach(function(currentTab) {
-					currentTab.classList.remove("active");
-				});
-			}
-
 			function addEventListenersToResourcesTab() {
 
 				const resourcesTabs = Array.from(document.querySelectorAll('#resourcesTabs>ul>li>a'));
@@ -79,11 +71,45 @@
 
 						})
 					} else {
-						// Non-dropdown tab.
 						currentTab.addEventListener("click", function() {
 							setAllResourceTabsToInactive();
 							this.classList.add("active");
 						});
+					}
+				});
+			}
+
+			function setAllResourceTabsToInactive() {
+				const resourcesTabs = Array.from(document.querySelectorAll('#resourcesTabs>ul>li>a'));
+
+				resourcesTabs.forEach(function(currentTab) {
+					currentTab.classList.remove("active");
+				});
+			}
+
+			function setActiveResourceTab() {
+				var activeTabLabel = /*[[#{${'msg.html.ajaxdashboard.' + resourceDropdownDto.activeResourceNavLabel}}]]*/'noValue';
+				const resourcesTabs = Array.from(document.querySelectorAll('#resourcesTabs>ul>li>a'));
+				resourcesTabs.forEach(function(currentTab) {
+					if (currentTab.textContent === activeTabLabel) {
+						currentTab.classList.add("active");
+					}
+				});
+			}
+
+			function showResource(resourceId) {
+				//				var url = baseUrl + 'showResource';
+				var url = baseUrl + 'showResource/' + resourceId;
+				//				alert(url);
+
+				$.ajax({
+					url : url,
+					type : "GET",
+					success : function(response) {
+						$("#ajaxdashboardResourceDisplay").html(response);
+					},
+					error : function(jqXHR) {
+						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
 					}
 				});
 			}
@@ -92,47 +118,32 @@
 		<div id="resourcesTabs">
 			<ul class="nav nav-tabs">
 				<li class="nav-item"><a class="nav-link" aria-current="page"
-					href="#">Scenario</a></li>
+					href="#"
+					th:text="#{${'msg.html.ajaxdashboard.' + resourceDropdownDto.scenarioTabLabel}}"
+					th:attr="onclick=|showResource('${resourceDropdownDto.scenarioResourceId}')|">XXX</a></li>
 
-				<li th:each="resourceTab, resourceTabStat : ${resourceDropdownTabs}"
+				<li
+					th:each="resourceTab, resourceTabStat : ${resourceDropdownDto.resourceTabs}"
 					class="nav-item dropdown"><a class="nav-link dropdown-toggle"
 					data-bs-toggle="dropdown" href="#" role="button"
-					aria-expanded="false" th:text="${resourceTab.resourceTabLabel}">XXX</a>
+					aria-expanded="false"
+					th:text="#{${'msg.html.ajaxdashboard.' + resourceTab.resourceTabLabel}}">XXX</a>
 
 					<ul class="dropdown-menu">
 						<li
 							th:each="resourceTabItem, resourceTabItemStat : ${resourceTab.resourceTabItems}"><a
 							class="dropdown-item" href="#"
-							th:text="${resourceTabItem.resourceItemLabel}">XXX</a></li>
+							th:text="${resourceTabItem.resourceItemLabel}"
+							th:attr="onclick=|showResource('${resourceTabItem.resourceId}')|">XXX</a></li>
 					</ul></li>
 			</ul>
 		</div>
 
 		<script th:inline="javascript">
 			addEventListenersToResourcesTab();
+			setActiveResourceTab();
 		</script>
 
-		<div th:each="resourceDto, resourceStat : ${scenarioDto.resourceDtos}">
-		</div>
-
-		<!-- 		RESOURCES Name =
-		<p th:text="*{resource.name}"></p>
-
-		<form id="formResource" name="formResource" action="#"
-			th:action="@{/app/ajaxdashboard/saveResource}"
-			th:object="${resource}" method="post">
-
-			<label class="col-form-label">Name</label> <input id="name"
-				name="name" type="text" class="form-control" th:field="*{name}">
-
-						<input type="hidden" name="${_csrf.parameterName}"
-							value="${_csrf.token}" />
-
-			<button type="button" class="btn btn-success" id="save"
-				onclick="saveResourceAndRefresh()">Save</button>
-
-		</form>
- -->
 	</div>
 </body>
 </html>
