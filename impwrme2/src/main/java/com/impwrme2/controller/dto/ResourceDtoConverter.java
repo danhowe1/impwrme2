@@ -15,4 +15,5 @@ public class ResourceDtoConverter {
 		resourceDto.setStartYearMonth(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(resource.getStartYearMonth()));
 		resourceDto.setResourceType(resource.getResourceType().getValue());
 		return resourceDto;
-	}}
+	}
+}

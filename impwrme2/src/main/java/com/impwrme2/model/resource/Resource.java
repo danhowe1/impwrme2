@@ -4,8 +4,13 @@ import java.io.Serializable;
 import java.time.YearMonth;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.hibernate.annotations.SortNatural;
 
 import com.impwrme2.model.YearMonthIntegerAttributeConverter;
+import com.impwrme2.model.resourceParam.ResourceParam;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -28,7 +33,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "resource", uniqueConstraints = @UniqueConstraint(columnNames = {"name"})) // TODO Need another contstraint here to do with user.
+@Table(name = "resource", uniqueConstraints = @UniqueConstraint(columnNames = {"name"})) // TODO Need another constraint here to do with user.
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "resource_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Resource implements IResource, Comparable<Resource>, Serializable {
@@ -56,12 +61,12 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 	private Long id;
 
 	@Column(name = "name")
-	@NotEmpty(message = "*Please provide a resource name.")
+	@NotEmpty(message = "{msg.validation.resource.name.notEmpty}")
 	private String name;
 	
 	@Column(name = "start_year_month", columnDefinition = "int")
 	@Convert(converter = YearMonthIntegerAttributeConverter.class)
-	@NotNull(message = "Please provide a start year and month")
+	@NotNull(message = "{msg.validation.resource.startDate.notEmpty}")
 	private YearMonth startYearMonth;
 
 	@ManyToOne(fetch = FetchType.EAGER, optional = true)
@@ -70,6 +75,10 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 
 	@OneToMany(mappedBy="parent", fetch=FetchType.EAGER, cascade=CascadeType.ALL, orphanRemoval = true)
 	private final Set<Resource> children = new HashSet<Resource>();
+
+	@OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+	@SortNatural
+	private SortedSet<ResourceParam<?>> resourceParams = new TreeSet<ResourceParam<?>>();
 
 	@Override
 	public String getPrioritisationWithinResourceType() {
@@ -141,5 +150,13 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 	
 	public void setParent(Resource parent) {
 		this.parent = parent;
+	}
+	
+	public SortedSet<ResourceParam<?>> getResourceParams() {
+		return resourceParams;
+	}
+	
+	public void addResourceParam(ResourceParam<?> resourceParam) {
+		this.resourceParams.add(resourceParam);
 	}
 }

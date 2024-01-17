@@ -1,5 +1,6 @@
 package com.impwrme2.controller.dashboard;
 
+import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Locale;
 
@@ -24,6 +25,10 @@ import com.impwrme2.model.resource.ResourceHousehold;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.ResourceType;
+import com.impwrme2.model.resourceParam.ResourceParamBigDecimal;
+import com.impwrme2.model.resourceParam.ResourceParamInteger;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecimal;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueInteger;
 import com.impwrme2.service.resource.ResourceService;
 
 import jakarta.servlet.http.HttpSession;
@@ -89,6 +94,34 @@ public class AjaxDashboardController {
     	ResourceScenario scenarioResource = new ResourceScenario("My first scenario");
     	scenarioResource.setStartYearMonth(YearMonth.of(2024, 1));
 
+    	ResourceParamBigDecimal cpi = new ResourceParamBigDecimal("CPI");
+    	cpi.setResource(scenarioResource);
+    	scenarioResource.addResourceParam(cpi);
+  
+    	ResourceParamDateValueBigDecimal cpiVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), new BigDecimal("2.15"));
+    	cpiVal.setResourceParam(cpi);
+    	cpi.addResourceParamDateValue(cpiVal);
+    	
+    	ResourceParamDateValueBigDecimal cpiVal2 = new ResourceParamDateValueBigDecimal(YearMonth.of(2027, 10), new BigDecimal("3.00"));
+    	cpiVal2.setResourceParam(cpi);
+    	cpi.addResourceParamDateValue(cpiVal2);
+
+    	ResourceParamInteger retirementAge = new ResourceParamInteger("Retirement age");
+    	retirementAge.setResource(scenarioResource);
+    	scenarioResource.addResourceParam(retirementAge);
+
+    	ResourceParamDateValueInteger retirementAgeVal = new ResourceParamDateValueInteger(YearMonth.of(2027, 10), Integer.valueOf(65));
+    	retirementAgeVal.setResourceParam(retirementAge);
+    	retirementAge.addResourceParamDateValue(retirementAgeVal);
+    	
+    	ResourceParamBigDecimal shareMarketGrowthRate = new ResourceParamBigDecimal("Share market growth");
+    	shareMarketGrowthRate.setResource(scenarioResource);
+    	scenarioResource.addResourceParam(shareMarketGrowthRate);
+    	
+    	ResourceParamDateValueBigDecimal shareMarketGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), new BigDecimal("6.5"));
+    	shareMarketGrowthRateVal.setResourceParam(shareMarketGrowthRate);
+    	shareMarketGrowthRate.addResourceParamDateValue(shareMarketGrowthRateVal);
+    	
     	Resource householdResource = new ResourceHousehold("Howe Family", scenarioResource);
     	householdResource.setStartYearMonth(YearMonth.of(2024, 1));
     	
