@@ -1,4 +1,4 @@
-package com.impwrme2.controller.dto;
+package com.impwrme2.controller.dto.resource;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;

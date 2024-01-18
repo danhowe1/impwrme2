@@ -8,8 +8,35 @@
 <body>
 	<div id="ajaxdashboardResourceDisplay" class="bg-white"
 		th:fragment="ajaxdashboardResourceDisplay">
-	
-		<h3 th:text="${resourceDto.name}">XXX</h3>	
+
+		<div class="row">
+			<div class="col mx-2">
+				<h3 th:text="${resourceDto.name}">XXX</h3>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-auto mx-2">
+
+				<table id="parametersTable"
+					class="table table-primary caption-top p-2 my-2 rounded-3 overflow-hidden">
+					<caption th:text="#{msg.html.ajaxdashboard.resourceParamTable.Parameters}">XXX</caption>
+					<thead>
+						<tr>
+							<th th:text="#{msg.html.ajaxdashboard.resourceParamTable.Setting}">XXX</th>
+							<th th:each="dateHeader, dateHeaderStat : ${resourceParamTableDto.dates}" th:text="${dateHeader}">XXX</th>							
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="resourceParamDto, resourceParamDtoStat : ${resourceParamTableDto.resourceParamDtos}">
+							<td th:text="${resourceParamDto.name}">XXX</td>
+							<td th:each="rpdvDto, rpdvDtoStat : ${resourceParamDto.resourceParamDateValueDtos}" th:text="${rpdvDto.value}">
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+		</div>
 	</div>
 </body>
 </html>
