@@ -1,6 +1,7 @@
 package com.impwrme2.controller.dto.resourceParamDateValue;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public class ResourceParamDateValueDto {
@@ -11,8 +12,8 @@ public class ResourceParamDateValueDto {
 	@Pattern(regexp = "^[0-9]{1,2}.[0-9]{4}", message = "Date must be in format MM YYYY")
 	private String yearMonth;
 
-	@NotEmpty(message = "*Please provide a param value.")
-    private String value;
+	@NotNull(message = "*Please provide a param value.")
+    private String value = "";
 
 	//-------------------
 	// Getters & setters.

@@ -43,7 +43,9 @@ public class ResourceParamDtoConverter {
 					}
 				}
 				if (!matchFound) {
-					resourceParamDto.addResourceParamDateValueDto(new ResourceParamDateValueDto());
+					ResourceParamDateValueDto rpdvDto = new ResourceParamDateValueDto();
+					rpdvDto.setYearMonth(headerDateStr);
+					resourceParamDto.addResourceParamDateValueDto(rpdvDto);
 				}
 			}
 			resourceParamTableDto.addResourceParamDto(resourceParamDto);

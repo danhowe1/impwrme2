@@ -51,7 +51,7 @@ public class AjaxDashboardController {
 		Long currentResourceId = (Long) session.getAttribute("SESSION_CURRENT_RESOURCE_ID");
 		if (null == currentResourceId) {
 			// TODO Redirect to the Scenario selection page for user to choose Scenario.
-			currentResourceId = Long.valueOf(202L);
+			currentResourceId = Long.valueOf(302L);
 		}
 		Resource resource = resourceService.findById(currentResourceId).orElseGet(() -> populateInitialTestScenario());
 		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resource.getId());
@@ -106,14 +106,6 @@ public class AjaxDashboardController {
 		cpiVal2.setResourceParam(cpi);
 		cpi.addResourceParamDateValue(cpiVal2);
 
-		ResourceParamInteger retirementAge = new ResourceParamInteger("Retirement age");
-		retirementAge.setResource(scenarioResource);
-		scenarioResource.addResourceParam(retirementAge);
-
-		ResourceParamDateValueInteger retirementAgeVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), Integer.valueOf(65));
-		retirementAgeVal.setResourceParam(retirementAge);
-		retirementAge.addResourceParamDateValue(retirementAgeVal);
-
 		ResourceParamBigDecimal shareMarketGrowthRate = new ResourceParamBigDecimal("Share market growth");
 		shareMarketGrowthRate.setResource(scenarioResource);
 		scenarioResource.addResourceParam(shareMarketGrowthRate);
@@ -127,6 +119,14 @@ public class AjaxDashboardController {
 
 		Resource amandaResource = new ResourcePerson("Amanda", scenarioResource);
 		amandaResource.setStartYearMonth(YearMonth.of(2024, 1));
+
+		ResourceParamInteger retirementAge = new ResourceParamInteger("Retirement age");
+		retirementAge.setResource(amandaResource);
+		amandaResource.addResourceParam(retirementAge);
+
+		ResourceParamDateValueInteger retirementAgeVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), Integer.valueOf(65));
+		retirementAgeVal.setResourceParam(retirementAge);
+		retirementAge.addResourceParamDateValue(retirementAgeVal);
 
 		Resource danResource = new ResourcePerson("Dan", scenarioResource);
 		danResource.setStartYearMonth(YearMonth.of(2024, 1));

@@ -10,51 +10,7 @@
 		th:fragment="ajaxdashboardResourceNavBar">
 
 		<script type="text/javascript" th:inline="javascript">
-			var baseUrl = window.location.origin + window.location.pathname + '/';
 			
-// 			function showChart() {
-// 				$("#dashboardChart").load(baseUrl + 'showChart', function(responseTxt, statusTxt, xhr) {
-// 					if (statusTxt == "error")
-// 						alert("Error: " + xhr.status + ": " + xhr.statusText);
-// 				});
-// 			}
-
-// 			function showResources() {
-// 				$("#dashboardResources").load(baseUrl + 'showResources', function(responseTxt, statusTxt, xhr) {
-// 					if (statusTxt == "error")
-// 						alert("Error: " + xhr.status + ": " + xhr.statusText);
-// 				});
-// 			}
-
-// 			function saveResource() {
-
-// 				var token = $("meta[name='_csrf']").attr("content");
-// 				var header = $("meta[name='_csrf_header']").attr("content");
-// 				var data = $("#formResource").serialize();
-
-// 				return $.ajax({
-// 					type : 'post',
-// 					url : baseUrl + 'saveResource',
-// 					data : data,
-// 					beforeSend : function(xhr) {
-// 						xhr.setRequestHeader(header, token);
-// 					},
-// 					success : function(text) {
-// 					},
-// 					error : function(jqXHR) {
-// 						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
-// 					}
-// 				});
-// 			}
-
-// 			function saveResourceAndRefresh() {
-
-// 				saveResource().done(function(data) {
-// 					showChart();
-// 					showResources();
-// 				});
-// 			}
-
 			function addEventListenersToResourcesTab() {
 
 				const resourcesTabs = Array.from(document.querySelectorAll('#resourcesTabs>ul>li>a'));
@@ -93,20 +49,6 @@
 				resourcesTabs.forEach(function(currentTab) {
 					if (currentTab.textContent === activeTabLabel) {
 						currentTab.classList.add("active");
-					}
-				});
-			}
-
-			function showResource(resourceId) {
-				var url = baseUrl + 'showResource/' + resourceId;
-				$.ajax({
-					url : url,
-					type : "GET",
-					success : function(response) {
-						$("#ajaxdashboardResourceDisplay").html(response);
-					},
-					error : function(jqXHR) {
-						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
 					}
 				});
 			}
