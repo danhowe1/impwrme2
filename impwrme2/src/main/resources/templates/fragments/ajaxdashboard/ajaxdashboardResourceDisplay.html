@@ -12,11 +12,13 @@
 		<script type="text/javascript" th:inline="javascript">
 			const modalRpdvHeader = /*[[#{msg.html.ajaxdashboard.resourceParamDateValueEdit.modal.header}]]*/'novalue';
 
-			function resourceParamDateValueEdit(paramName, id, yearMonth, value) {
+			function resourceParamDateValueEdit(paramName, id, yearMonth, value, resourceParamId, resourceParamType) {
 				document.getElementById('paramName').innerText = modalRpdvHeader + ' ' + paramName + '?';
 				$(".modal-body #id").val(id);
 				$(".modal-body #yearMonth").val(yearMonth);
 				$(".modal-body #value").val(value);
+				$(".modal-body #resourceParamId").val(resourceParamId);
+				$(".modal-body #resourceParamType").val(resourceParamType);
 				$('#rpdvEditDialog').modal('show');
 			}
 
@@ -68,7 +70,9 @@
 								th:action="@{/app/ajaxdashboard/saveResourceParamDateValue}"
 								method="post" class="was-validated">
 
-								<input type="hidden" name="id" id="id" value="" />
+								<input type="text" name="id" id="id" value="" />
+								<input type="text" name="resourceParamId" id="resourceParamId" value="" />
+								<input type="text" name="resourceParamType" id="resourceParamType" value="" />
 
 								<div class="mb-1 row">
 									<div class="col-sm-6">
@@ -146,7 +150,7 @@
 							<td
 								th:each="rpdvDto, rpdvDtoStat : ${resourceParamDto.resourceParamDateValueDtos}"
 								th:id="${rpdvDto.id}" th:text="${rpdvDto.value}"
-								th:attr="onclick=|resourceParamDateValueEdit('${resourceParamDto.name}','${rpdvDto.id}', '${rpdvDto.yearMonth}', '${rpdvDto.value}');|"
+								th:attr="onclick=|resourceParamDateValueEdit('${resourceParamDto.name}','${rpdvDto.id}', '${rpdvDto.yearMonth}', '${rpdvDto.value}', '${rpdvDto.resourceParamId}', '${rpdvDto.resourceParamType}');|"
 								style="cursor: pointer;"></td>
 							<td th:if="${resourceParamDto.userAbleToCreateNewDateValue}">...</td>
 							<td th:unless="${resourceParamDto.userAbleToCreateNewDateValue}"><a

@@ -14,6 +14,8 @@ public class ResourceParamDateValueDtoConverter {
 		ResourceParamDateValueDto rpdvDto = new ResourceParamDateValueDto();
 		rpdvDto.setId(rpdv.getId());
 		rpdvDto.setYearMonth(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(rpdv.getYearMonth()));
+		rpdvDto.setResourceParamId(rpdv.getResourceParam().getId());
+		rpdvDto.setResourceParamType(rpdv.getResourceParam().getResourceParamType().getValue());
 		if (rpdv instanceof ResourceParamDateValueBigDecimal) {
 			rpdvDto.setValue(String.valueOf(rpdv.getValue()));
 		} else if (rpdv instanceof ResourceParamDateValueInteger) {

@@ -49,7 +49,7 @@ public abstract class ResourceParamDateValue<T> implements Comparable<ResourcePa
 	
 	@Column(name = "year_month", columnDefinition = "int")
 	@Convert(converter = YearMonthIntegerAttributeConverter.class)
-	@NotNull(message = "{msg.validation.resourceParamDateValue.startDate.notEmpty}")
+	@NotNull(message = "{msg.validation.resourceParamDateValue.yearMonth.notNull}")
 	private YearMonth yearMonth;
 
 	@ManyToOne(fetch = FetchType.EAGER, optional = false, targetEntity=ResourceParam.class)

@@ -8,13 +8,19 @@ public class ResourceParamDateValueDto {
 
 	private Long id;
 
-	@NotEmpty(message = "*Please provide a date.")
+	@NotEmpty(message = "{msg.validation.resourceParamDateValue.yearMonth.notNull}")
 	@Pattern(regexp = "^[0-9]{1,2}.[0-9]{4}", message = "Date must be in format MM YYYY")
 	private String yearMonth;
 
-	@NotNull(message = "*Please provide a param value.")
+	@NotNull(message = "{msg.validation.resourceParamDateValue.value.notEmpty}")
     private String value = "";
 
+	@NotNull(message = "{msg.validation.resourceParamDateValue.resourceParam.notNull}")
+	private Long resourceParamId;
+
+	@NotEmpty(message = "{msg.validation.resourceParamDateValue.resourceType.notEmpty}")
+	private String resourceParamType;
+	
 	//-------------------
 	// Getters & setters.
 	//-------------------
@@ -41,5 +47,21 @@ public class ResourceParamDateValueDto {
 
 	public void setValue(String value) {
 		this.value = value;
+	}
+
+	public Long getResourceParamId() {
+		return resourceParamId;
+	}
+
+	public void setResourceParamId(Long resourceParamId) {
+		this.resourceParamId = resourceParamId;
+	}
+
+	public String getResourceParamType() {
+		return resourceParamType;
+	}
+
+	public void setResourceParamType(String resourceParamType) {
+		this.resourceParamType = resourceParamType;
 	}
 }
