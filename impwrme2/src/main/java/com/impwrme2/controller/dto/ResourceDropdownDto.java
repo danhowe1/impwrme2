@@ -1,6 +1,7 @@
 package com.impwrme2.controller.dto;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,10 @@ public class ResourceDropdownDto {
 		for (Resource resource : scenario.getChildren()) {
 			addItemToTab(getResourceNavLabel(resource.getResourceType()), resource);
 		}
+		
+		for (ResourceDropdownTabDto tab : resourceTabMap.values()) {
+			Collections.sort(tab.getResourceTabItems());			
+		}
 	}
 
 	private String getResourceNavLabel(ResourceType resourceType) {
@@ -54,7 +59,8 @@ public class ResourceDropdownDto {
 			tab = new ResourceDropdownTabDto(resourceNavLabel);
 			resourceTabMap.put(resourceNavLabel, tab);
 		}
-		tab.addResourceTabItem(new ResourceDropdownTabItemDto(resource.getName(), resource.getId()));
+		tab.addResourceTabItem(new ResourceDropdownTabItemDto(resource));
+		Collections.sort(tab.getResourceTabItems());
 	}
 
 	// -------------------

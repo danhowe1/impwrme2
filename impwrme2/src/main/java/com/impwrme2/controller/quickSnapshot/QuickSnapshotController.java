@@ -43,6 +43,8 @@ public class QuickSnapshotController {
 	private ResourceScenario createQuickSnapshotScenario(QuickSnapshotDto quickSnapshotDto) {
 		ResourceScenario scenario = new ResourceScenario("My quick snapshot scenario");
 		ResourceHousehold family = new ResourceHousehold("My family", scenario);
+		family.setParent(scenario);
+		scenario.addChild(family);
 		return scenario;
 	}
 }

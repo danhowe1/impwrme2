@@ -1,6 +1,6 @@
 package com.impwrme2.controller.dto.resourceParam;
 
-import java.util.SortedSet;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ public class ResourceParamDtoConverter {
 		return resourceParamDto;
 	}
 
-	public ResourceParamTableDto resourceParamsToResourceParamTableDto(SortedSet<ResourceParam<?>> resourceParams) {
+	public ResourceParamTableDto resourceParamsToResourceParamTableDto(List<ResourceParam<?>> resourceParams) {
 		ResourceParamTableDto resourceParamTableDto = new ResourceParamTableDto(resourceParams);
 		for (ResourceParam<?> resourceParam : resourceParams) {
 			ResourceParamDto resourceParamDto = entityToDto(resourceParam);

@@ -1,10 +1,8 @@
 package com.impwrme2.model.resourceParam;
 
 import java.io.Serializable;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import org.hibernate.annotations.SortNatural;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
@@ -65,8 +63,7 @@ public abstract class ResourceParam<T> implements Comparable<ResourceParam<?>>, 
 	public abstract ResourceParamType getResourceParamType();
 
 	@OneToMany(mappedBy = "resourceParam", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, targetEntity=ResourceParamDateValue.class)
-	@SortNatural
-	private SortedSet<ResourceParamDateValue<T>> resourceParamDateValues = new TreeSet<ResourceParamDateValue<T>>();
+	private List<ResourceParamDateValue<T>> resourceParamDateValues = new ArrayList<ResourceParamDateValue<T>>();
 
 	@Override
 	public int compareTo(ResourceParam<?> o) {
@@ -112,7 +109,7 @@ public abstract class ResourceParam<T> implements Comparable<ResourceParam<?>>, 
 		this.resource = resource;
 	}
 
-	public SortedSet<ResourceParamDateValue<T>> getResourceParamDateValues() {
+	public List<ResourceParamDateValue<T>> getResourceParamDateValues() {
 		return resourceParamDateValues;
 	}
 	

@@ -2,10 +2,10 @@ package com.impwrme2.model.resource;
 
 import java.io.Serializable;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.hibernate.annotations.SortNatural;
 
@@ -78,7 +78,7 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 
 	@OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	@SortNatural
-	private SortedSet<ResourceParam<?>> resourceParams = new TreeSet<ResourceParam<?>>();
+	private List<ResourceParam<?>> resourceParams = new ArrayList<ResourceParam<?>>();
 
 	@Override
 	public ResourceScenario getResourceScenario() {
@@ -162,7 +162,7 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 		this.parent = parent;
 	}
 	
-	public SortedSet<ResourceParam<?>> getResourceParams() {
+	public List<ResourceParam<?>> getResourceParams() {
 		return resourceParams;
 	}
 	

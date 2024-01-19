@@ -12,7 +12,7 @@ import com.impwrme2.utils.YearMonthUtils;
 
 public class ResourceParamTableDto {
 
-	public ResourceParamTableDto(SortedSet<ResourceParam<?>> resourceParams) {
+	public ResourceParamTableDto(List<ResourceParam<?>> resourceParams) {
 		initialise(resourceParams);
 	}
 	
@@ -20,7 +20,7 @@ public class ResourceParamTableDto {
 	
 	private List<ResourceParamDto> resourceParamDtos = new ArrayList<ResourceParamDto>();
 
-	private void initialise(SortedSet<ResourceParam<?>> resourceParams) {
+	private void initialise(List<ResourceParam<?>> resourceParams) {
 		SortedSet<YearMonth> rpdvDates = new TreeSet<YearMonth>();
 		for (ResourceParam<?> resourceParam : resourceParams) {
 			for (ResourceParamDateValue<?> rpdv : resourceParam.getResourceParamDateValues()) {
