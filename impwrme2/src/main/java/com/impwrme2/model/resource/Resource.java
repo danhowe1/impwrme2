@@ -81,6 +81,16 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 	private SortedSet<ResourceParam<?>> resourceParams = new TreeSet<ResourceParam<?>>();
 
 	@Override
+	public ResourceScenario getResourceScenario() {
+		if (this instanceof ResourceScenario) return (ResourceScenario) this;
+		Resource resource = this;
+		while (!(resource instanceof ResourceScenario)) {
+			resource = this.getParent();
+		}
+		return (ResourceScenario) resource;
+	};
+
+	@Override
 	public String getPrioritisationWithinResourceType() {
 		return "";
 	}

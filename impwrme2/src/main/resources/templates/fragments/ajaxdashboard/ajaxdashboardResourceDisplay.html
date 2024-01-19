@@ -9,9 +9,117 @@
 	<div id="ajaxdashboardResourceDisplay" class="bg-white"
 		th:fragment="ajaxdashboardResourceDisplay">
 
+		<div id="rpdvEditDialog" class="modal fade" tabindex="-1">
+			<div class="modal-dialog modal-dialog-centered modal-sm"
+				role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<!-- 					<h3 th:text="#{msg.html.ajaxdashboard.resourceParamDateValueEdit.modal.header}">XXX</h3> -->
+						<h5
+							th:text="#{msg.html.ajaxdashboard.resourceParamDateValueEdit.modal.header}"
+							id="paramName">XXX</h5>
+					</div>
+					<div class="modal-body">
+						<div class="container">
+							<form id="formRpdvEditDialog" action="#"
+								th:action="@{/app/ajaxdashboard/saveResourceParamDateValue}"
+								method="post" class="was-validated">
+
+								<input type="hidden" name="id" id="id" value="" />
+
+								<div class="mb-1 row">
+									<div class="col-sm-6">
+										<label class="col-form-label"
+											th:text="#{msg.html.ajaxdashboard.resourceParamDateValueEdit.yearMonth.label}"></label>
+									</div>
+									<div class="col-sm-6">
+										<input id="yearMonth" type="text" class="form-control"
+											size="7"
+											th:placeholder="#{msg.html.global.yearMonth.placeholder}"
+											required th:oninvalid="#{msg.validation.notEmpty.javascript}"
+											oninput="this.setCustomValidity('')"
+											pattern="^[0-9]{1,2}.[0-9]{4}" maxLength="7"
+											th:title="#{msg.validation.monthYear}">
+										<!-- 								<p th:if="${#fields.hasErrors('birthMonthYear')}" -->
+										<!-- 									th:errorclass="error" th:errors="*{birthMonthYear}"></p> -->
+									</div>
+								</div>
+								<div class="mb-1 row">
+									<div class="col-sm-6">
+										<label class="col-form-label"
+											th:text="#{msg.html.ajaxdashboard.resourceParamDateValueEdit.value.label}"></label>
+									</div>
+									<div class="col-sm-6">
+										<input id="value" type="text" class="form-control" size="7"
+											th:title="#{msg.validation.notEmpty}">
+										<!-- 								<p th:if="${#fields.hasErrors('birthMonthYear')}" -->
+										<!-- 									th:errorclass="error" th:errors="*{birthMonthYear}"></p> -->
+									</div>
+								</div>
+
+							</form>
+						</div>
+						<div class="modal-footer">
+							<a class="btn btn-link" role="button" data-bs-dismiss="modal">Cancel</a>
+							<a id="saveBtn" class="btn btn-primary" role="button"
+								th:attr="onclick=|saveResourceParamDateValueAndRefresh('${resourceDto.id}')|">Save</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script type="text/javascript" th:inline="javascript">
+			const modalRpdvHeader = /*[[#{msg.html.ajaxdashboard.resourceParamDateValueEdit.modal.header}]]*/'novalue';
+
+			var modalRpdvEdit = new bootstrap.Modal(document.getElementById('rpdvEditDialog'));
+			function resourceParamEdit(paramName, id, yearMonth, value) {
+				document.getElementById('paramName').innerText = modalRpdvHeader + ' ' + paramName + '?';
+				$(".modal-body #id").val(id);
+				$(".modal-body #yearMonth").val(yearMonth);
+				$(".modal-body #value").val(value);
+				modalRpdvEdit.show();
+			}
+
+			function showResource(resourceId) {
+				$("#ajaxdashboardResourceDisplay").load(baseUrl + 'showResource/' + resourceId, function(responseTxt, statusTxt, xhr) {
+					if (statusTxt == "error")
+						alert("Error: " + xhr.status + ": " + xhr.statusText);
+				});
+			}
+
+			function saveResourceParamDateValue() {
+
+				var token = $("meta[name='_csrf']").attr("content");
+				var header = $("meta[name='_csrf_header']").attr("content");
+				var data = $("#formRpdvEditDialog").serialize();
+
+				return $.ajax({
+					type : 'post',
+					url : baseUrl + 'saveResourceParamDateValue',
+					data : data,
+					beforeSend : function(xhr) {
+						xhr.setRequestHeader(header, token);
+					},
+					success : function(text) {
+					},
+					error : function(jqXHR) {
+						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
+					}
+				});
+			}
+
+			function saveResourceParamDateValueAndRefresh(resourceId) {
+				modalRpdvEdit.hide();
+				saveResourceParamDateValue().done(function(data) {
+					showResource(resourceId);
+				});
+			}
+		</script>
+
 		<div class="row">
-			<div class="col mx-2">
-				<h3 th:text="${resourceDto.name}">XXX</h3>
+			<div class="col mx-2 mt-2">
+			<h5 th:text="${resourceDto.name}">XXX</h5>
 			</div>
 		</div>
 
@@ -19,18 +127,31 @@
 			<div class="col-auto mx-2">
 
 				<table id="parametersTable"
-					class="table table-primary caption-top p-2 my-2 rounded-3 overflow-hidden">
-					<caption th:text="#{msg.html.ajaxdashboard.resourceParamTable.Parameters}">XXX</caption>
+					class="table table-primary caption-top p-1 rounded-3 overflow-hidden">
+					<caption
+						th:text="#{msg.html.ajaxdashboard.resourceParamTable.Parameters}">XXX</caption>
 					<thead>
 						<tr>
-							<th th:text="#{msg.html.ajaxdashboard.resourceParamTable.Setting}">XXX</th>
-							<th th:each="dateHeader, dateHeaderStat : ${resourceParamTableDto.dates}" th:text="${dateHeader}">XXX</th>							
+							<th
+								th:text="#{msg.html.ajaxdashboard.resourceParamTable.Setting}">XXX</th>
+							<th
+								th:each="dateHeader, dateHeaderStat : ${resourceParamTableDto.dates}"
+								th:text="${dateHeader}">XXX</th>
+							<th th:text="#{msg.html.ajaxdashboard.resourceParamTable.WhatIf}">XXX</th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr th:each="resourceParamDto, resourceParamDtoStat : ${resourceParamTableDto.resourceParamDtos}">
+						<tr
+							th:each="resourceParamDto, resourceParamDtoStat : ${resourceParamTableDto.resourceParamDtos}">
 							<td th:text="${resourceParamDto.name}">XXX</td>
-							<td th:each="rpdvDto, rpdvDtoStat : ${resourceParamDto.resourceParamDateValueDtos}" th:text="${rpdvDto.value}">
+							<td
+								th:each="rpdvDto, rpdvDtoStat : ${resourceParamDto.resourceParamDateValueDtos}"
+								th:id="${rpdvDto.id}" th:text="${rpdvDto.value}"
+								th:attr="onclick=|resourceParamEdit('${resourceParamDto.name}','${rpdvDto.id}', '${rpdvDto.yearMonth}', '${rpdvDto.value}')|"
+								style="cursor: pointer;"></td>
+							<td th:if="${resourceParamDto.userAbleToCreateNewDateValue}">...</td>
+							<td th:unless="${resourceParamDto.userAbleToCreateNewDateValue}"><a
+								data-bs-toggle="modal">XX</a></td>
 						</tr>
 					</tbody>
 				</table>
@@ -39,4 +160,6 @@
 		</div>
 	</div>
 </body>
+
+
 </html>

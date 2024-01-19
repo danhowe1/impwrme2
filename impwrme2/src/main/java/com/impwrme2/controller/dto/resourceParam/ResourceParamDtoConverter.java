@@ -22,6 +22,7 @@ public class ResourceParamDtoConverter {
 		resourceParamDto.setId(resourceParam.getId());
 		resourceParamDto.setName(resourceParam.getName());
 		resourceParamDto.setUserAbleToCreateNewDateValue(resourceParam.isUserAbleToCreateNewDateValue());
+		resourceParamDto.setRequestParamType(resourceParam.getResourceParamType().getValue());
 		return resourceParamDto;
 	}
 

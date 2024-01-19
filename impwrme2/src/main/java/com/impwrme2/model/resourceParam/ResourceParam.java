@@ -28,7 +28,6 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-//@MappedSuperclass
 @Entity
 @Table(name = "resource_param", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "resource_id"}))
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
