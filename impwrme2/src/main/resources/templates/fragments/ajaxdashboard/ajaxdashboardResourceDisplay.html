@@ -66,13 +66,15 @@
 					</div>
 					<div class="modal-body">
 						<div class="container">
-							<form id="formRpdvEditDialog" action="#"
+							<form id="formRpdvEditDialog"
+								th:object="${resourceParamDateValueDto}"
 								th:action="@{/app/ajaxdashboard/saveResourceParamDateValue}"
 								method="post" class="was-validated">
 
-								<input type="text" name="id" id="id" value="" />
-								<input type="text" name="resourceParamId" id="resourceParamId" value="" />
-								<input type="text" name="resourceParamType" id="resourceParamType" value="" />
+								<input type="hidden" name="id" id="id" value="" /> <input
+									type="hidden" name="resourceParamId" id="resourceParamId"
+									value="" /> <input type="hidden" name="resourceParamType"
+									id="resourceParamType" value="" />
 
 								<div class="mb-1 row">
 									<div class="col-sm-6">
@@ -81,14 +83,14 @@
 									</div>
 									<div class="col-sm-6">
 										<input id="yearMonth" type="text" class="form-control"
-											size="7"
+											th:field="*{yearMonth}" size="7"
 											th:placeholder="#{msg.html.global.yearMonth.placeholder}"
 											required th:oninvalid="#{msg.validation.notEmpty.javascript}"
 											oninput="this.setCustomValidity('')"
 											pattern="^[0-9]{1,2}.[0-9]{4}" maxLength="7"
 											th:title="#{msg.validation.monthYear}">
-										<!-- 								<p th:if="${#fields.hasErrors('birthMonthYear')}" -->
-										<!-- 									th:errorclass="error" th:errors="*{birthMonthYear}"></p> -->
+										<p th:if="${#fields.hasErrors('yearMonth')}"
+											th:errorclass="error" th:errors="*{yearMonth}"></p>
 									</div>
 								</div>
 								<div class="mb-1 row">
@@ -97,13 +99,16 @@
 											th:text="#{msg.html.ajaxdashboard.resourceParamDateValueEdit.value.label}"></label>
 									</div>
 									<div class="col-sm-6">
-										<input id="value" type="text" class="form-control" size="7"
+										<input id="value" name="value" type="text"
+											class="form-control" th:field="*{value}" size="7"
+											required th:oninvalid="#{msg.validation.notEmpty.javascript}"
+											oninput="this.setCustomValidity('')"
 											th:title="#{msg.validation.notEmpty}">
-										<!-- 								<p th:if="${#fields.hasErrors('birthMonthYear')}" -->
-										<!-- 									th:errorclass="error" th:errors="*{birthMonthYear}"></p> -->
+										<p th:if="${#fields.hasErrors('value')}" th:errorclass="error"
+											th:errors="*{value}"></p>
 									</div>
 								</div>
-
+								<button class="btn btn-primary" type="submit">SAVE</button>
 							</form>
 						</div>
 						<div class="modal-footer">
@@ -126,7 +131,8 @@
 			</div>
 		</div>
 
-		<div class="row" th:unless="${resourceParamTableDto.resourceParamDtos.empty}">
+		<div class="row"
+			th:unless="${resourceParamTableDto.resourceParamDtos.empty}">
 			<div class="col-auto mx-2">
 
 				<table id="parametersTable"
@@ -161,6 +167,24 @@
 
 			</div>
 		</div>
+
+		<script type="text/javascript" th:inline="javascript">
+			document.querySelector('#formRpdvEditDialog').addEventListener('submit', function(e) {
+				e.preventDefault();
+			});
+			
+			$("#formRpdvEditDialog").submit(function(event) {
+				alert("HERE");
+				var resourceId = /*[[${resourceDto.id}]]*/'novalue';
+				alert("resource id = " + resourceId);
+				$('#rpdvEditDialog').modal('hide');
+				saveResourceParamDateValue().done(function(data) {
+					showResource(resourceId);
+				});
+
+			});
+		</script>
+		
 	</div>
 </body>
 

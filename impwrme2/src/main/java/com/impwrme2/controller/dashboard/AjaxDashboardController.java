@@ -3,23 +3,23 @@ package com.impwrme2.controller.dashboard;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Locale;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.impwrme2.controller.dto.ResourceDropdownDto;
 import com.impwrme2.controller.dto.resource.ResourceDtoConverter;
 import com.impwrme2.controller.dto.resourceParam.ResourceParamDtoConverter;
+import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDto;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceHousehold;
 import com.impwrme2.model.resource.ResourcePerson;
@@ -31,6 +31,7 @@ import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueInteger;
 import com.impwrme2.service.resource.ResourceService;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/app/ajaxdashboard")
@@ -59,6 +60,7 @@ public class AjaxDashboardController {
 		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
 		model.addAttribute("resourceDropdownDto", new ResourceDropdownDto((ResourceScenario) resource.getResourceScenario(), resource.getResourceType()));
 		model.addAttribute("resourceParamTableDto", resourceParamDtoConverter.resourceParamsToResourceParamTableDto(resource.getResourceParams()));
+		model.addAttribute("resourceParamDateValueDto", new ResourceParamDateValueDto());
 		return "ajaxdashboard/ajaxdashboard";
 	}
 
@@ -74,13 +76,14 @@ public class AjaxDashboardController {
 		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resourceId);
 		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
 		model.addAttribute("resourceParamTableDto", resourceParamDtoConverter.resourceParamsToResourceParamTableDto(resource.getResourceParams()));
+		model.addAttribute("resourceParamDateValueDto", new ResourceParamDateValueDto());
 		return "fragments/ajaxdashboard/ajaxdashboardResourceDisplay :: ajaxdashboardResourceDisplay";
 	}
 
 	@PostMapping(value = "/saveResourceParamDateValue")
 	@ResponseBody
-	public String saveResourceParamDateValue(@RequestParam Map<String,String> rpdvDtoParams, Model model) {
-		System.out.println("saveResourceParamDateValue for rpdv " + rpdvDtoParams.get("id"));
+	public String saveResourceParamDateValue(@Valid ResourceParamDateValueDto rpdvDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model) {
+		System.out.println("saveResourceParamDateValue for rpdv " + rpdvDto.getId());
 		return "{\"status\":\"success\"}";
 	}
 	
