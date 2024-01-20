@@ -17,7 +17,7 @@ public class ResourceParamDto {
 	private boolean userAbleToCreateNewDateValue;
 	
 	@NotEmpty(message = "{msg.validation.notEmpty}")
-	private String requestParamType;
+	private String resourceParamType;
 	
 	private List<ResourceParamDateValueDto> resourceParamDateValueDtos = new ArrayList<ResourceParamDateValueDto>();
 	
@@ -49,12 +49,12 @@ public class ResourceParamDto {
 		this.userAbleToCreateNewDateValue = userAbleToCreateNewDateValue;
 	}
 	
-	public String getRequestParamType() {
-		return requestParamType;
+	public String getResourceParamType() {
+		return resourceParamType;
 	}
 
-	public void setRequestParamType(String requestParamType) {
-		this.requestParamType = requestParamType;
+	public void setResourceParamType(String resourceParamType) {
+		this.resourceParamType = resourceParamType;
 	}
 
 	public List<ResourceParamDateValueDto> getResourceParamDateValueDtos() {

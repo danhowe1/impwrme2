@@ -2,6 +2,8 @@ package com.impwrme2.model.resourceParam;
 
 import java.math.BigDecimal;
 
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
+
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
@@ -22,5 +24,10 @@ public class ResourceParamBigDecimal extends ResourceParam<BigDecimal> {
 	@Override
 	public ResourceParamType getResourceParamType() {
 		return ResourceParamType.BIG_DECIMAL;
+	}
+
+	@Override
+	public void addResourceParamDateValueGeneric(ResourceParamDateValue<?> resourceParamDateValue) {
+		this.addResourceParamDateValue((ResourceParamDateValue<BigDecimal>) resourceParamDateValue);
 	}
 }

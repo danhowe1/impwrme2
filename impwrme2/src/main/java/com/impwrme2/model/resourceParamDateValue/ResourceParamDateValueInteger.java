@@ -1,8 +1,10 @@
 package com.impwrme2.model.resourceParamDateValue;
 
+import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import com.impwrme2.model.converter.IntegerStringAttributeConverter;
+import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.model.resourceParam.ResourceParamType;
 
 import jakarta.persistence.Convert;
@@ -24,6 +26,10 @@ public class ResourceParamDateValueInteger extends ResourceParamDateValue<Intege
 		super(yearMonth, value);
 	}
 
+	public ResourceParamDateValueInteger(YearMonth yearMonth, final String value) {
+		super(yearMonth, value);
+	}
+
 	@Convert(converter = IntegerStringAttributeConverter.class)
 	private Integer value;
 
@@ -41,5 +47,10 @@ public class ResourceParamDateValueInteger extends ResourceParamDateValue<Intege
 	@Override
 	public void setValueFromString(String value) {
 		setValue(Integer.valueOf(value));		
+	}
+
+	@Override
+	public void setResourceParamGeneric(ResourceParam<?> resourceParam) {
+		this.setResourceParam((ResourceParam<Integer>) resourceParam);
 	}
 }

@@ -42,6 +42,11 @@ public abstract class ResourceParamDateValue<T> implements Comparable<ResourcePa
 		this.setValue(value);
 	}
 	
+	public ResourceParamDateValue(final YearMonth yearMonth, final String value) {
+		this.yearMonth = yearMonth;
+		this.setValueFromString(value);
+	}
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "resource_param_date_value_id")
@@ -62,6 +67,8 @@ public abstract class ResourceParamDateValue<T> implements Comparable<ResourcePa
 	public abstract void setValue(T value);
 
 	public abstract void setValueFromString(String value);
+
+	public abstract void setResourceParamGeneric(ResourceParam<?> resourceParam);
 
 	@Override
 	public int compareTo(ResourceParamDateValue<?> o) {
@@ -98,5 +105,4 @@ public abstract class ResourceParamDateValue<T> implements Comparable<ResourcePa
 	public void setResourceParam(ResourceParam<T> resourceParam) {
 		this.resourceParam = resourceParam;
 	}
-
 }

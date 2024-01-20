@@ -65,6 +65,8 @@ public abstract class ResourceParam<T> implements Comparable<ResourceParam<?>>, 
 	@OneToMany(mappedBy = "resourceParam", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, targetEntity=ResourceParamDateValue.class)
 	private List<ResourceParamDateValue<T>> resourceParamDateValues = new ArrayList<ResourceParamDateValue<T>>();
 
+	public abstract void addResourceParamDateValueGeneric(ResourceParamDateValue<?> resourceParamDateValue);
+
 	@Override
 	public int compareTo(ResourceParam<?> o) {
 		if (this.getName().compareTo(o.getName()) != 0) {

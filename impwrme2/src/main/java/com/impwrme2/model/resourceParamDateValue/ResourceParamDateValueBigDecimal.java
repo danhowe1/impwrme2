@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import com.impwrme2.model.converter.BigDecimalStringAttributeConverter;
+import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.model.resourceParam.ResourceParamType;
 
 import jakarta.persistence.Convert;
@@ -25,6 +26,10 @@ public class ResourceParamDateValueBigDecimal extends ResourceParamDateValue<Big
 		super(yearMonth, value);
 	}
 
+	public ResourceParamDateValueBigDecimal(YearMonth yearMonth, final String value) {
+		super(yearMonth, value);
+	}
+
 	@Convert(converter = BigDecimalStringAttributeConverter.class)
 	private BigDecimal value;
 
@@ -42,5 +47,10 @@ public class ResourceParamDateValueBigDecimal extends ResourceParamDateValue<Big
 	@Override
 	public void setValueFromString(String value) {
 		setValue(new BigDecimal(value));		
+	}
+
+	@Override
+	public void setResourceParamGeneric(ResourceParam<?> resourceParam) {
+		this.setResourceParam((ResourceParam<BigDecimal>) resourceParam);
 	}
 }

@@ -1,5 +1,6 @@
 package com.impwrme2.controller.dto.resourceParam;
 
+import java.time.YearMonth;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,8 @@ import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValue
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDtoConverter;
 import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecimal;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueInteger;
 import com.impwrme2.utils.YearMonthUtils;
 
 @Component
@@ -22,8 +25,14 @@ public class ResourceParamDtoConverter {
 		resourceParamDto.setId(resourceParam.getId());
 		resourceParamDto.setName(resourceParam.getName());
 		resourceParamDto.setUserAbleToCreateNewDateValue(resourceParam.isUserAbleToCreateNewDateValue());
-		resourceParamDto.setRequestParamType(resourceParam.getResourceParamType().getValue());
+		resourceParamDto.setResourceParamType(resourceParam.getResourceParamType().getValue());
 		return resourceParamDto;
+	}
+	
+	public ResourceParamDateValue<?> dtoToEntity(ResourceParamDateValueDto rpdvDto) {
+		ResourceParamDateValue<?> rpdv = getResourceParamDateValue(rpdvDto);
+		rpdv.setId(rpdvDto.getId());
+		return rpdv;
 	}
 
 	public ResourceParamTableDto resourceParamsToResourceParamTableDto(List<ResourceParam<?>> resourceParams) {
@@ -53,5 +62,17 @@ public class ResourceParamDtoConverter {
 			resourceParamTableDto.addResourceParamDto(resourceParamDto);
 		}
 		return resourceParamTableDto;
+	}
+
+	private ResourceParamDateValue<?> getResourceParamDateValue(ResourceParamDateValueDto rpdvDto) {
+		YearMonth yearMonth = YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth());
+		switch (rpdvDto.getResourceParamType()) {
+		case "BIG_DECIMAL":
+			return new ResourceParamDateValueBigDecimal(yearMonth, rpdvDto.getValue());
+		case "INTEGER":
+			return new ResourceParamDateValueInteger(yearMonth, rpdvDto.getValue());
+		default:
+			throw new IllegalStateException("Unknown resource tpye " + rpdvDto.getResourceParamType() + ".");
+		}
 	}
 }

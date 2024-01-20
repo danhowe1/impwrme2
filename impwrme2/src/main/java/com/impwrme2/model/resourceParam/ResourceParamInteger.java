@@ -1,5 +1,7 @@
 package com.impwrme2.model.resourceParam;
 
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
+
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
@@ -20,5 +22,10 @@ public class ResourceParamInteger extends ResourceParam<Integer> {
 	@Override
 	public ResourceParamType getResourceParamType() {
 		return ResourceParamType.INTEGER;
+	}
+
+	@Override
+	public void addResourceParamDateValueGeneric(ResourceParamDateValue<?> resourceParamDateValue) {
+		this.addResourceParamDateValue((ResourceParamDateValue<Integer>) resourceParamDateValue);
 	}
 }

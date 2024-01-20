@@ -12,7 +12,7 @@ public class ResourceParamDateValueDto {
 	@Pattern(regexp = "^[0-9]{1,2}.[0-9]{4}", message = "Date must be in format MM YYYY")
 	private String yearMonth;
 
-	@NotNull(message = "{msg.validation.resourceParamDateValue.value.notEmpty}")
+	@NotEmpty(message = "{msg.validation.resourceParamDateValue.value.notEmpty}")
     private String value = "";
 
 	@NotNull(message = "{msg.validation.resourceParamDateValue.resourceParam.notNull}")
