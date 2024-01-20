@@ -11,13 +11,14 @@
 
 		<script type="text/javascript" th:inline="javascript">
 			const modalRpdvHeader = /*[[#{msg.html.ajaxdashboard.resourceParamDateValueEdit.modal.header}]]*/'novalue';
-
+			
 			function resourceParamDateValueEdit(paramName, id, yearMonth, value, userAbleToChangeDate, resourceParamId, resourceParamType) {
 				if (id === null || id === 'null') {
 					id = "";
 				}
 				document.getElementById('rpdvEditDialogError').style.display = "none";
 				document.getElementById('paramName').innerText = modalRpdvHeader + ' ' + paramName + '?';
+				document.getElementById('value').setAttribute("pattern", getRegExFromResourceParamType(resourceParamType));
 				if (userAbleToChangeDate !== 'true') {
 					document.getElementById('yearMonth').readOnly = true;
 				}
@@ -27,6 +28,19 @@
 				$(".modal-body #resourceParamId").val(resourceParamId);
 				$(".modal-body #resourceParamType").val(resourceParamType);
 				$('#rpdvEditDialog').modal('show');
+			}
+
+			function getRegExFromResourceParamType(resourceParamType) {
+				switch(resourceParamType) {
+				  case "BIG_DECIMAL":
+				    return /^\s*-?(\d+(\.\d{1,2})?|\.\d{1,2})\s*$/.source;
+				    break;
+				  case "INTEGER":
+				    return /^\d+$/;
+				    break;
+				  default:
+				    alert("Unknown resource param type " + resourceParamType);
+				} 
 			}
 
 			function saveResourceParamDateValue() {
@@ -84,9 +98,8 @@
 									</div>
 									<div class="col-sm-6">
 										<input id="yearMonth" type="text" class="form-control"
-											th:field="*{yearMonth}" size="7"
+											th:field="*{yearMonth}" size="7" required
 											th:placeholder="#{msg.html.global.yearMonth.placeholder}"
-											required th:oninvalid="#{msg.validation.monthYear}"
 											oninput="this.setCustomValidity('')"
 											pattern="^[0-9]{1,2}.[0-9]{4}" maxLength="7"
 											th:title="#{msg.validation.monthYear}">
@@ -100,9 +113,8 @@
 											th:text="#{msg.html.ajaxdashboard.resourceParamDateValueEdit.value.label}"></label>
 									</div>
 									<div class="col-sm-6">
-										<input id="value" name="value" type="text"
-											class="form-control" th:field="*{value}" size="7" required
-											th:oninvalid="#{msg.validation.notEmpty.javascript}"
+										<input id="value" type="text" class="form-control"
+											th:field="*{value}" size="7" required
 											oninput="this.setCustomValidity('')"
 											th:title="#{msg.validation.notEmpty}">
 										<p th:if="${#fields.hasErrors('value')}" th:errorclass="error"
