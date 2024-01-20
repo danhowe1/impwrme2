@@ -53,23 +53,21 @@ public class AjaxDashboardController {
 	private ResourceParamDtoConverter resourceParamDtoConverter;
 
 	@Autowired
-	private ResourceParamDtoConverter resourceParamDateValueDtoConverter;
+	private ResourceService resourceService;
 
 	@Autowired
-	private ResourceService resourceService;
-	
-	@Autowired
 	private ResourceParamService resourceParamService;
-	
+
 	@Autowired
 	private ResourceParamDateValueService resourceParamDateValueService;
-	
+
 	@Autowired
 	private MessageSource messageSource;
 
 	@GetMapping(value = { "", "/" })
 	public String ajaxdashboard(@AuthenticationPrincipal OidcUser user, Model model, HttpSession session, Locale locale) {
 
+//		session.removeAttribute("SESSION_CURRENT_RESOURCE_ID");
 		Long currentResourceId = (Long) session.getAttribute("SESSION_CURRENT_RESOURCE_ID");
 		if (null == currentResourceId) {
 			// TODO Redirect to the Scenario selection page for user to choose Scenario.
@@ -115,27 +113,27 @@ public class AjaxDashboardController {
 		resourceParamDateValueService.save(resourceParamDateValue);
 		return "SUCCESS";
 	}
-	
+
 	private void setUpModelAfterResourceUpdated(Resource resource, Model model, HttpSession session) {
 		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resource.getId());
 		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
 		model.addAttribute("resourceParamTableDto", resourceParamDtoConverter.resourceParamsToResourceParamTableDto(resource.getResourceParams()));
-		model.addAttribute("resourceParamDateValueDto", new ResourceParamDateValueDto());		
+		model.addAttribute("resourceParamDateValueDto", new ResourceParamDateValueDto());
 	}
 
 	private String getErrorMessageFromBindingResult(BindingResult result) {
-        List<FieldError> fieldErrors = result.getFieldErrors();
-        String errorMessage = messageSource.getMessage("msg.validation.unknownError", null, LocaleContextHolder.getLocale());
-        for (FieldError fieldError : fieldErrors) {
-        	errorMessage = fieldError.getDefaultMessage();
-        }			
+		List<FieldError> fieldErrors = result.getFieldErrors();
+		String errorMessage = messageSource.getMessage("msg.validation.unknownError", null, LocaleContextHolder.getLocale());
+		for (FieldError fieldError : fieldErrors) {
+			errorMessage = fieldError.getDefaultMessage();
+		}
 		return errorMessage;
-		
+
 	}
-	
+
 	private ResourceScenario populateInitialTestScenario() {
 		Resource scenario = getInitialTestScenario();
-    	return (ResourceScenario) resourceService.save(scenario);
+		return (ResourceScenario) resourceService.save(scenario);
 	}
 
 	private ResourceScenario getInitialTestScenario() {
@@ -144,6 +142,7 @@ public class AjaxDashboardController {
 		scenarioResource.setStartYearMonth(YearMonth.of(2024, 1));
 
 		ResourceParamBigDecimal cpi = new ResourceParamBigDecimal("CPI");
+		cpi.setUserAbleToCreateNewDateValue(true);
 		cpi.setResource(scenarioResource);
 		scenarioResource.addResourceParam(cpi);
 
@@ -152,6 +151,7 @@ public class AjaxDashboardController {
 		cpi.addResourceParamDateValue(cpiVal);
 
 		ResourceParamDateValueBigDecimal cpiVal2 = new ResourceParamDateValueBigDecimal(YearMonth.of(2027, 10), new BigDecimal("3.00"));
+		cpiVal2.setUserAbleToChangeDate(true);
 		cpiVal2.setResourceParam(cpi);
 		cpi.addResourceParamDateValue(cpiVal2);
 

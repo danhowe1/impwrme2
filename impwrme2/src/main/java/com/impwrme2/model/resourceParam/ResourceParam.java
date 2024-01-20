@@ -52,8 +52,8 @@ public abstract class ResourceParam<T> implements Comparable<ResourceParam<?>>, 
 	@NotEmpty(message = "{msg.validation.resourceParam.name.notEmpty}")
 	private String name;
 
-	@Column(name = "user_can_create", columnDefinition = "boolean default false")
-	@NotNull(message = "{msg.validation.resourceParam.userAbleToCreateNewDateValue.NotNull}")
+	@Column(name = "user_can_create_new_date_value", columnDefinition = "boolean default false")
+	@NotNull(message = "{msg.validation.resourceParam.userAbleToCreateNewDateValue.notNull}")
 	private boolean userAbleToCreateNewDateValue;
 	
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)

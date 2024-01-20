@@ -54,6 +54,7 @@ public class ResourceParamDtoConverter {
 				if (!matchFound) {
 					ResourceParamDateValueDto rpdvDto = new ResourceParamDateValueDto();
 					rpdvDto.setYearMonth(headerDateStr);
+					rpdvDto.setUserAbleToChangeDate(true);
 					rpdvDto.setResourceParamId(resourceParam.getId());
 					rpdvDto.setResourceParamType(resourceParam.getResourceParamType().getValue());
 					resourceParamDto.addResourceParamDateValueDto(rpdvDto);

@@ -6,6 +6,7 @@ import java.util.List;
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDto;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 public class ResourceParamDto {
 
@@ -14,7 +15,8 @@ public class ResourceParamDto {
 	@NotEmpty(message = "{msg.validation.resourceParam.name.notEmpty}")
 	private String name;
 
-	private boolean userAbleToCreateNewDateValue;
+	@NotNull(message = "{msg.validation.resourceParam.userAbleToCreateNewDateValue.notNull}")
+	private boolean userAbleToCreateNewDateValue = false;
 	
 	@NotEmpty(message = "{msg.validation.notEmpty}")
 	private String resourceParamType;

@@ -61,6 +61,10 @@ public abstract class ResourceParamDateValue<T> implements Comparable<ResourcePa
 	@JoinColumn(name = "resource_param_id")
 	private ResourceParam<T> resourceParam;
 
+	@Column(name = "user_can_change_date", columnDefinition = "boolean default false")
+	@NotNull(message = "{msg.validation.resourceParamDateValue.userAbleToChangeDate.notNull}")
+	private boolean userAbleToChangeDate;
+
 	@Column(name = "value", columnDefinition = "varchar(32)")
 	public abstract T getValue();
 	
@@ -104,5 +108,13 @@ public abstract class ResourceParamDateValue<T> implements Comparable<ResourcePa
 
 	public void setResourceParam(ResourceParam<T> resourceParam) {
 		this.resourceParam = resourceParam;
+	}
+
+	public boolean isUserAbleToChangeDate() {
+		return userAbleToChangeDate;
+	}
+
+	public void setUserAbleToChangeDate(boolean userAbleToChangeDate) {
+		this.userAbleToChangeDate = userAbleToChangeDate;
 	}
 }

@@ -12,9 +12,16 @@
 		<script type="text/javascript" th:inline="javascript">
 			const modalRpdvHeader = /*[[#{msg.html.ajaxdashboard.resourceParamDateValueEdit.modal.header}]]*/'novalue';
 
-			function resourceParamDateValueEdit(paramName, id, yearMonth, value, resourceParamId, resourceParamType) {
+			function resourceParamDateValueEdit(paramName, id, yearMonth, value, userAbleToChangeDate, resourceParamId, resourceParamType) {
+				if (id === null || id === 'null') {
+					id = "";
+				}
+				document.getElementById('rpdvEditDialogError').style.display = "none";
 				document.getElementById('paramName').innerText = modalRpdvHeader + ' ' + paramName + '?';
-				$(".modal-body #id").val(id || "");
+				if (userAbleToChangeDate !== 'true') {
+					document.getElementById('yearMonth').readOnly = true;
+				}
+				$(".modal-body #id").val(id);
 				$(".modal-body #yearMonth").val(yearMonth);
 				$(".modal-body #value").val(value);
 				$(".modal-body #resourceParamId").val(resourceParamId);
@@ -68,8 +75,7 @@
 									value="" /> <input type="text" name="resourceParamType"
 									id="resourceParamType" value="" />
 
-								<div id="rpdvEditDialogError" class="alert alert-danger"
-									style="display: none"></div>
+								<div id="rpdvEditDialogError" class="alert alert-danger"></div>
 
 								<div class="mb-1 row">
 									<div class="col-sm-6">
@@ -150,11 +156,12 @@
 							<td
 								th:each="rpdvDto, rpdvDtoStat : ${resourceParamDto.resourceParamDateValueDtos}"
 								th:id="${rpdvDto.id}" th:text="${rpdvDto.value}"
-								th:attr="onclick=|resourceParamDateValueEdit('${resourceParamDto.name}','${rpdvDto.id}', '${rpdvDto.yearMonth}', '${rpdvDto.value}', '${resourceParamDto.id}', '${resourceParamDto.resourceParamType}');|"
+								th:attr="onclick=|resourceParamDateValueEdit('${resourceParamDto.name}','${rpdvDto.id}', '${rpdvDto.yearMonth}', '${rpdvDto.value}', '${rpdvDto.userAbleToChangeDate}', '${resourceParamDto.id}', '${resourceParamDto.resourceParamType}');|"
 								style="cursor: pointer;"></td>
-							<td th:unless="${resourceParamDto.userAbleToCreateNewDateValue}"
+							<td th:unless="${resourceParamDto.userAbleToCreateNewDateValue}"></td>
+							<td th:if="${resourceParamDto.userAbleToCreateNewDateValue}"
 								th:text="..."
-								th:attr="onclick=|resourceParamDateValueEdit('${resourceParamDto.name}', null, null, null, '${resourceParamDto.id}', '${resourceParamDto.resourceParamType}');|"
+								th:attr="onclick=|resourceParamDateValueEdit('${resourceParamDto.name}', null, null, null, 'true', '${resourceParamDto.id}', '${resourceParamDto.resourceParamType}');|"
 								style="cursor: pointer;"></td>
 						</tr>
 					</tbody>

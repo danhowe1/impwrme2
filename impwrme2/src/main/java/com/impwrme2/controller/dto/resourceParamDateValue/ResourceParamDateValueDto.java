@@ -15,6 +15,9 @@ public class ResourceParamDateValueDto {
 	@NotEmpty(message = "{msg.validation.resourceParamDateValue.value.notEmpty}")
     private String value = "";
 
+	@NotNull(message = "{msg.validation.resourceParamDateValue.userAbleToChangeDate.notNull}")
+	private boolean userAbleToChangeDate = false;
+
 	@NotNull(message = "{msg.validation.resourceParamDateValue.resourceParam.notNull}")
 	private Long resourceParamId;
 
@@ -47,6 +50,14 @@ public class ResourceParamDateValueDto {
 
 	public void setValue(String value) {
 		this.value = value;
+	}
+
+	public boolean isUserAbleToChangeDate() {
+		return userAbleToChangeDate;
+	}
+
+	public void setUserAbleToChangeDate(boolean userAbleToChangeDate) {
+		this.userAbleToChangeDate = userAbleToChangeDate;
 	}
 
 	public Long getResourceParamId() {
