@@ -1,6 +1,5 @@
 package com.impwrme2.model.resourceParamDateValue;
 
-import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import com.impwrme2.model.converter.IntegerStringAttributeConverter;
@@ -49,6 +48,7 @@ public class ResourceParamDateValueInteger extends ResourceParamDateValue<Intege
 		setValue(Integer.valueOf(value));		
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setResourceParamGeneric(ResourceParam<?> resourceParam) {
 		this.setResourceParam((ResourceParam<Integer>) resourceParam);

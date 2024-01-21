@@ -24,6 +24,7 @@ public class ResourceParamInteger extends ResourceParam<Integer> {
 		return ResourceParamType.INTEGER;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void addResourceParamDateValueGeneric(ResourceParamDateValue<?> resourceParamDateValue) {
 		this.addResourceParamDateValue((ResourceParamDateValue<Integer>) resourceParamDateValue);

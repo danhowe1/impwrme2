@@ -8,6 +8,7 @@ import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -71,7 +73,7 @@ public class AjaxDashboardController {
 		Long currentResourceId = (Long) session.getAttribute("SESSION_CURRENT_RESOURCE_ID");
 		if (null == currentResourceId) {
 			// TODO Redirect to the Scenario selection page for user to choose Scenario.
-			currentResourceId = Long.valueOf(302L);
+			currentResourceId = Long.valueOf(402L);
 		}
 		Resource resource = resourceService.findById(currentResourceId).orElseGet(() -> populateInitialTestScenario());
 		setUpModelAfterResourceUpdated(resource, model, session);

@@ -49,6 +49,7 @@ public class ResourceParamDateValueBigDecimal extends ResourceParamDateValue<Big
 		setValue(new BigDecimal(value));		
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setResourceParamGeneric(ResourceParam<?> resourceParam) {
 		this.setResourceParam((ResourceParam<BigDecimal>) resourceParam);

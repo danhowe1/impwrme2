@@ -26,6 +26,7 @@ public class ResourceParamBigDecimal extends ResourceParam<BigDecimal> {
 		return ResourceParamType.BIG_DECIMAL;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void addResourceParamDateValueGeneric(ResourceParamDateValue<?> resourceParamDateValue) {
 		this.addResourceParamDateValue((ResourceParamDateValue<BigDecimal>) resourceParamDateValue);
