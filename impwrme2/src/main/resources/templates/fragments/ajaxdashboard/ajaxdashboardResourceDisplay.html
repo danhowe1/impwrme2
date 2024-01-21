@@ -20,11 +20,16 @@
 				document.getElementById('paramName').innerText = modalRpdvHeader + ' ' + paramName + '?';
 				document.getElementById('value').setAttribute("pattern", getRegExFromResourceParamType(resourceParamType));
 				if (userAbleToChangeDate !== 'true') {
+					document.getElementById('userAbleToChangeDate').removeAttribute("checked");
 					document.getElementById('yearMonth').readOnly = true;
+				} else {
+					document.getElementById('userAbleToChangeDate').setAttribute("checked", "checked");
+					document.getElementById('yearMonth').readOnly = false;					
 				}
 				$(".modal-body #id").val(id);
 				$(".modal-body #yearMonth").val(yearMonth);
 				$(".modal-body #value").val(value);
+//				$(".modal-body #userAbleToChangeDate").val(userAbleToChangeDate);
 				$(".modal-body #resourceParamId").val(resourceParamId);
 				$(".modal-body #resourceParamType").val(resourceParamType);
 				$('#rpdvEditDialog').modal('show');
@@ -84,10 +89,10 @@
 						<div class="modal-body">
 							<div class="container">
 
-								<input type="hidden" name="id" id="id" value="" /> <input
-									type="hidden" name="resourceParamId" id="resourceParamId"
-									value="" /> <input type="hidden" name="resourceParamType"
-									id="resourceParamType" value="" />
+								<input type="hidden" name="id" id="id" value="" /> 
+								<input type="checkbox" name="userAbleToChangeDate" id="userAbleToChangeDate" style="display:block" />
+								<input type="hidden" name="resourceParamId" id="resourceParamId" value="" /> 
+								<input type="hidden" name="resourceParamType" id="resourceParamType" value="" />
 
 								<div id="rpdvEditDialogError" class="alert alert-danger"></div>
 

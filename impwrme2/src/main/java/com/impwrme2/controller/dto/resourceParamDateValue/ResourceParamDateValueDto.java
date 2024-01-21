@@ -1,9 +1,12 @@
 package com.impwrme2.controller.dto.resourceParamDateValue;
 
+import com.impwrme2.controller.validator.ResourceParamDateValueYearMonthConstraint;
+
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+@ResourceParamDateValueYearMonthConstraint
 public class ResourceParamDateValueDto {
 
 	private Long id;
