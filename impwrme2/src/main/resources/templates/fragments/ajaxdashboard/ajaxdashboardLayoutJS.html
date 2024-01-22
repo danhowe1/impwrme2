@@ -9,12 +9,12 @@
 	th:fragment="ajaxdashboardLayoutJS">
 	var baseUrl = window.location.origin + window.location.pathname + '/';
 
-	//		function showChart() {
-	//		$("#dashboardChart").load(baseUrl + 'showChart', function(responseTxt, statusTxt, xhr) {
-	//			if (statusTxt == "error")
-	//				alert("Error: " + xhr.status + ": " + xhr.statusText);
-	//		});
-	//	}
+			function showChart() {
+			$("#dashboardChart").load(baseUrl + 'showChart', function(responseTxt, statusTxt, xhr) {
+				if (statusTxt == "error")
+					alert("Error: " + xhr.status + ": " + xhr.statusText);
+			});
+		}
 
 	function showResource(resourceId) {
 		var url = baseUrl + 'showResource/' + resourceId;

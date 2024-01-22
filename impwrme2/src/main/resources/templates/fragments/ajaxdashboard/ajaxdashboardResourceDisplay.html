@@ -11,13 +11,7 @@
 
 		<script type="text/javascript" th:inline="javascript">
 			const modalRpdvHeader = /*[[#{msg.html.ajaxdashboard.resourceParamDateValueEdit.modal.header}]]*/'novalue';
-			
-// 			$('#rpdvEditDialog').on('shown', function () {
-// 				alert("Shown event");
-// 			     $("#rpdvEditDialog input").first().focus();
-// 			 });
-// 			 $('#rpdvEditDialog').modal();
-			 
+
 			function resourceParamDateValueEdit(paramName, id, yearMonth, value, userAbleToChangeDate, resourceParamId, resourceParamType) {
 				if (id === null || id === 'null') {
 					id = "";
@@ -28,41 +22,52 @@
 				if (userAbleToChangeDate !== 'true') {
 					document.getElementById('userAbleToChangeDate').removeAttribute("checked");
 					document.getElementById('yearMonth').readOnly = true;
+					document.getElementById('deleteBtn').style.visibility = "hidden";
 				} else {
 					document.getElementById('userAbleToChangeDate').setAttribute("checked", "checked");
-					document.getElementById('yearMonth').readOnly = false;					
+					document.getElementById('yearMonth').readOnly = false;
+					document.getElementById('deleteBtn').style.visibility = "visible";
 				}
 				$(".modal-body #id").val(id);
 				$(".modal-body #yearMonth").val(yearMonth);
 				$(".modal-body #value").val(value);
-//				$(".modal-body #userAbleToChangeDate").val(userAbleToChangeDate);
 				$(".modal-body #resourceParamId").val(resourceParamId);
 				$(".modal-body #resourceParamType").val(resourceParamType);
 				$('#rpdvEditDialog').modal('show');
-				setTimeout(function(){$('form[id="formRpdvEditDialog"] :input:enabled:visible:not([readonly]):first').select();},500);
+				setTimeout(function() {
+					$('form[id="formRpdvEditDialog"] :input:enabled:visible:not([readonly]):first').select();
+				}, 500);
 			}
 
 			function getRegExFromResourceParamType(resourceParamType) {
-				switch(resourceParamType) {
-				  case "BIG_DECIMAL":
-				    return /^\s*-?(\d+(\.\d{1,2})?|\.\d{1,2})\s*$/.source;
-				    break;
-				  case "INTEGER":
-				    return /^\d+$/;
-				    break;
-				  default:
-				    alert("Unknown resource param type " + resourceParamType);
-				} 
+				switch (resourceParamType) {
+				case "BIG_DECIMAL":
+					return /^\s*-?(\d+(\.\d{1,2})?|\.\d{1,2})\s*$/.source;
+					break;
+				case "INTEGER":
+					return /^\d+$/;
+					break;
+				default:
+					alert("Unknown resource param type " + resourceParamType);
+				}
 			}
 
-			function saveResourceParamDateValue() {
+			function postResourceParamDateValue(submittingBtnId) {
 				var token = $("meta[name='_csrf']").attr("content");
 				var header = $("meta[name='_csrf_header']").attr("content");
 				var data = $("#formRpdvEditDialog").serialize();
-
+				var controllerMethod = "";
+				if (submittingBtnId == "saveBtn") {
+					controllerMethod = "saveResourceParamDateValue";
+				} else if (submittingBtnId == "deleteBtn") {
+					controllerMethod = "deleteResourceParamDateValue";
+				} else {
+					alert("Unknown submitting button : " + submittingBtnId);
+					return "ERROR";
+				}
 				return $.ajax({
 					type : 'post',
-					url : baseUrl + 'saveResourceParamDateValue',
+					url : baseUrl + controllerMethod,
 					data : data,
 					beforeSend : function(xhr) {
 						xhr.setRequestHeader(header, token);
@@ -91,15 +96,16 @@
 					</div>
 					<form id="formRpdvEditDialog"
 						th:object="${resourceParamDateValueDto}"
-						th:action="@{/app/ajaxdashboard/saveResourceParamDateValue}"
 						method="post" class="was-validated">
 						<div class="modal-body">
 							<div class="container">
 
-								<input type="hidden" name="id" id="id" value="" /> 
-								<input type="checkbox" name="userAbleToChangeDate" id="userAbleToChangeDate" style="display:none" />
-								<input type="hidden" name="resourceParamId" id="resourceParamId" value="" /> 
-								<input type="hidden" name="resourceParamType" id="resourceParamType" value="" />
+								<input type="hidden" name="id" id="id" value="" /> <input
+									type="checkbox" name="userAbleToChangeDate"
+									id="userAbleToChangeDate" style="display: none" /> <input
+									type="hidden" name="resourceParamId" id="resourceParamId"
+									value="" /> <input type="hidden" name="resourceParamType"
+									id="resourceParamType" value="" />
 
 								<div id="rpdvEditDialogError" class="alert alert-danger"></div>
 
@@ -136,8 +142,9 @@
 								<!-- 								<button class="btn btn-primary" type="submit">SAVE</button> -->
 							</div>
 							<div class="modal-footer">
+								<input id="deleteBtn" class="btn btn-danger" type="submit" th:value="Delete" th:formaction="@{/app/ajaxdashboard/deleteResourceParamDateValue}"/>
 								<a class="btn btn-link" role="button" data-bs-dismiss="modal">Cancel</a>
-								<button class="btn btn-primary" type="submit">Save</button>
+								<button id="saveBtn" class="btn btn-primary" type="submit">Save</button>
 							</div>
 						</div>
 					</form>
@@ -160,7 +167,7 @@
 			<div class="col-auto mx-2">
 
 				<table id="parametersTable"
-					class="table table-primary caption-top p-1 rounded-3 overflow-hidden">
+					class="table table-primary table-sm caption-top p-1 rounded-3 overflow-hidden">
 					<caption
 						th:text="#{msg.html.ajaxdashboard.resourceParamTable.Parameters}">XXX</caption>
 					<thead>
@@ -200,8 +207,10 @@
 			});
 
 			$("#formRpdvEditDialog").submit(function(event) {
+				var submittingBtnId = $(event.originalEvent.submitter).attr('id');
 				var resourceId = /*[[${resourceDto.id}]]*/'novalue';
-				saveResourceParamDateValue().done(function(response) {
+				
+				postResourceParamDateValue(submittingBtnId).done(function(response) {
 					if (response != "SUCCESS") {
 						$("div.rpdvEditDialogError").show();
 						document.getElementById('rpdvEditDialogError').style.display = "block";
@@ -209,6 +218,7 @@
 						$('form[id="formRpdvEditDialog"] :input:enabled:visible:not([readonly]):first').select();
 					} else {
 						$('#rpdvEditDialog').modal('hide');
+						showChart();
 						showResource(resourceId);
 					}
 				});

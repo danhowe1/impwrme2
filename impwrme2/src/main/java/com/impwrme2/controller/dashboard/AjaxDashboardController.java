@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -80,11 +81,11 @@ public class AjaxDashboardController {
 		return "ajaxdashboard/ajaxdashboard";
 	}
 
-//	@GetMapping(value = "/showChart")
-//	public String showChart(Model model) throws InterruptedException {
-//		TimeUnit.SECONDS.sleep(5);
-//		return "fragments/ajaxdashboard/ajaxdashboardChart :: ajaxdashboardChart";		
-//	}
+	@GetMapping(value = "/showChart")
+	public String showChart(Model model) throws InterruptedException {
+		TimeUnit.SECONDS.sleep(5);
+		return "fragments/ajaxdashboard/ajaxdashboardChart :: ajaxdashboardChart";		
+	}
 
 	@GetMapping(value = { "/showResource/{resourceId}" })
 	public String showResource(@PathVariable Long resourceId, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
@@ -104,6 +105,17 @@ public class AjaxDashboardController {
 		} else {
 			saveNewRpdvOrUpdateExistingRpdv(rpdvDto);
 		}
+		return "SUCCESS";
+	}
+
+	@PostMapping(value = "/deleteResourceParamDateValue")
+	@ResponseBody
+	public String deleteResourceParamDateValue(@Valid ResourceParamDateValueDto rpdvDto) {
+		if (!rpdvDto.isUserAbleToChangeDate()) {
+			return messageSource.getMessage("msg.validation.resourceParamDateValue.deleteNotAllowed", null, LocaleContextHolder.getLocale());
+		}
+		ResourceParamDateValue<?> rpdv = resourceParamDateValueService.findById(rpdvDto.getId()).get();
+		resourceParamService.deleteResourceParamDateValue(rpdv);
 		return "SUCCESS";
 	}
 
