@@ -115,7 +115,15 @@ public abstract class ResourceParam<T> implements Comparable<ResourceParam<?>>, 
 		return resourceParamDateValues;
 	}
 	
-	public void addResourceParamDateValue(ResourceParamDateValue<T> resourceParamDateValue) {
+	public ResourceParam<?> addResourceParamDateValue(ResourceParamDateValue<T> resourceParamDateValue) {
 		this.resourceParamDateValues.add(resourceParamDateValue);
+		resourceParamDateValue.setResourceParam(this);
+		return this;
+	}
+
+	public ResourceParam<?> removeResourceParamDateValue(ResourceParamDateValue<?> resourceParamDateValue) {
+		resourceParamDateValues.remove(resourceParamDateValue);
+		resourceParamDateValue.setResourceParam(null);
+		return this;
 	}
 }

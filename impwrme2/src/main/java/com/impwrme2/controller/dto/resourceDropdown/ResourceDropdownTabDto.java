@@ -1,4 +1,4 @@
-package com.impwrme2.controller.dto;
+package com.impwrme2.controller.dto.resourceDropdown;
 
 import java.util.ArrayList;
 import java.util.List;

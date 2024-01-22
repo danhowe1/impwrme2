@@ -14,7 +14,7 @@ import jakarta.validation.Payload;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ResourceParamDateValueYearMonthConstraint {
-	String message() default "msg.validation.unknownError";
+	String message() default "{msg.validation.unknownError}";
 
 	Class<?>[] groups() default {};
 

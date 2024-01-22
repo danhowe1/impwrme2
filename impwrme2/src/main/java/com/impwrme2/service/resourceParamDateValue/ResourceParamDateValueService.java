@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 import com.impwrme2.repository.resourceParamDateValue.ResourceParamDateValueRepository;
 
+@Transactional
 @Service
 public class ResourceParamDateValueService {
 

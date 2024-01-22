@@ -69,9 +69,9 @@ public class ResourceParamDtoConverter {
 		YearMonth yearMonth = YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth());
 		switch (rpdvDto.getResourceParamType()) {
 		case "BIG_DECIMAL":
-			return new ResourceParamDateValueBigDecimal(yearMonth, rpdvDto.getValue());
+			return new ResourceParamDateValueBigDecimal(yearMonth, rpdvDto.isUserAbleToChangeDate(), rpdvDto.getValue());
 		case "INTEGER":
-			return new ResourceParamDateValueInteger(yearMonth, rpdvDto.getValue());
+			return new ResourceParamDateValueInteger(yearMonth, rpdvDto.isUserAbleToChangeDate(), rpdvDto.getValue());
 		default:
 			throw new IllegalStateException("Unknown resource tpye " + rpdvDto.getResourceParamType() + ".");
 		}

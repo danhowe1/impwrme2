@@ -12,6 +12,12 @@
 		<script type="text/javascript" th:inline="javascript">
 			const modalRpdvHeader = /*[[#{msg.html.ajaxdashboard.resourceParamDateValueEdit.modal.header}]]*/'novalue';
 			
+// 			$('#rpdvEditDialog').on('shown', function () {
+// 				alert("Shown event");
+// 			     $("#rpdvEditDialog input").first().focus();
+// 			 });
+// 			 $('#rpdvEditDialog').modal();
+			 
 			function resourceParamDateValueEdit(paramName, id, yearMonth, value, userAbleToChangeDate, resourceParamId, resourceParamType) {
 				if (id === null || id === 'null') {
 					id = "";
@@ -33,6 +39,7 @@
 				$(".modal-body #resourceParamId").val(resourceParamId);
 				$(".modal-body #resourceParamType").val(resourceParamType);
 				$('#rpdvEditDialog').modal('show');
+				setTimeout(function(){$('form[id="formRpdvEditDialog"] :input:enabled:visible:not([readonly]):first').select();},500);
 			}
 
 			function getRegExFromResourceParamType(resourceParamType) {
@@ -90,7 +97,7 @@
 							<div class="container">
 
 								<input type="hidden" name="id" id="id" value="" /> 
-								<input type="checkbox" name="userAbleToChangeDate" id="userAbleToChangeDate" style="display:block" />
+								<input type="checkbox" name="userAbleToChangeDate" id="userAbleToChangeDate" style="display:none" />
 								<input type="hidden" name="resourceParamId" id="resourceParamId" value="" /> 
 								<input type="hidden" name="resourceParamType" id="resourceParamType" value="" />
 
@@ -199,6 +206,7 @@
 						$("div.rpdvEditDialogError").show();
 						document.getElementById('rpdvEditDialogError').style.display = "block";
 						document.getElementById('rpdvEditDialogError').innerText = response;
+						$('form[id="formRpdvEditDialog"] :input:enabled:visible:not([readonly]):first').select();
 					} else {
 						$('#rpdvEditDialog').modal('hide');
 						showResource(resourceId);

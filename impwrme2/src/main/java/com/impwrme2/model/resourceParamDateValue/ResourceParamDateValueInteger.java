@@ -3,7 +3,6 @@ package com.impwrme2.model.resourceParamDateValue;
 import java.time.YearMonth;
 
 import com.impwrme2.model.converter.IntegerStringAttributeConverter;
-import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.model.resourceParam.ResourceParamType;
 
 import jakarta.persistence.Convert;
@@ -21,12 +20,12 @@ public class ResourceParamDateValueInteger extends ResourceParamDateValue<Intege
 		super();
 	}
 	
-	public ResourceParamDateValueInteger(YearMonth yearMonth, final Integer value) {
-		super(yearMonth, value);
+	public ResourceParamDateValueInteger(YearMonth yearMonth, boolean userAbleToChangeDate, final Integer value) {
+		super(yearMonth, userAbleToChangeDate, value);
 	}
 
-	public ResourceParamDateValueInteger(YearMonth yearMonth, final String value) {
-		super(yearMonth, value);
+	public ResourceParamDateValueInteger(YearMonth yearMonth, boolean userAbleToChangeDate, final String value) {
+		super(yearMonth, userAbleToChangeDate, value);
 	}
 
 	@Convert(converter = IntegerStringAttributeConverter.class)
@@ -48,9 +47,9 @@ public class ResourceParamDateValueInteger extends ResourceParamDateValue<Intege
 		setValue(Integer.valueOf(value));		
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public void setResourceParamGeneric(ResourceParam<?> resourceParam) {
-		this.setResourceParam((ResourceParam<Integer>) resourceParam);
-	}
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	public void setResourceParamGeneric(ResourceParam<?> resourceParam) {
+//		this.setResourceParam((ResourceParam<Integer>) resourceParam);
+//	}
 }

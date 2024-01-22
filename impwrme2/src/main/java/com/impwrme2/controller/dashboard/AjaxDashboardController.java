@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.impwrme2.controller.dto.ResourceDropdownDto;
 import com.impwrme2.controller.dto.resource.ResourceDtoConverter;
+import com.impwrme2.controller.dto.resourceDropdown.ResourceDropdownDto;
 import com.impwrme2.controller.dto.resourceParam.ResourceParamDtoConverter;
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDto;
 import com.impwrme2.model.resource.Resource;
@@ -71,7 +71,7 @@ public class AjaxDashboardController {
 		Long currentResourceId = (Long) session.getAttribute("SESSION_CURRENT_RESOURCE_ID");
 		if (null == currentResourceId) {
 			// TODO Redirect to the Scenario selection page for user to choose Scenario.
-			currentResourceId = Long.valueOf(502L);
+			currentResourceId = Long.valueOf(752L);
 		}
 		Resource resource = resourceService.findById(currentResourceId).orElseGet(() -> populateInitialTestScenario());
 		setUpModelAfterResourceUpdated(resource, model, session);
@@ -95,25 +95,62 @@ public class AjaxDashboardController {
 	@PostMapping(value = "/saveResourceParamDateValue")
 	@ResponseBody
 	public String saveResourceParamDateValue(@Valid ResourceParamDateValueDto rpdvDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model) {
-		System.out.println("saveResourceParamDateValue for rpdv " + rpdvDto.getId());
 		if (result.hasErrors()) {
 			return getErrorMessageFromBindingResult(result);
 		}
 		ResourceParamDateValue<?> resourceParamDateValue;
+//		ResourceParam<?> resourceParam;
+		
 		if (null != rpdvDto.getId()) {
+			// Editing existing rpdv.
 			resourceParamDateValue = resourceParamDateValueService.findById(rpdvDto.getId()).get();
-			resourceParamDateValue.setYearMonth(YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth()));
-			resourceParamDateValue.setValueFromString(rpdvDto.getValue());
+			Long idOfAnotherRpdvWithSameDate = getIdOfAnotherResourceParamDateValueWithSameDate(rpdvDto, resourceParamDateValue.getResourceParam());
+			if (null != idOfAnotherRpdvWithSameDate) {
+				// Delete the rpdv we've been passed as it's now a duplicate.
+				resourceParamService.deleteResourceParamDateValue(resourceParamDateValue);
+
+				// Update the value on the existing rpdv & save.
+				ResourceParamDateValue<?> existingRpdv = resourceParamDateValueService.findById(idOfAnotherRpdvWithSameDate).get();
+				existingRpdv.setValueFromString(rpdvDto.getValue());
+				resourceParamDateValueService.save(existingRpdv);
+			} else {
+				// Update existing rpdv and save.
+				resourceParamDateValue.setYearMonth(YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth()));
+				resourceParamDateValue.setValueFromString(rpdvDto.getValue());
+				resourceParamDateValueService.save(resourceParamDateValue);				
+			}			
 		} else {
+			// New rpdv.
 			ResourceParam<?> resourceParam = resourceParamService.findById(rpdvDto.getResourceParamId()).get();
-			resourceParamDateValue = resourceParamDtoConverter.dtoToEntity(rpdvDto);
-			resourceParamDateValue.setResourceParamGeneric(resourceParam);
-			resourceParam.addResourceParamDateValueGeneric(resourceParamDateValue);
+			Long idOfAnotherRpdvWithSameDate = getIdOfAnotherResourceParamDateValueWithSameDate(rpdvDto, resourceParam);
+			if (null != idOfAnotherRpdvWithSameDate) {
+				// Update the value on the existing rpdv & save.
+				ResourceParamDateValue<?> existingRpdv = resourceParamDateValueService.findById(idOfAnotherRpdvWithSameDate).get();
+				existingRpdv.setValueFromString(rpdvDto.getValue());
+				resourceParamDateValueService.save(existingRpdv);
+			} else {
+				// Create brand new rpdv.
+				resourceParamDateValue = resourceParamDtoConverter.dtoToEntity(rpdvDto);
+//				resourceParamDateValue.setResourceParamGeneric(resourceParam);
+				resourceParam.addResourceParamDateValueGeneric(resourceParamDateValue);
+				resourceParamDateValueService.save(resourceParamDateValue);
+			}
 		}
-		resourceParamDateValueService.save(resourceParamDateValue);
 		return "SUCCESS";
 	}
-
+	
+	private Long getIdOfAnotherResourceParamDateValueWithSameDate(final ResourceParamDateValueDto rpdvDto, ResourceParam<?> resourceParam) {
+		Long idOfAnotherRpdvWithSameDate = null;
+		YearMonth rpdvDtoYearMonth = YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth());
+		for (ResourceParamDateValue<?> existingRpdv : resourceParam.getResourceParamDateValues()) {
+			if ((null == rpdvDto.getId() || !rpdvDto.getId().equals(existingRpdv.getId())) &&  rpdvDtoYearMonth.equals(existingRpdv.getYearMonth())) {
+				idOfAnotherRpdvWithSameDate = existingRpdv.getId();
+				break;
+			}
+		}
+		return idOfAnotherRpdvWithSameDate;
+	}
+	
 	private void setUpModelAfterResourceUpdated(Resource resource, Model model, HttpSession session) {
 		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resource.getId());
 		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
@@ -150,21 +187,21 @@ public class AjaxDashboardController {
 		cpi.setResource(scenarioResource);
 		scenarioResource.addResourceParam(cpi);
 
-		ResourceParamDateValueBigDecimal cpiVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), new BigDecimal("2.15"));
-		cpiVal.setResourceParam(cpi);
+		ResourceParamDateValueBigDecimal cpiVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("2.15"));
+//.setResourceParam(cpi);
 		cpi.addResourceParamDateValue(cpiVal);
 
-		ResourceParamDateValueBigDecimal cpiVal2 = new ResourceParamDateValueBigDecimal(YearMonth.of(2027, 10), new BigDecimal("3.00"));
+		ResourceParamDateValueBigDecimal cpiVal2 = new ResourceParamDateValueBigDecimal(YearMonth.of(2027, 10), true, new BigDecimal("3.00"));
 		cpiVal2.setUserAbleToChangeDate(true);
-		cpiVal2.setResourceParam(cpi);
+//		cpiVal2.setResourceParam(cpi);
 		cpi.addResourceParamDateValue(cpiVal2);
 
 		ResourceParamBigDecimal shareMarketGrowthRate = new ResourceParamBigDecimal("Share market growth");
 		shareMarketGrowthRate.setResource(scenarioResource);
 		scenarioResource.addResourceParam(shareMarketGrowthRate);
 
-		ResourceParamDateValueBigDecimal shareMarketGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), new BigDecimal("6.5"));
-		shareMarketGrowthRateVal.setResourceParam(shareMarketGrowthRate);
+		ResourceParamDateValueBigDecimal shareMarketGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("6.5"));
+//		shareMarketGrowthRateVal.setResourceParam(shareMarketGrowthRate);
 		shareMarketGrowthRate.addResourceParamDateValue(shareMarketGrowthRateVal);
 
 		Resource householdResource = new ResourceHousehold("Howe Family", scenarioResource);
@@ -177,8 +214,8 @@ public class AjaxDashboardController {
 		retirementAge.setResource(amandaResource);
 		amandaResource.addResourceParam(retirementAge);
 
-		ResourceParamDateValueInteger retirementAgeVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), Integer.valueOf(65));
-		retirementAgeVal.setResourceParam(retirementAge);
+		ResourceParamDateValueInteger retirementAgeVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(65));
+//		retirementAgeVal.setResourceParam(retirementAge);
 		retirementAge.addResourceParamDateValue(retirementAgeVal);
 
 		Resource danResource = new ResourcePerson("Dan", scenarioResource);

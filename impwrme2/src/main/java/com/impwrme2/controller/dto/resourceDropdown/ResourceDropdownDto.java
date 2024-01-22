@@ -1,4 +1,4 @@
-package com.impwrme2.controller.dto;
+package com.impwrme2.controller.dto.resourceDropdown;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,14 +78,6 @@ public class ResourceDropdownDto {
 	public List<ResourceDropdownTabDto> getResourceTabs() {
 		return new ArrayList<ResourceDropdownTabDto>(resourceTabMap.values());
 	}
-
-//	public void setResourceTabs(List<ResourceDropdownTabDto> resourceTabs) {
-//		this.resourceTabs = resourceTabs;
-//	}
-//
-//	public void addResourceTab(ResourceDropdownTabDto resourceTab) {
-//		this.resourceTabs.add(resourceTab);
-//	}
 	
 	public String getActiveResourceNavLabel() {
 		return getResourceNavLabel(activeResourceType);

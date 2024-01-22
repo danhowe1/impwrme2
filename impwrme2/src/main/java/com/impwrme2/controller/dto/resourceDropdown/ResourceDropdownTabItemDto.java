@@ -1,4 +1,4 @@
-package com.impwrme2.controller.dto;
+package com.impwrme2.controller.dto.resourceDropdown;
 
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceType;

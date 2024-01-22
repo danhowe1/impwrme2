@@ -37,13 +37,15 @@ public abstract class ResourceParamDateValue<T> implements Comparable<ResourcePa
 	 */
 	protected ResourceParamDateValue() {}
 
-	public ResourceParamDateValue(final YearMonth yearMonth, final T value) {
+	public ResourceParamDateValue(final YearMonth yearMonth, boolean userAbleToChangeDate, final T value) {
 		this.yearMonth = yearMonth;
+		this.userAbleToChangeDate = userAbleToChangeDate;
 		this.setValue(value);
 	}
 	
-	public ResourceParamDateValue(final YearMonth yearMonth, final String value) {
+	public ResourceParamDateValue(final YearMonth yearMonth, boolean userAbleToChangeDate, final String value) {
 		this.yearMonth = yearMonth;
+		this.userAbleToChangeDate = userAbleToChangeDate;
 		this.setValueFromString(value);
 	}
 	
@@ -72,7 +74,7 @@ public abstract class ResourceParamDateValue<T> implements Comparable<ResourcePa
 
 	public abstract void setValueFromString(String value);
 
-	public abstract void setResourceParamGeneric(ResourceParam<?> resourceParam);
+//	public abstract void setResourceParamGeneric(ResourceParam<?> resourceParam);
 
 	@Override
 	public int compareTo(ResourceParamDateValue<?> o) {
