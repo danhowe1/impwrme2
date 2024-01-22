@@ -1,8 +1,10 @@
 package com.impwrme2.model.resourceParam;
 
 import java.io.Serializable;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
@@ -75,6 +77,24 @@ public abstract class ResourceParam<T> implements Comparable<ResourceParam<?>>, 
 		return 0;
 	}
 
+	/**
+	 * Retrieves the ID of another ResourceParamDateValue (RPDV) with a duplicate date.
+	 *
+	 * @param id the ID of the current RPDV (can be null if creating a new one).
+	 * @param yearMonth the YearMonth to check for duplicates.
+	 * @return an Optional containing the ID of another RPDV with the same date, or empty if no duplicates are found.
+	 */
+	public Optional<Long> getIdOfRpdvWithDuplicateDate(Long id, YearMonth yearMonth) {
+		Long idOfAnotherRpdvWithSameDate = null;
+		for (ResourceParamDateValue<?> existingRpdv : getResourceParamDateValues()) {
+			if ((null == id || !id.equals(existingRpdv.getId())) &&  yearMonth.equals(existingRpdv.getYearMonth())) {
+				idOfAnotherRpdvWithSameDate = existingRpdv.getId();
+				break;
+			}
+		}
+		return Optional.ofNullable(idOfAnotherRpdvWithSameDate);
+	}
+	
 	//-------------------
 	// Getters & setters.
 	//-------------------

@@ -3,6 +3,7 @@ package com.impwrme2.controller.dashboard;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -98,59 +99,91 @@ public class AjaxDashboardController {
 		if (result.hasErrors()) {
 			return getErrorMessageFromBindingResult(result);
 		}
-		ResourceParamDateValue<?> resourceParamDateValue;
-//		ResourceParam<?> resourceParam;
-		
 		if (null != rpdvDto.getId()) {
-			// Editing existing rpdv.
-			resourceParamDateValue = resourceParamDateValueService.findById(rpdvDto.getId()).get();
-			Long idOfAnotherRpdvWithSameDate = getIdOfAnotherResourceParamDateValueWithSameDate(rpdvDto, resourceParamDateValue.getResourceParam());
-			if (null != idOfAnotherRpdvWithSameDate) {
-				// Delete the rpdv we've been passed as it's now a duplicate.
-				resourceParamService.deleteResourceParamDateValue(resourceParamDateValue);
-
-				// Update the value on the existing rpdv & save.
-				ResourceParamDateValue<?> existingRpdv = resourceParamDateValueService.findById(idOfAnotherRpdvWithSameDate).get();
-				existingRpdv.setValueFromString(rpdvDto.getValue());
-				resourceParamDateValueService.save(existingRpdv);
-			} else {
-				// Update existing rpdv and save.
-				resourceParamDateValue.setYearMonth(YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth()));
-				resourceParamDateValue.setValueFromString(rpdvDto.getValue());
-				resourceParamDateValueService.save(resourceParamDateValue);				
-			}			
+			updateExistingRpdv(rpdvDto);
 		} else {
-			// New rpdv.
-			ResourceParam<?> resourceParam = resourceParamService.findById(rpdvDto.getResourceParamId()).get();
-			Long idOfAnotherRpdvWithSameDate = getIdOfAnotherResourceParamDateValueWithSameDate(rpdvDto, resourceParam);
-			if (null != idOfAnotherRpdvWithSameDate) {
-				// Update the value on the existing rpdv & save.
-				ResourceParamDateValue<?> existingRpdv = resourceParamDateValueService.findById(idOfAnotherRpdvWithSameDate).get();
-				existingRpdv.setValueFromString(rpdvDto.getValue());
-				resourceParamDateValueService.save(existingRpdv);
-			} else {
-				// Create brand new rpdv.
-				resourceParamDateValue = resourceParamDtoConverter.dtoToEntity(rpdvDto);
-//				resourceParamDateValue.setResourceParamGeneric(resourceParam);
-				resourceParam.addResourceParamDateValueGeneric(resourceParamDateValue);
-				resourceParamDateValueService.save(resourceParamDateValue);
-			}
+			saveNewRpdvOrUpdateExistingRpdv(rpdvDto);
 		}
 		return "SUCCESS";
 	}
-	
-	private Long getIdOfAnotherResourceParamDateValueWithSameDate(final ResourceParamDateValueDto rpdvDto, ResourceParam<?> resourceParam) {
-		Long idOfAnotherRpdvWithSameDate = null;
-		YearMonth rpdvDtoYearMonth = YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth());
-		for (ResourceParamDateValue<?> existingRpdv : resourceParam.getResourceParamDateValues()) {
-			if ((null == rpdvDto.getId() || !rpdvDto.getId().equals(existingRpdv.getId())) &&  rpdvDtoYearMonth.equals(existingRpdv.getYearMonth())) {
-				idOfAnotherRpdvWithSameDate = existingRpdv.getId();
-				break;
-			}
+
+	/**
+	 * An existing RPDV is being updated (i.e. the id of the RPDV already exists).
+	 * 
+	 * If there exists another RPDV with the same date, then the RPDV being updated here is deleted and the existing one is updated with the value from the passed rpdvDto.
+	 * 
+	 * If there doesn't exist another RPDV with the same date then the RPDV being updated by the user has both the date and value updated.
+	 * 
+	 * @param rpdvDto The ResourceParamDateValueDto object containing the updated data.
+	 */
+	private void updateExistingRpdv(ResourceParamDateValueDto rpdvDto) {
+		ResourceParamDateValue<?> rpdvOfCurrentDto = resourceParamDateValueService.findById(rpdvDto.getId()).get();
+		Optional<Long> idOfAnotherRpdvWithSameDate = rpdvOfCurrentDto.getResourceParam().getIdOfRpdvWithDuplicateDate(rpdvDto.getId(), YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth()));
+		if (!idOfAnotherRpdvWithSameDate.isEmpty()) {
+			deletePassedRpdvAndUpdateExistingWithSameDate(rpdvOfCurrentDto, idOfAnotherRpdvWithSameDate.get(), rpdvDto.getValue());
+		} else {
+			updateRpdvDateValue(rpdvOfCurrentDto, YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth()), rpdvDto.getValue());
 		}
-		return idOfAnotherRpdvWithSameDate;
 	}
-	
+
+	/**
+	 * Another RPDV with the same date exists so the RPDV being updated here is deleted and the existing one is updated with the value from the passed rpdvDto.
+	 * 
+	 * @param resourceParamDateValueToDelete The RPDV that the user is currently trying to update. This will be deleted.
+	 * @param idOfPreExistingRpdvWithSameDate The ID of the pre-existing RPDV that has the same date.
+	 * @param newValue The new value the user has supplied. The existing RPDV will be updated with this value.
+	 */
+	private void deletePassedRpdvAndUpdateExistingWithSameDate(ResourceParamDateValue<?> resourceParamDateValueToDelete, Long idOfPreExistingRpdvWithSameDate, String newValue) {
+		// Delete the rpdv we've been passed as it's now a duplicate.
+		resourceParamService.deleteResourceParamDateValue(resourceParamDateValueToDelete);
+
+		// Update the value on the existing rpdv & save.
+		ResourceParamDateValue<?> preExistingRpdv = resourceParamDateValueService.findById(idOfPreExistingRpdvWithSameDate).get();
+		updateRpdvValueOnly(preExistingRpdv, newValue);
+	}
+
+	/**
+	 * An new RPDV is attempting to bre created (i.e. the id of the RPDV is null).
+	 * 
+	 * If there exists another RPDV with the same date, then the RPDV being updated here is ignored and the existing one is updated with the value from the passed rpdvDto.
+	 * 
+	 * If there doesn't exist another RPDV with the same date then the RPDV being passed by the user is created with the passed date and value updated.
+	 * 
+	 * @param rpdvDto The ResourceParamDateValueDto object containing the new data.
+	 */
+	private void saveNewRpdvOrUpdateExistingRpdv(ResourceParamDateValueDto rpdvDto) {
+		ResourceParam<?> resourceParamOfCurrentDto = resourceParamService.findById(rpdvDto.getResourceParamId()).get();
+		Optional<Long> idOfAnotherRpdvWithSameDate = resourceParamOfCurrentDto.getIdOfRpdvWithDuplicateDate(rpdvDto.getId(), YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth()));
+		if (!idOfAnotherRpdvWithSameDate.isEmpty()) {
+			ResourceParamDateValue<?> preExistingRpdv = resourceParamDateValueService.findById(idOfAnotherRpdvWithSameDate.get()).get();
+			updateRpdvValueOnly(preExistingRpdv, rpdvDto.getValue());
+		} else {
+			createBrandNewRpdv(rpdvDto);
+		}
+	}
+
+	/**
+	 * Create a brand new RPDV
+	 * 
+	 * @param rpdvDto The RPDV containing the new data.
+	 */
+	private void createBrandNewRpdv(ResourceParamDateValueDto rpdvDto) {
+		ResourceParam<?> resourceParam = resourceParamService.findById(rpdvDto.getResourceParamId()).get();
+		ResourceParamDateValue<?> resourceParamDateValue = resourceParamDtoConverter.dtoToEntity(rpdvDto);
+		resourceParam.addResourceParamDateValueGeneric(resourceParamDateValue);
+		resourceParamDateValueService.save(resourceParamDateValue);
+	}
+
+	private void updateRpdvValueOnly(ResourceParamDateValue<?> resourceParamDateValue, String newValue) {
+		updateRpdvDateValue(resourceParamDateValue, resourceParamDateValue.getYearMonth(), newValue);
+	}
+
+	private void updateRpdvDateValue(ResourceParamDateValue<?> resourceParamDateValue, YearMonth newYearMonth, String newValue) {
+		resourceParamDateValue.setYearMonth(newYearMonth);
+		resourceParamDateValue.setValueFromString(newValue);
+		resourceParamDateValueService.save(resourceParamDateValue);
+	}
+
 	private void setUpModelAfterResourceUpdated(Resource resource, Model model, HttpSession session) {
 		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resource.getId());
 		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
@@ -160,14 +193,14 @@ public class AjaxDashboardController {
 
 	private String getErrorMessageFromBindingResult(BindingResult result) {
 		for (Object object : result.getAllErrors()) {
-		    if(object instanceof FieldError) {
-		        FieldError fieldError = (FieldError) object;
-		        return fieldError.getDefaultMessage();
-		    }
-		    if(object instanceof ObjectError) {
-		        ObjectError objectError = (ObjectError) object;
-		        return objectError.getDefaultMessage();
-		    }
+			if (object instanceof FieldError) {
+				FieldError fieldError = (FieldError) object;
+				return fieldError.getDefaultMessage();
+			}
+			if (object instanceof ObjectError) {
+				ObjectError objectError = (ObjectError) object;
+				return objectError.getDefaultMessage();
+			}
 		}
 		return messageSource.getMessage("msg.validation.unknownError", null, LocaleContextHolder.getLocale());
 	}
@@ -188,12 +221,10 @@ public class AjaxDashboardController {
 		scenarioResource.addResourceParam(cpi);
 
 		ResourceParamDateValueBigDecimal cpiVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("2.15"));
-//.setResourceParam(cpi);
 		cpi.addResourceParamDateValue(cpiVal);
 
 		ResourceParamDateValueBigDecimal cpiVal2 = new ResourceParamDateValueBigDecimal(YearMonth.of(2027, 10), true, new BigDecimal("3.00"));
 		cpiVal2.setUserAbleToChangeDate(true);
-//		cpiVal2.setResourceParam(cpi);
 		cpi.addResourceParamDateValue(cpiVal2);
 
 		ResourceParamBigDecimal shareMarketGrowthRate = new ResourceParamBigDecimal("Share market growth");
@@ -201,7 +232,6 @@ public class AjaxDashboardController {
 		scenarioResource.addResourceParam(shareMarketGrowthRate);
 
 		ResourceParamDateValueBigDecimal shareMarketGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("6.5"));
-//		shareMarketGrowthRateVal.setResourceParam(shareMarketGrowthRate);
 		shareMarketGrowthRate.addResourceParamDateValue(shareMarketGrowthRateVal);
 
 		Resource householdResource = new ResourceHousehold("Howe Family", scenarioResource);
@@ -215,7 +245,6 @@ public class AjaxDashboardController {
 		amandaResource.addResourceParam(retirementAge);
 
 		ResourceParamDateValueInteger retirementAgeVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(65));
-//		retirementAgeVal.setResourceParam(retirementAge);
 		retirementAge.addResourceParamDateValue(retirementAgeVal);
 
 		Resource danResource = new ResourcePerson("Dan", scenarioResource);
