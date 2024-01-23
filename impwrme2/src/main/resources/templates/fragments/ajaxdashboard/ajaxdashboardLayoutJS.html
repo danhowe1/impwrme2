@@ -9,13 +9,6 @@
 	th:fragment="ajaxdashboardLayoutJS">
 	var baseUrl = window.location.origin + window.location.pathname + '/';
 
-			function showChart() {
-			$("#dashboardChart").load(baseUrl + 'showChart', function(responseTxt, statusTxt, xhr) {
-				if (statusTxt == "error")
-					alert("Error: " + xhr.status + ": " + xhr.statusText);
-			});
-		}
-
 	function showResource(resourceId) {
 		var url = baseUrl + 'showResource/' + resourceId;
 		$.ajax({
@@ -29,35 +22,6 @@
 			}
 		});
 	}
-
-	//		function saveResource() {
-
-	//		var token = $("meta[name='_csrf']").attr("content");
-	//		var header = $("meta[name='_csrf_header']").attr("content");
-	//		var data = $("#formResource").serialize();
-
-	//		return $.ajax({
-	//			type : 'post',
-	//			url : baseUrl + 'saveResource',
-	//			data : data,
-	//			beforeSend : function(xhr) {
-	//				xhr.setRequestHeader(header, token);
-	//			},
-	//			success : function(text) {
-	//			},
-	//			error : function(jqXHR) {
-	//				alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
-	//			}
-	//		});
-	//	}
-
-	//	function saveResourceAndRefresh() {
-
-	//		saveResource().done(function(data) {
-	//			showChart();
-	//			showResources();
-	//		});
-	//	}
 </script>
 
 </head>

@@ -2,13 +2,15 @@ package com.impwrme2.controller.dashboard;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
@@ -40,6 +42,10 @@ import com.impwrme2.service.resource.ResourceService;
 import com.impwrme2.service.resourceParam.ResourceParamService;
 import com.impwrme2.service.resourceParamDateValue.ResourceParamDateValueService;
 import com.impwrme2.utils.YearMonthUtils;
+import com.nimbusds.jose.shaded.gson.Gson;
+import com.nimbusds.jose.shaded.gson.GsonBuilder;
+import com.nimbusds.jose.shaded.gson.JsonArray;
+import com.nimbusds.jose.shaded.gson.JsonObject;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -81,10 +87,10 @@ public class AjaxDashboardController {
 		return "ajaxdashboard/ajaxdashboard";
 	}
 
-	@GetMapping(value = "/showChart")
-	public String showChart(Model model) throws InterruptedException {
-		TimeUnit.SECONDS.sleep(5);
-		return "fragments/ajaxdashboard/ajaxdashboardChart :: ajaxdashboardChart";		
+	@GetMapping(value = "/getChartData", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public String getChartData() {
+		return generateJsonChartData();
 	}
 
 	@GetMapping(value = { "/showResource/{resourceId}" })
@@ -141,9 +147,9 @@ public class AjaxDashboardController {
 	/**
 	 * Another RPDV with the same date exists so the RPDV being updated here is deleted and the existing one is updated with the value from the passed rpdvDto.
 	 * 
-	 * @param resourceParamDateValueToDelete The RPDV that the user is currently trying to update. This will be deleted.
+	 * @param resourceParamDateValueToDelete  The RPDV that the user is currently trying to update. This will be deleted.
 	 * @param idOfPreExistingRpdvWithSameDate The ID of the pre-existing RPDV that has the same date.
-	 * @param newValue The new value the user has supplied. The existing RPDV will be updated with this value.
+	 * @param newValue                        The new value the user has supplied. The existing RPDV will be updated with this value.
 	 */
 	private void deletePassedRpdvAndUpdateExistingWithSameDate(ResourceParamDateValue<?> resourceParamDateValueToDelete, Long idOfPreExistingRpdvWithSameDate, String newValue) {
 		// Delete the rpdv we've been passed as it's now a duplicate.
@@ -264,4 +270,70 @@ public class AjaxDashboardController {
 
 		return scenarioResource;
 	}
+
+	private String generateJsonChartData() {
+
+		JsonObject dataTable = new JsonObject();
+		JsonArray jsonRows = new JsonArray();
+
+		List<String[][]> columnDefinitions = new ArrayList<String[][]>();
+		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Date" }, { "pattern", "" }, { "type", "string" } });
+		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Total" }, { "pattern", "" }, { "type", "number" } });
+
+		JsonArray columns = new JsonArray();
+		for (String[][] columnDefinition : columnDefinitions) {
+			JsonObject cell = new JsonObject();
+			cell.addProperty(columnDefinition[0][0], columnDefinition[0][1]);
+			cell.addProperty(columnDefinition[1][0], columnDefinition[1][1]);
+			cell.addProperty(columnDefinition[2][0], columnDefinition[2][1]);
+			cell.addProperty(columnDefinition[3][0], columnDefinition[3][1]);
+			columns.add(cell);
+		}
+		dataTable.add("cols", columns);
+
+		List<Object[]> rows = new ArrayList<Object[]>();
+		rows.add(new Object[] { "12 2024", Integer.valueOf(324) });
+		rows.add(new Object[] { "12 2025", Integer.valueOf(654) });
+		rows.add(new Object[] { "12 2026", Integer.valueOf(700) });
+
+		for (Object[] rowData : rows) {
+			JsonObject row = new JsonObject();
+			JsonArray cells = new JsonArray();
+
+			for (Object cellData : rowData) {
+				JsonObject cell = new JsonObject();
+				if (cellData instanceof Integer) {
+					cell.addProperty("v", ((Integer) cellData).intValue());
+				} else {
+					cell.addProperty("v", cellData.toString());
+				}
+				cells.add(cell);
+			}
+
+			row.add("c", cells);
+			jsonRows.add(row);
+		}
+
+		dataTable.add("rows", jsonRows);
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String result = gson.toJson(dataTable);
+
+		return result;
+	}
+
+//			 [ '12 2024', 557643.93, null, null ], 
+//			 [ '12 2025', 4166636.96, null, null ], 
+//			 [ '12 2026', 4029662.43, 'point { size: 12; shape-type: star; fill-color: #a52714; }', createCustomChartTooltipContent('Griffin St sold for $4,500,000') ],
+//				[ '12 2027', 3882082.35, null, null ], [ '12 2028', 3628303.20, null, null ], [ '12 2029', 3470565.03, null, null ], [ '12 2030', 3162952.03, null, null ], [ '12 2031', 4282311.85, null, null ],
+//				[ '12 2032', 5460333.27, 'point { size: 12; shape-type: star; fill-color: #a52714; }', createCustomChartTooltipContent('Super - Dan Superannuation matures') ],
+//				[ '12 2033', 5533304.46, 'point { size: 12; shape-type: star; fill-color: #a52714; }', createCustomChartTooltipContent('Super - Amanda Superannuation matures') ], [ '12 2034', 5625884.62, null, null ],
+//				[ '12 2035', 5739795.09, null, null ], [ '12 2036', 5996246.45, null, null ], [ '12 2037', 6340919.17, null, null ], [ '12 2038', 6715082.12, null, null ], [ '12 2039', 7163521.02, null, null ],
+//				[ '12 2040', 7654122.84, null, null ], [ '12 2041', 8186367.49, null, null ], [ '12 2042', 8764004.93, null, null ], [ '12 2043', 9421569.49, null, null ], [ '12 2044', 10136483.75, null, null ],
+//				[ '12 2045', 10913945.23, null, null ], [ '12 2046', 11759626.59, null, null ], [ '12 2047', 12679719.16, null, null ], [ '12 2048', 13680980.49, null, null ], [ '12 2049', 14770786.14, null, null ],
+//				[ '12 2050', 15957186.35, null, null ], [ '12 2051', 17248967.85, null, null ], [ '12 2052', 18655721.26, null, null ], [ '12 2053', 20187914.84, null, null ], [ '12 2054', 21856974.79, null, null ],
+//				[ '12 2055', 23675373.09, null, null ], [ '12 2056', 25656723.27, null, null ], [ '12 2057', 27815885.01, null, null ], [ '12 2058', 30169078.30, null, null ], [ '12 2059', 32734008.10, null, null ],
+//				[ '12 2060', 35530000.37, null, null ], [ '12 2061', 38578150.64, null, null ], [ '12 2062', 41901486.08, null, null ], [ '12 2063', 45525142.55, null, null ], [ '12 2064', 49476557.78, null, null ],
+//				[ '12 2065', 53785682.31, null, null ], [ '12 2066', 58485209.74, null, null ], [ '12 2067', 63610828.06, null, null ], [ '12 2068', 69201494.05, null, null ], [ '12 2069', 75299732.81, null, null ],
+//				[ '12 2070', 81951964.71, null, null ], [ '12 2071', 89229147.36, null, null ], [ '12 2072', 90532267.03, null, null ] ]			
 }

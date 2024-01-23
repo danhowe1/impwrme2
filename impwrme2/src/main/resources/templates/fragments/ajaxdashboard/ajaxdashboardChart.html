@@ -17,33 +17,30 @@
 			google.charts.load('current', {
 				packages : [ 'corechart', 'bar', 'table' ]
 			});
-			google.charts.setOnLoadCallback(drawLineChart);
+			google.setOnLoadCallback(function() {
+				loadChartData()
+			})
 
-			function drawLineChart() {
-				var line_data = [ [ 'Date', 'Total', {
-					'type' : 'string',
-					'role' : 'style'
-				}, {
-					'type' : 'string',
-					'role' : 'tooltip',
-					'p' : {
-						'html' : true
+			function loadChartData() {
+				var url = baseUrl + 'getChartData';
+				$.ajax({
+					url : url,
+					type : "GET",
+					dataType : "json",
+					async : true,
+					success : function(data) {
+						if (data) {
+							drawLineChart(data);
+						}
+					},
+					error : function(jqXHR) {
+						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
 					}
-				} ], [ '12 2024', 557643.93, null, null ], [ '12 2025', 4166636.96, null, null ], [ '12 2026', 4029662.43, 'point { size: 12; shape-type: star; fill-color: #a52714; }', createCustomChartTooltipContent('Griffin St sold for $4,500,000') ],
-						[ '12 2027', 3882082.35, null, null ], [ '12 2028', 3628303.20, null, null ], [ '12 2029', 3470565.03, null, null ], [ '12 2030', 3162952.03, null, null ], [ '12 2031', 4282311.85, null, null ],
-						[ '12 2032', 5460333.27, 'point { size: 12; shape-type: star; fill-color: #a52714; }', createCustomChartTooltipContent('Super - Dan Superannuation matures') ],
-						[ '12 2033', 5533304.46, 'point { size: 12; shape-type: star; fill-color: #a52714; }', createCustomChartTooltipContent('Super - Amanda Superannuation matures') ], [ '12 2034', 5625884.62, null, null ],
-						[ '12 2035', 5739795.09, null, null ], [ '12 2036', 5996246.45, null, null ], [ '12 2037', 6340919.17, null, null ], [ '12 2038', 6715082.12, null, null ], [ '12 2039', 7163521.02, null, null ],
-						[ '12 2040', 7654122.84, null, null ], [ '12 2041', 8186367.49, null, null ], [ '12 2042', 8764004.93, null, null ], [ '12 2043', 9421569.49, null, null ], [ '12 2044', 10136483.75, null, null ],
-						[ '12 2045', 10913945.23, null, null ], [ '12 2046', 11759626.59, null, null ], [ '12 2047', 12679719.16, null, null ], [ '12 2048', 13680980.49, null, null ], [ '12 2049', 14770786.14, null, null ],
-						[ '12 2050', 15957186.35, null, null ], [ '12 2051', 17248967.85, null, null ], [ '12 2052', 18655721.26, null, null ], [ '12 2053', 20187914.84, null, null ], [ '12 2054', 21856974.79, null, null ],
-						[ '12 2055', 23675373.09, null, null ], [ '12 2056', 25656723.27, null, null ], [ '12 2057', 27815885.01, null, null ], [ '12 2058', 30169078.30, null, null ], [ '12 2059', 32734008.10, null, null ],
-						[ '12 2060', 35530000.37, null, null ], [ '12 2061', 38578150.64, null, null ], [ '12 2062', 41901486.08, null, null ], [ '12 2063', 45525142.55, null, null ], [ '12 2064', 49476557.78, null, null ],
-						[ '12 2065', 53785682.31, null, null ], [ '12 2066', 58485209.74, null, null ], [ '12 2067', 63610828.06, null, null ], [ '12 2068', 69201494.05, null, null ], [ '12 2069', 75299732.81, null, null ],
-						[ '12 2070', 81951964.71, null, null ], [ '12 2071', 89229147.36, null, null ], [ '12 2072', 90532267.03, null, null ] ];
+				});
+			}
 
-				var data = google.visualization.arrayToDataTable(line_data);
-				var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+			function drawLineChart(chartData) {
+				var dataTableData = new google.visualization.DataTable(chartData);
 				var options = {
 					hAxis : {
 						textStyle : {
@@ -77,7 +74,8 @@
 					title : "Liquid funds",
 					titleFontSize : 24
 				};
-				chart.draw(data, options);
+				var chart1_chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+				chart1_chart.draw(dataTableData, options);
 			}
 
 			function createCustomChartTooltipContent(message) {
