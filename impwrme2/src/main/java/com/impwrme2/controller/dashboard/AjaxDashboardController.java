@@ -279,22 +279,23 @@ public class AjaxDashboardController {
 		List<String[][]> columnDefinitions = new ArrayList<String[][]>();
 		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Date" }, { "pattern", "" }, { "type", "string" } });
 		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Total" }, { "pattern", "" }, { "type", "number" } });
+		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Style" }, { "role", "style" }, { "type", "string" } });
+		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Toooltip" }, { "role", "tooltip" }, { "type", "string" } });
 
 		JsonArray columns = new JsonArray();
 		for (String[][] columnDefinition : columnDefinitions) {
 			JsonObject cell = new JsonObject();
-			cell.addProperty(columnDefinition[0][0], columnDefinition[0][1]);
-			cell.addProperty(columnDefinition[1][0], columnDefinition[1][1]);
-			cell.addProperty(columnDefinition[2][0], columnDefinition[2][1]);
-			cell.addProperty(columnDefinition[3][0], columnDefinition[3][1]);
+			for (int i = 0; i < columnDefinition.length; i++) {
+				cell.addProperty(columnDefinition[i][0], columnDefinition[i][1]);
+			}
 			columns.add(cell);
 		}
 		dataTable.add("cols", columns);
 
 		List<Object[]> rows = new ArrayList<Object[]>();
-		rows.add(new Object[] { "12 2024", Integer.valueOf(324) });
-		rows.add(new Object[] { "12 2025", Integer.valueOf(654) });
-		rows.add(new Object[] { "12 2026", Integer.valueOf(700) });
+		rows.add(new Object[] { "12 2024", Integer.valueOf(324), null, null });
+		rows.add(new Object[] { "12 2025", Integer.valueOf(654), "point { size: 12; shape-type: star; fill-color: #a52714; }", "Griffin St sold for $4,500,000" });
+		rows.add(new Object[] { "12 2026", Integer.valueOf(700), null, null });
 
 		for (Object[] rowData : rows) {
 			JsonObject row = new JsonObject();
@@ -302,7 +303,9 @@ public class AjaxDashboardController {
 
 			for (Object cellData : rowData) {
 				JsonObject cell = new JsonObject();
-				if (cellData instanceof Integer) {
+				if (null == cellData) {
+					cell.addProperty("v", "");					
+				} else if (cellData instanceof Integer) {
 					cell.addProperty("v", ((Integer) cellData).intValue());
 				} else {
 					cell.addProperty("v", cellData.toString());
@@ -319,6 +322,7 @@ public class AjaxDashboardController {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String result = gson.toJson(dataTable);
 
+		System.out.println(result);
 		return result;
 	}
 
