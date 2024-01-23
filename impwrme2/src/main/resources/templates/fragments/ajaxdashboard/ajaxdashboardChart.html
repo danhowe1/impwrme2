@@ -78,13 +78,9 @@
 				chart1_chart.draw(dataTableData, options);
 			}
 
-// 			function createCustomChartTooltipContent(message) {
-// 				return '<div>' + '<p><b>' + message + '</b></p>' + '</div>';
-// 			}
-
 			/* We use a resize to trigger the redraw of the chart.	*/
 			$(window).resize(function() {
-				drawLineChart();
+				loadChartData();
 			});
 		</script>
 
