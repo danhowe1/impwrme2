@@ -1,5 +1,6 @@
 package com.impwrme2.model.resourceParam;
 
+import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 
 import jakarta.persistence.DiscriminatorValue;
@@ -15,8 +16,8 @@ public class ResourceParamInteger extends ResourceParam<Integer> {
 		super();
 	}
 	
-	public ResourceParamInteger(String name) {
-		super(name);
+	public ResourceParamInteger(final ResourceParamNameEnum paramName) {
+		super(paramName);
 	}
 
 	@Override

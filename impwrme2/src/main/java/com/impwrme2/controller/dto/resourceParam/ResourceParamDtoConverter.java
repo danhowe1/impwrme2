@@ -23,7 +23,7 @@ public class ResourceParamDtoConverter {
 	public ResourceParamDto entityToDto(ResourceParam<?> resourceParam) {
 		ResourceParamDto resourceParamDto = new ResourceParamDto();
 		resourceParamDto.setId(resourceParam.getId());
-		resourceParamDto.setName(resourceParam.getName());
+		resourceParamDto.setName(resourceParam.getName().getMessageCode());
 		resourceParamDto.setUserAbleToCreateNewDateValue(resourceParam.isUserAbleToCreateNewDateValue());
 		resourceParamDto.setResourceParamType(resourceParam.getResourceParamType().getValue());
 		return resourceParamDto;

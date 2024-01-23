@@ -2,6 +2,7 @@ package com.impwrme2.model.resourceParam;
 
 import java.math.BigDecimal;
 
+import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 
 import jakarta.persistence.DiscriminatorValue;
@@ -17,8 +18,8 @@ public class ResourceParamBigDecimal extends ResourceParam<BigDecimal> {
 		super();
 	}
 	
-	public ResourceParamBigDecimal(String name) {
-		super(name);
+	public ResourceParamBigDecimal(final ResourceParamNameEnum paramName) {
+		super(paramName);
 	}
 
 	@Override

@@ -142,9 +142,9 @@
 								<!-- 								<button class="btn btn-primary" type="submit">SAVE</button> -->
 							</div>
 							<div class="modal-footer">
-								<input id="deleteBtn" class="btn btn-danger" type="submit" th:value="Delete" th:formaction="@{/app/ajaxdashboard/deleteResourceParamDateValue}"/>
-								<a class="btn btn-link" role="button" data-bs-dismiss="modal">Cancel</a>
 								<button id="saveBtn" class="btn btn-primary" type="submit">Save</button>
+								<a class="btn btn-link" role="button" data-bs-dismiss="modal">Cancel</a>
+								<input id="deleteBtn" class="btn btn-danger" type="submit" th:value="Delete" th:formaction="@{/app/ajaxdashboard/deleteResourceParamDateValue}"/>
 							</div>
 						</div>
 					</form>
@@ -183,16 +183,16 @@
 					<tbody>
 						<tr
 							th:each="resourceParamDto, resourceParamDtoStat : ${resourceParamTableDto.resourceParamDtos}">
-							<td th:text="${resourceParamDto.name}">XXX</td>
+							<td th:text="#{${resourceParamDto.name}}">XXX</td>
 							<td
 								th:each="rpdvDto, rpdvDtoStat : ${resourceParamDto.resourceParamDateValueDtos}"
 								th:id="${rpdvDto.id}" th:text="${rpdvDto.value}"
-								th:attr="onclick=|resourceParamDateValueEdit('${resourceParamDto.name}','${rpdvDto.id}', '${rpdvDto.yearMonth}', '${rpdvDto.value}', '${rpdvDto.userAbleToChangeDate}', '${resourceParamDto.id}', '${resourceParamDto.resourceParamType}');|"
+								th:attr="onclick=|resourceParamDateValueEdit('#{${resourceParamDto.name}}','${rpdvDto.id}', '${rpdvDto.yearMonth}', '${rpdvDto.value}', '${rpdvDto.userAbleToChangeDate}', '${resourceParamDto.id}', '${resourceParamDto.resourceParamType}');|"
 								style="cursor: pointer;"></td>
 							<td th:unless="${resourceParamDto.userAbleToCreateNewDateValue}"></td>
 							<td th:if="${resourceParamDto.userAbleToCreateNewDateValue}"
 								th:text="..."
-								th:attr="onclick=|resourceParamDateValueEdit('${resourceParamDto.name}', null, null, null, 'true', '${resourceParamDto.id}', '${resourceParamDto.resourceParamType}');|"
+								th:attr="onclick=|resourceParamDateValueEdit('#{${resourceParamDto.name}}', null, null, null, 'true', '${resourceParamDto.id}', '${resourceParamDto.resourceParamType}');|"
 								style="cursor: pointer;"></td>
 						</tr>
 					</tbody>

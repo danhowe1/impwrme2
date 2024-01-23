@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.impwrme2.model.resource.Resource;
+import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 
 import jakarta.persistence.CascadeType;
@@ -14,6 +15,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,7 +28,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -41,8 +43,8 @@ public abstract class ResourceParam<T> implements Comparable<ResourceParam<?>>, 
 	 */
 	protected ResourceParam() {}
 
-	public ResourceParam(final String name) {
-		this.name = name;
+	public ResourceParam(final ResourceParamNameEnum paramName) {
+		this.name = paramName;
 	}
 	
 	@Id
@@ -51,8 +53,9 @@ public abstract class ResourceParam<T> implements Comparable<ResourceParam<?>>, 
 	private Long id;
 	
 	@Column(name = "name")
-	@NotEmpty(message = "{msg.validation.resourceParam.name.notEmpty}")
-	private String name;
+	@NotNull(message = "{msg.validation.resourceParam.name.notEmpty}")
+	@Enumerated(EnumType.STRING)
+	private ResourceParamNameEnum name;
 
 	@Column(name = "user_can_create_new_date_value", columnDefinition = "boolean default false")
 	@NotNull(message = "{msg.validation.resourceParam.userAbleToCreateNewDateValue.notNull}")
@@ -107,11 +110,11 @@ public abstract class ResourceParam<T> implements Comparable<ResourceParam<?>>, 
 		this.id = id;
 	}
 
-	public String getName() {
+	public ResourceParamNameEnum getName() {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(ResourceParamNameEnum name) {
 		this.name = name;
 	}
 
