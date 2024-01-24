@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.impwrme2.controller.quickSnapshot.dto.QuickSnapshotDto;
 import com.impwrme2.model.resource.ResourceHousehold;
 import com.impwrme2.model.resource.ResourceScenario;
+import com.impwrme2.model.scenario.Scenario;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -41,10 +42,10 @@ public class QuickSnapshotController {
 	}
 	
 	private ResourceScenario createQuickSnapshotScenario(QuickSnapshotDto quickSnapshotDto) {
-		ResourceScenario scenario = new ResourceScenario("My quick snapshot scenario");
-		ResourceHousehold family = new ResourceHousehold("My family", scenario);
-		family.setParent(scenario);
-		scenario.addChild(family);
-		return scenario;
+		ResourceScenario resourceScenario = new ResourceScenario("My quick snapshot scenario");
+		Scenario scenario = new Scenario(resourceScenario, "TODO tmp");
+		ResourceHousehold family = new ResourceHousehold("My family");
+		scenario.addResource(family);
+		return resourceScenario;
 	}
 }

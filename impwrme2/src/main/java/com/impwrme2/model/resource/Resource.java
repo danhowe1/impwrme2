@@ -11,6 +11,7 @@ import org.hibernate.annotations.SortNatural;
 
 import com.impwrme2.model.YearMonthIntegerAttributeConverter;
 import com.impwrme2.model.resourceParam.ResourceParam;
+import com.impwrme2.model.scenario.Scenario;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -33,7 +34,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "resource", uniqueConstraints = @UniqueConstraint(columnNames = {"name"})) // TODO Need another constraint here to do with user.
+@Table(name = "resource", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "scenario_id"}))
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "resource_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Resource implements IResource, Comparable<Resource>, Serializable {
@@ -69,6 +70,10 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 	@NotNull(message = "{msg.validation.resource.startDate.notEmpty}")
 	private YearMonth startYearMonth;
 
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	@JoinColumn(name="scenario_id")
+	private Scenario scenario;
+	
 	@ManyToOne(fetch = FetchType.EAGER, optional = true)
 	@JoinColumn(name="parent_id")
 	private Resource parent;
@@ -154,6 +159,14 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 		resource.setParent(null);
 	}
 
+	public Scenario getScenario() {
+		return scenario;
+	}
+
+	public void setScenario(Scenario scenario) {
+		this.scenario = scenario;
+	}
+
 	public Resource getParent() {
 		return this.parent;
 	}
@@ -166,7 +179,15 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 		return resourceParams;
 	}
 	
-	public void addResourceParam(ResourceParam<?> resourceParam) {
+	public Resource addResourceParam(ResourceParam<?> resourceParam) {
 		this.resourceParams.add(resourceParam);
+		resourceParam.setResource(this);
+		return this;
+	}
+
+	public Resource removeResourceParamDateValue(ResourceParam<?> resourceParam) {
+		resourceParams.remove(resourceParam);
+		resourceParam.setResource(null);
+		return this;
 	}
 }

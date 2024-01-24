@@ -9,10 +9,11 @@ import java.util.Map;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.ResourceType;
+import com.impwrme2.model.scenario.Scenario;
 
 public class ResourceDropdownDto {
 
-	public ResourceDropdownDto(final ResourceScenario scenario, final ResourceType activeResourceType) {
+	public ResourceDropdownDto(final Scenario scenario, final ResourceType activeResourceType) {
 		this.activeResourceType = activeResourceType;
 		initialise(scenario);
 	}
@@ -25,13 +26,15 @@ public class ResourceDropdownDto {
 
 	private Map<String, ResourceDropdownTabDto> resourceTabMap = new HashMap<String, ResourceDropdownTabDto>();
 
-	private void initialise(final ResourceScenario scenario) {
+	private void initialise(final Scenario scenario) {
 
-		scenarioResourceId = scenario.getId();
+		scenarioResourceId = scenario.getResourceScenario().getId();
 		resourceTabMap.put(RESOURCE_NAV_LABEL_FAMILY, new ResourceDropdownTabDto(RESOURCE_NAV_LABEL_FAMILY));
 
-		for (Resource resource : scenario.getChildren()) {
-			addItemToTab(getResourceNavLabel(resource.getResourceType()), resource);
+		for (Resource resource : scenario.getResources()) {
+			if (!(resource instanceof ResourceScenario)) {
+				addItemToTab(getResourceNavLabel(resource.getResourceType()), resource);
+			}
 		}
 		
 		for (ResourceDropdownTabDto tab : resourceTabMap.values()) {

@@ -16,8 +16,8 @@ public class ResourcePerson extends Resource {
 		super();
 	}
 	
-	public ResourcePerson(final String name, final Resource parent) {
-		super(name, parent);
+	public ResourcePerson(final String name) {
+		super(name);
 	}
 
 	@Override

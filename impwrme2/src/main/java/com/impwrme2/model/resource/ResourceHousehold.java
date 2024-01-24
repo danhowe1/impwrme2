@@ -16,8 +16,8 @@ public class ResourceHousehold extends Resource {
 		super();
 	}
 	
-	public ResourceHousehold(final String name, final Resource parent) {
-		super(name, parent);
+	public ResourceHousehold(final String name) {
+		super(name);
 	}
 
 	@Override

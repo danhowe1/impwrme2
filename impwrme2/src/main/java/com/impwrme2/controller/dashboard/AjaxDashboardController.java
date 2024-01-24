@@ -39,9 +39,11 @@ import com.impwrme2.model.resourceParam.ResourceParamInteger;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecimal;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueInteger;
+import com.impwrme2.model.scenario.Scenario;
 import com.impwrme2.service.resource.ResourceService;
 import com.impwrme2.service.resourceParam.ResourceParamService;
 import com.impwrme2.service.resourceParamDateValue.ResourceParamDateValueService;
+import com.impwrme2.service.scenario.ScenarioService;
 import com.impwrme2.utils.YearMonthUtils;
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.GsonBuilder;
@@ -62,6 +64,9 @@ public class AjaxDashboardController {
 	private ResourceParamDtoConverter resourceParamDtoConverter;
 
 	@Autowired
+	private ScenarioService scenarioService;
+
+	@Autowired
 	private ResourceService resourceService;
 
 	@Autowired
@@ -76,15 +81,26 @@ public class AjaxDashboardController {
 	@GetMapping(value = { "", "/" })
 	public String ajaxdashboard(@AuthenticationPrincipal OidcUser user, Model model, HttpSession session, Locale locale) {
 
+		String userId = user.getUserInfo().getSubject();
+		Resource resource;
 //		session.removeAttribute("SESSION_CURRENT_RESOURCE_ID");
 		Long currentResourceId = (Long) session.getAttribute("SESSION_CURRENT_RESOURCE_ID");
 		if (null == currentResourceId) {
-			// TODO Redirect to the Scenario selection page for user to choose Scenario.
-			currentResourceId = Long.valueOf(752L);
+			List<Scenario> scenarios = scenarioService.findByUserId(userId);
+			if (0 == scenarios.size()) {
+				resource = populateInitialTestScenario(userId).getSortedResources().first();
+			} else if (scenarios.size() == 1) {
+				resource = scenarios.get(0).getSortedResources().first();
+			} else {
+				return "forward:/app/scenario/list";
+			}
+			session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resource.getId());
+		} else {
+			resource = resourceService.findById(currentResourceId).get();
 		}
-		Resource resource = resourceService.findById(currentResourceId).orElseGet(() -> populateInitialTestScenario());
+		 
 		setUpModelAfterResourceUpdated(resource, model, session);
-		model.addAttribute("resourceDropdownDto", new ResourceDropdownDto((ResourceScenario) resource.getResourceScenario(), resource.getResourceType()));
+		model.addAttribute("resourceDropdownDto", new ResourceDropdownDto(resource.getScenario(), resource.getResourceType()));
 		return "ajaxdashboard/ajaxdashboard";
 	}
 
@@ -224,21 +240,22 @@ public class AjaxDashboardController {
 		return messageSource.getMessage("msg.validation.unknownError", null, LocaleContextHolder.getLocale());
 	}
 
-	private ResourceScenario populateInitialTestScenario() {
-		Resource scenario = getInitialTestScenario();
-		return (ResourceScenario) resourceService.save(scenario);
+	private Scenario populateInitialTestScenario(String userId) {
+		Scenario scenario = getInitialTestScenario(userId);
+		return scenarioService.save(scenario, userId);
 	}
 
-	private ResourceScenario getInitialTestScenario() {
+	private Scenario getInitialTestScenario(String userId) {
 
+		// -----------------
+		// ScenarioResource.
+		// -----------------
+		
 		ResourceScenario scenarioResource = new ResourceScenario("My first scenario");
 		scenarioResource.setStartYearMonth(YearMonth.of(2024, 1));
 
-		;
-
 		ResourceParamBigDecimal cpi = new ResourceParamBigDecimal(ResourceParamNameEnum.SCENARIO_CPI);
 		cpi.setUserAbleToCreateNewDateValue(true);
-		cpi.setResource(scenarioResource);
 		scenarioResource.addResourceParam(cpi);
 
 		ResourceParamDateValueBigDecimal cpiVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("2.15"));
@@ -249,16 +266,28 @@ public class AjaxDashboardController {
 		cpi.addResourceParamDateValue(cpiVal2);
 
 		ResourceParamBigDecimal shareMarketGrowthRate = new ResourceParamBigDecimal(ResourceParamNameEnum.SCENARIO_SHARE_MARKET_GROWTH_RATE);
-		shareMarketGrowthRate.setResource(scenarioResource);
+		shareMarketGrowthRate.setUserAbleToCreateNewDateValue(true);
 		scenarioResource.addResourceParam(shareMarketGrowthRate);
 
 		ResourceParamDateValueBigDecimal shareMarketGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("6.5"));
 		shareMarketGrowthRate.addResourceParamDateValue(shareMarketGrowthRateVal);
 
-		Resource householdResource = new ResourceHousehold("Howe Family", scenarioResource);
+		Scenario scenario = new Scenario(scenarioResource, userId);
+		
+		// ------------------
+		// ScenarioHousehold.
+		// ------------------
+		
+		Resource householdResource = new ResourceHousehold("Howe Family");
 		householdResource.setStartYearMonth(YearMonth.of(2024, 1));
 
-		Resource amandaResource = new ResourcePerson("Amanda", scenarioResource);
+		scenario.addResource(householdResource);
+		
+		// -------
+		// Amanda.
+		// -------
+		
+		Resource amandaResource = new ResourcePerson("Amanda");
 		amandaResource.setStartYearMonth(YearMonth.of(2024, 1));
 
 		ResourceParamInteger retirementAge = new ResourceParamInteger(ResourceParamNameEnum.PERSON_RETIREMENT_AGE);
@@ -268,10 +297,18 @@ public class AjaxDashboardController {
 		ResourceParamDateValueInteger retirementAgeVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(65));
 		retirementAge.addResourceParamDateValue(retirementAgeVal);
 
-		Resource danResource = new ResourcePerson("Dan", scenarioResource);
+		scenario.addResource(amandaResource);
+		
+		// ----
+		// Dan.
+		// ----
+		
+		Resource danResource = new ResourcePerson("Dan");
 		danResource.setStartYearMonth(YearMonth.of(2024, 1));
 
-		return scenarioResource;
+		scenario.addResource(danResource);
+		
+		return scenario;
 	}
 
 	private String generateJsonChartData() {
