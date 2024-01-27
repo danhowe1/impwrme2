@@ -24,10 +24,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.impwrme2.controller.dto.cashflow.CashflowDtoConverter;
 import com.impwrme2.controller.dto.resource.ResourceDtoConverter;
 import com.impwrme2.controller.dto.resourceDropdown.ResourceDropdownDto;
 import com.impwrme2.controller.dto.resourceParam.ResourceParamDtoConverter;
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDto;
+import com.impwrme2.model.cashflow.CashflowFrequency;
+import com.impwrme2.model.cashflow.CashflowIncome;
+import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceHousehold;
 import com.impwrme2.model.resource.ResourcePerson;
@@ -59,6 +63,9 @@ public class AjaxDashboardController {
 
 	@Autowired
 	private ResourceDtoConverter resourceDtoConverter;
+
+	@Autowired
+	private CashflowDtoConverter cashflowDtoConverter;
 
 	@Autowired
 	private ResourceParamDtoConverter resourceParamDtoConverter;
@@ -223,6 +230,7 @@ public class AjaxDashboardController {
 		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resource.getId());
 		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
 		model.addAttribute("resourceParamTableDto", resourceParamDtoConverter.resourceParamsToResourceParamTableDto(resource.getResourceParams()));
+		model.addAttribute("cashflowTableDto", cashflowDtoConverter.cashflowsToCashflowTableDto(resource.getCashflows()));
 		model.addAttribute("resourceParamDateValueDto", new ResourceParamDateValueDto());
 	}
 
@@ -297,6 +305,12 @@ public class AjaxDashboardController {
 		ResourceParamDateValueInteger retirementAgeVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(65));
 		retirementAge.addResourceParamDateValue(retirementAgeVal);
 
+		CashflowIncome amandaEmploymentIncome = new CashflowIncome(messageSource.getMessage(CashflowIncome.NAME_EMPLOYMENT_INCOME, null, LocaleContextHolder.getLocale()), CashflowFrequency.MONTHLY, Boolean.TRUE);
+		amandaResource.addCashflow(amandaEmploymentIncome);
+		
+		CashflowDateRangeValue amandaEmploymentIncomeDRV = new CashflowDateRangeValue(YearMonth.of(2024, 1), BigDecimal.valueOf(2500.00));
+		amandaEmploymentIncome.addCashflowDateRangeValue(amandaEmploymentIncomeDRV);
+		
 		scenario.addResource(amandaResource);
 		
 		// ----

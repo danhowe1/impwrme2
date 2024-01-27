@@ -95,8 +95,8 @@
 							id="paramName">XXX</h5>
 					</div>
 					<form id="formRpdvEditDialog"
-						th:object="${resourceParamDateValueDto}"
-						method="post" class="was-validated">
+						th:object="${resourceParamDateValueDto}" method="post"
+						class="was-validated">
 						<div class="modal-body">
 							<div class="container">
 
@@ -118,8 +118,7 @@
 										<input id="yearMonth" type="text" class="form-control"
 											th:field="*{yearMonth}" size="7" required
 											th:placeholder="#{msg.html.global.yearMonth.placeholder}"
-											oninput="this.setCustomValidity('')"
-											maxLength="7"
+											oninput="this.setCustomValidity('')" maxLength="7"
 											th:title="#{msg.validation.monthYear}">
 										<p th:if="${#fields.hasErrors('yearMonth')}"
 											th:errorclass="error" th:errors="*{yearMonth}"></p>
@@ -144,7 +143,9 @@
 							<div class="modal-footer">
 								<button id="saveBtn" class="btn btn-primary" type="submit">Save</button>
 								<a class="btn btn-link" role="button" data-bs-dismiss="modal">Cancel</a>
-								<input id="deleteBtn" class="btn btn-danger" type="submit" th:value="Delete" th:formaction="@{/app/ajaxdashboard/deleteResourceParamDateValue}"/>
+								<input id="deleteBtn" class="btn btn-danger" type="submit"
+									th:value="Delete"
+									th:formaction="@{/app/ajaxdashboard/deleteResourceParamDateValue}" />
 							</div>
 						</div>
 					</form>
@@ -164,10 +165,10 @@
 
 		<div class="row"
 			th:unless="${resourceParamTableDto.resourceParamDtos.empty}">
-			<div class="col-auto mx-2">
+			<div class="col-auto ms-2">
 
 				<table id="parametersTable"
-					class="table table-primary table-sm caption-top p-1 rounded-3 overflow-hidden">
+					class="table table-primary table-borderless table-striped table-sm caption-top rounded-3 overflow-hidden">
 					<caption
 						th:text="#{msg.html.ajaxdashboard.resourceParamTable.Parameters}">XXX</caption>
 					<thead>
@@ -199,6 +200,9 @@
 				</table>
 
 			</div>
+
+			<div class="col-auto me-1"
+				th:insert="~{fragments/ajaxdashboard/ajaxdashboardCashflows :: ajaxdashboardCashflows}"></div>
 		</div>
 
 		<script type="text/javascript" th:inline="javascript">
@@ -209,7 +213,7 @@
 			$("#formRpdvEditDialog").submit(function(event) {
 				var submittingBtnId = $(event.originalEvent.submitter).attr('id');
 				var resourceId = /*[[${resourceDto.id}]]*/'novalue';
-				
+
 				postResourceParamDateValue(submittingBtnId).done(function(response) {
 					if (response != "SUCCESS") {
 						$("div.rpdvEditDialogError").show();

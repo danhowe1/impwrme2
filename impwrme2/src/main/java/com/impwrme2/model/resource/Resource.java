@@ -10,6 +10,7 @@ import java.util.Set;
 import org.hibernate.annotations.SortNatural;
 
 import com.impwrme2.model.YearMonthIntegerAttributeConverter;
+import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.model.scenario.Scenario;
 
@@ -84,6 +85,10 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 	@OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	@SortNatural
 	private List<ResourceParam<?>> resourceParams = new ArrayList<ResourceParam<?>>();
+
+	@OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+	@SortNatural
+	private List<Cashflow> cashflows = new ArrayList<Cashflow>();
 
 	@Override
 	public ResourceScenario getResourceScenario() {
@@ -185,9 +190,25 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 		return this;
 	}
 
-	public Resource removeResourceParamDateValue(ResourceParam<?> resourceParam) {
+	public Resource removeResourceParam(ResourceParam<?> resourceParam) {
 		resourceParams.remove(resourceParam);
 		resourceParam.setResource(null);
+		return this;
+	}
+
+	public List<Cashflow> getCashflows() {
+		return cashflows;
+	}
+	
+	public Resource addCashflow(Cashflow cashflow) {
+		this.cashflows.add(cashflow);
+		cashflow.setResource(this);
+		return this;
+	}
+
+	public Resource removeCashflow(Cashflow cashflow) {
+		cashflows.remove(cashflow);
+		cashflow.setResource(null);
 		return this;
 	}
 }

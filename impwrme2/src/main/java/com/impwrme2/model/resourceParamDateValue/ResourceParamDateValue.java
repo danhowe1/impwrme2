@@ -23,7 +23,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 
-//@MappedSuperclass
 @Entity
 @Table(name = "resource_param_date_value", uniqueConstraints = @UniqueConstraint(columnNames = {"year_month", "resource_param_id"}))
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
