@@ -1,10 +1,11 @@
 package com.impwrme2.controller.dto.cashflowDateRangeValue;
 
-import java.math.BigDecimal;
+import com.impwrme2.controller.validator.CashflowDateRangeValueYearMonthConstraint;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+@CashflowDateRangeValueYearMonthConstraint
 public class CashflowDateRangeValueDto {
 
 	private Long id;
@@ -15,7 +16,7 @@ public class CashflowDateRangeValueDto {
 	private String yearMonthEnd;
 
 	@NotNull(message = "{msg.validation.cashflowDateRangeValue.value.notNull}")
-	private BigDecimal value;
+	private Integer value;
 
 	@NotNull(message = "{msg.validation.cashflowDateRangeValue.cashflow.notNull}")
 	private Long cashflowId;
@@ -51,11 +52,11 @@ public class CashflowDateRangeValueDto {
 		this.yearMonthEnd = yearMonthEnd;
 	}
 
-	public BigDecimal getValue() {
+	public Integer getValue() {
 		return value;
 	}
 
-	public void setValue(BigDecimal value) {
+	public void setValue(Integer value) {
 		this.value = value;
 	}
 

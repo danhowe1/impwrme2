@@ -1,6 +1,5 @@
 package com.impwrme2.model.cashflowDateRangeValue;
 
-import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import com.impwrme2.model.YearMonthIntegerAttributeConverter;
@@ -32,11 +31,11 @@ public class CashflowDateRangeValue {
 		this.value = null;
 		}
 
-	public CashflowDateRangeValue(final YearMonth yearMonthStart, BigDecimal value) {
+	public CashflowDateRangeValue(final YearMonth yearMonthStart, Integer value) {
 		this(yearMonthStart, null, value);
 	}
 	
-	public CashflowDateRangeValue(final YearMonth yearMonthStart, final YearMonth yearMonthEnd, BigDecimal value) {
+	public CashflowDateRangeValue(final YearMonth yearMonthStart, final YearMonth yearMonthEnd, Integer value) {
 		this.yearMonthStart = yearMonthStart;
 		this.yearMonthEnd = yearMonthEnd;
 		this.value = value;
@@ -50,15 +49,15 @@ public class CashflowDateRangeValue {
 	@Column(name = "year_month_start", columnDefinition = "int")
 	@Convert(converter = YearMonthIntegerAttributeConverter.class)
 	@NotNull(message = "{msg.validation.cashflowDateRangeValue.yearMonthStart.notNull}")
-	private final YearMonth yearMonthStart;
+	private  YearMonth yearMonthStart;
 
 	@Column(name = "year_month_end", columnDefinition = "int")
 	@Convert(converter = YearMonthIntegerAttributeConverter.class)
-	private final YearMonth yearMonthEnd;
+	private  YearMonth yearMonthEnd;
 
-	@Column(name = "value", precision = 8, scale = 2, columnDefinition = "decimal(8, 2)")
+	@Column(name = "value", columnDefinition = "int")
 	@NotNull(message = "{msg.validation.cashflowDateRangeValue.value.notNull}")
-	private final BigDecimal value;
+	private Integer value;
 	
 	@ManyToOne(fetch = FetchType.EAGER, optional = false, targetEntity=Cashflow.class)
 	@JoinColumn(name = "cashflow_id")
@@ -80,14 +79,26 @@ public class CashflowDateRangeValue {
 		return yearMonthStart;
 	}
 
+	public void setYearMonthStart(YearMonth yearMonthStart) {
+		this.yearMonthStart = yearMonthStart;
+	}
+	
 	public YearMonth getYearMonthEnd() {
 		return yearMonthEnd;
 	}
 
-	public BigDecimal getValue() {
+	public void setYearMonthEnd(YearMonth yearMonthEnd) {
+		this.yearMonthEnd = yearMonthEnd;
+	}
+	
+	public Integer getValue() {
 		return value;
 	}
 
+	public void setValue(Integer value) {
+		this.value = value;
+	}
+	
 	public Cashflow getCashflow() {
 		return cashflow;
 	}

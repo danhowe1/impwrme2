@@ -8,7 +8,174 @@
 <body>
 	<div th:fragment="ajaxdashboardCashflows"
 		th:unless="${cashflowTableDto.cashflowDtos.empty}">
-		<table id="cashflowTable" class="table table-primary table-borderless table-striped table-sm caption-top rounded-3 overflow-hidden">
+
+		<script type="text/javascript" th:inline="javascript">
+			const modalCfdrvHeader = /*[[#{msg.html.ajaxdashboard.cashflowDateRangeValueEdit.modal.header}]]*/'novalue';
+			var resourceDto;
+			var cashflowDtos;
+// 			var resourceDto = /*[[${resourceDto}]]*/'novalue';
+// 			var cashflowDtos = /*[[${cashflowTableDto.cashflowDtos}]]*/'novalue';
+
+			function cashflowDateRangeValueEdit(cashflowIndex, cfdrvIndex) {
+				var cashflow = cashflowDtos[cashflowIndex];
+
+				document.getElementById('cfdrvEditDialogError').style.display = "none";
+				document.getElementById('cfdrvCashflowName').innerText = modalCfdrvHeader + ' ' + cashflow.name + '?';
+				$("#cfdrvEditDialog #cashflowId").val(cashflow.id);
+				$("#cfdrvEditDialog #cashflowType").val(cashflow.cashflowType);
+
+				var cfdrv = null;
+				if (null !== cfdrvIndex) {
+					cfdrv = cashflowDtos[cashflowIndex].cashflowDateRangeValueDtos[cfdrvIndex];
+					$("#cfdrvEditDialog #id").val(cfdrv.id);
+					$("#cfdrvEditDialog #yearMonthStart").val(cfdrv.yearMonthStart);
+					$("#cfdrvEditDialog #yearMonthEnd").val(cfdrv.yearMonthEnd);
+					$("#cfdrvEditDialog #value").val(cfdrv.value);
+				} else {
+					$("#cfdrvEditDialog #id").val(null);
+					$("#cfdrvEditDialog #yearMonthStart").val(null);
+					$("#cfdrvEditDialog #yearMonthEnd").val(null);
+					$("#cfdrvEditDialog #value").val(null);
+				}
+
+				if (null === cfdrv || resourceDto.startYearMonth !== cfdrv.yearMonthStart) {
+					document.getElementById('yearMonthStart').readOnly = false;
+					document.getElementById('cfdrvDeleteBtn').style.visibility = "visible";
+				} else {
+					document.getElementById('yearMonthStart').readOnly = true;
+					document.getElementById('cfdrvDeleteBtn').style.visibility = "hidden";
+				}
+
+				$('#cfdrvEditDialog').modal('show');
+				setTimeout(function() {
+					$('form[id="formCfdrvEditDialog"] :input:enabled:visible:not([readonly]):first').select();
+				}, 500);
+			}
+
+			function postCashflowDateRangeValue(submittingBtnId) {
+				var token = $("meta[name='_csrf']").attr("content");
+				var header = $("meta[name='_csrf_header']").attr("content");
+				var data = $("#formCfdrvEditDialog").serialize();
+				var controllerMethod = "";
+				if (submittingBtnId == "cfdrvSaveBtn") {
+					controllerMethod = "saveCashflowDateRangeValue";
+				} else if (submittingBtnId == "cfdrvDeleteBtn") {
+					controllerMethod = "deleteCashflowDateRangeValue";
+				} else {
+					alert("Unknown submitting button : " + submittingBtnId);
+					return "ERROR";
+				}
+
+				return $.ajax({
+					type : 'post',
+					url : baseUrl + controllerMethod,
+					data : data,
+					beforeSend : function(xhr) {
+						xhr.setRequestHeader(header, token);
+					},
+					success : function(response) {
+					},
+					error : function(jqXHR) {
+						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
+					}
+				});
+			}
+		</script>
+
+		<!------------------------------------>
+		<!-- Modal cfdrvEditDialog START	-->
+		<!------------------------------------>
+
+		<div id="cfdrvEditDialog" class="modal fade" tabindex="-1">
+			<div class="modal-dialog modal-dialog-centered modal-sm"
+				role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5
+							th:text="#{msg.html.ajaxdashboard.cashflowDateRangeValueEdit.modal.header}"
+							id="cfdrvCashflowName">XXX</h5>
+					</div>
+					<form id="formCfdrvEditDialog"
+						th:object="${cashflowDateRangeValueDto}" method="post"
+						class="was-validated">
+						<div class="modal-body">
+							<div class="container">
+
+								<input type="text" name="id" id="id" value="" />
+
+								<!-- 								<input type="checkbox" name="userAbleToChangeDate" -->
+								<!-- 									id="userAbleToChangeDate" style="display: none" />  -->
+								<input type="text" name="cashflowId" id="cashflowId" value="" />
+								<input type="text" name="cashflowType" id="cashflowType"
+									value="" />
+
+								<div id="cfdrvEditDialogError" class="alert alert-danger"></div>
+
+								<div class="mb-1 row">
+									<div class="col-sm-6">
+										<label class="col-form-label"
+											th:text="#{msg.html.ajaxdashboard.cashflowDateRangeValueEdit.yearMonthStart.label}"></label>
+									</div>
+									<div class="col-sm-6">
+										<input id="yearMonthStart" type="text" class="form-control"
+											th:field="*{yearMonthStart}" size="7" required
+											th:placeholder="#{msg.html.global.yearMonth.placeholder}"
+											oninput="this.setCustomValidity('')" maxLength="7"
+											th:title="#{msg.validation.monthYear}">
+										<p th:if="${#fields.hasErrors('yearMonthStart')}"
+											th:errorclass="error" th:errors="*{yearMonthStart}"></p>
+									</div>
+								</div>
+								<div class="mb-1 row">
+									<div class="col-sm-6">
+										<label class="col-form-label"
+											th:text="#{msg.html.ajaxdashboard.cashflowDateRangeValueEdit.yearMonthEnd.label}"></label>
+									</div>
+									<div class="col-sm-6">
+										<input id="yearMonthEnd" type="text" class="form-control"
+											th:field="*{yearMonthEnd}" size="7"
+											pattern="^[0-9]{1,2}.[0-9]{4}"
+											th:placeholder="#{msg.html.global.yearMonth.placeholder}"
+											oninput="this.setCustomValidity('')" maxLength="7"
+											th:title="#{msg.validation.monthYear}">
+										<p th:if="${#fields.hasErrors('yearMonthEnd')}"
+											th:errorclass="error" th:errors="*{yearMonthEnd}"></p>
+									</div>
+								</div>
+								<div class="mb-1 row">
+									<div class="col-sm-6">
+										<label class="col-form-label"
+											th:text="#{msg.html.ajaxdashboard.cashflowDateRangeValueEdit.value.label}"></label>
+									</div>
+									<div class="col-sm-6">
+										<input id="value" type="text" class="form-control"
+											th:field="*{value}" size="7" required pattern="^\d+$"
+											oninput="this.setCustomValidity('')"
+											th:title="#{msg.validation.notEmpty}">
+										<p th:if="${#fields.hasErrors('value')}" th:errorclass="error"
+											th:errors="*{value}"></p>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button id="cfdrvSaveBtn" class="btn btn-primary" type="submit">Save</button>
+								<a class="btn btn-link" role="button" data-bs-dismiss="modal">Cancel</a>
+								<input id="cfdrvDeleteBtn" class="btn btn-danger" type="submit"
+									th:value="Delete"
+									th:formaction="@{/app/ajaxdashboard/deleteCashflowDateRangeValue}" />
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-------------------------------->
+		<!-- Modal rpdvEditDialog END	-->
+		<!-------------------------------->
+
+		<table id="cashflowTable"
+			class="table table-primary table-borderless table-striped table-sm caption-top rounded-3 overflow-hidden">
 			<caption th:text="#{msg.html.ajaxdashboard.cashflowTable.caption}">XXX</caption>
 			<thead>
 				<tr>
@@ -36,15 +203,45 @@
 					<td
 						th:each="cfrdvDto, cfrdvDtoStat : ${cashflowDto.cashflowDateRangeValueDtos}"
 						th:id="${cfrdvDto.id}" th:text="${cfrdvDto.value}"
-						th:attr="onclick=|cashflowDateRangeValueEdit('#{${cashflowDto.name}}','${cfrdvDto.id}', '${cfrdvDto.yearMonthStart}', '${cfrdvDto.value}', '${cashflowDto.id}', '${cashflowDto.cashflowType}');|"
+						th:attr="onclick=|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', '${cfrdvDtoStat.index}');|"
 						style="cursor: pointer;"></td>
 					<td th:text="..."
-						th:attr="onclick=|cashflowDateRangeValueEdit('#{${cashflowDto.name}}', null, null, null, 'true', '${cashflowDto.id}', '${cashflowDto.cashflowType}');|"
+						th:attr="onclick=|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', null);|"
 						style="cursor: pointer;"></td>
 				</tr>
 			</tbody>
-
 		</table>
+
+		<script type="text/javascript" th:inline="javascript">
+			$(document).ready(function() {
+				// Once this fragment has loaded, populate the JS variables declared above.
+				resourceDto = /*[[${resourceDto}]]*/'novalue';
+				cashflowDtos = /*[[${cashflowTableDto.cashflowDtos}]]*/'novalue';
+			});
+
+			document.querySelector('#formCfdrvEditDialog').addEventListener('submit', function(e) {
+				e.preventDefault();
+			});
+
+			$("#formCfdrvEditDialog").submit(function(event) {
+				var submittingBtnId = $(event.originalEvent.submitter).attr('id');
+				var resourceId = /*[[${resourceDto.id}]]*/'novalue';
+
+				postCashflowDateRangeValue(submittingBtnId).done(function(response) {
+					if (response != "SUCCESS") {
+						$("div.cfdrvEditDialogError").show();
+						document.getElementById('cfdrvEditDialogError').style.display = "block";
+						document.getElementById('cfdrvEditDialogError').innerText = response;
+						$('form[id="formCfdrvEditDialog"] :input:enabled:visible:not([readonly]):first').select();
+					} else {
+						$('#cfdrvEditDialog').modal('hide');
+						loadChartData();
+						showResource(resourceId);
+					}
+				});
+			});
+		</script>
+
 	</div>
 </body>
 </html>

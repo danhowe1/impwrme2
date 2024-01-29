@@ -25,10 +25,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.impwrme2.controller.dto.cashflow.CashflowDtoConverter;
+import com.impwrme2.controller.dto.cashflowDateRangeValue.CashflowDateRangeValueDto;
+import com.impwrme2.controller.dto.cashflowDateRangeValue.CashflowDateRangeValueDtoConverter;
 import com.impwrme2.controller.dto.resource.ResourceDtoConverter;
 import com.impwrme2.controller.dto.resourceDropdown.ResourceDropdownDto;
 import com.impwrme2.controller.dto.resourceParam.ResourceParamDtoConverter;
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDto;
+import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflow.CashflowFrequency;
 import com.impwrme2.model.cashflow.CashflowIncome;
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
@@ -44,6 +47,8 @@ import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecimal;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueInteger;
 import com.impwrme2.model.scenario.Scenario;
+import com.impwrme2.service.cashflow.CashflowService;
+import com.impwrme2.service.cashflowDateRangeValue.CashflowDateRangeValueService;
 import com.impwrme2.service.resource.ResourceService;
 import com.impwrme2.service.resourceParam.ResourceParamService;
 import com.impwrme2.service.resourceParamDateValue.ResourceParamDateValueService;
@@ -68,6 +73,9 @@ public class AjaxDashboardController {
 	private CashflowDtoConverter cashflowDtoConverter;
 
 	@Autowired
+	private CashflowDateRangeValueDtoConverter cashflowDateRangeValueDtoConverter;
+
+	@Autowired
 	private ResourceParamDtoConverter resourceParamDtoConverter;
 
 	@Autowired
@@ -81,6 +89,12 @@ public class AjaxDashboardController {
 
 	@Autowired
 	private ResourceParamDateValueService resourceParamDateValueService;
+
+	@Autowired
+	private CashflowService cashflowService;
+
+	@Autowired
+	private CashflowDateRangeValueService cashflowDateRangeValueService;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -149,6 +163,55 @@ public class AjaxDashboardController {
 		return "SUCCESS";
 	}
 
+	@PostMapping(value = "/saveCashflowDateRangeValue")
+	@ResponseBody
+	public String saveCashflowDateRangeValue(@Valid CashflowDateRangeValueDto cfdrvDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model) {
+		if (result.hasErrors()) {
+			return getErrorMessageFromBindingResult(result);
+		}
+		
+		Cashflow cashflow = cashflowService.findById(cfdrvDto.getCashflowId()).get();
+		CashflowDateRangeValue cfdrv = cashflowDateRangeValueDtoConverter.dtoToEntity(cfdrvDto);
+		for (CashflowDateRangeValue existingCfdrv : cashflow.getCashflowDateRangeValues()) {
+			if (existingCfdrv.getId().equals(cfdrv.getId())) {
+				cashflowDateRangeValueService.save(cfdrv);
+			} else if (datesOverlap(existingCfdrv, cfdrv)) {
+				if (existingCfdrv.getYearMonthStart().isBefore(cfdrv.getYearMonthStart())) {
+					existingCfdrv.setYearMonthEnd(null);
+					cashflowDateRangeValueService.save(cfdrv);
+				} else {
+					cashflowService.deleteCashflowDateRangeValue(cfdrv);
+				}
+			}
+		}
+		return "SUCCESS";
+	}
+
+	@PostMapping(value = "/deleteCashflowDateRangeValue")
+	@ResponseBody
+	public String deleteCashflowDateRangeValue(@Valid CashflowDateRangeValueDto cfdrvDto) {
+		CashflowDateRangeValue cfdrv = cashflowDateRangeValueService.findById(cfdrvDto.getId()).get();
+		if (cfdrv.getCashflow().getResource().getStartYearMonth().equals(cfdrv.getYearMonthStart())) {
+			return messageSource.getMessage("msg.validation.cashflowDateRangeValue.deleteNotAllowed", null, LocaleContextHolder.getLocale());
+		}
+		cashflowService.deleteCashflowDateRangeValue(cfdrv);
+		return "SUCCESS";
+	}
+
+	/**
+	 * Check for strictly overlapping dates. See https://www.baeldung.com/java-check-two-date-ranges-overlap.
+	 * @param firstCfdrv The first CashflowDateRange value to be compared.
+	 * @param secondCfdrv The second CashflowDateRange value to be compared.
+	 * @return true if any of the dates overlap.
+	 */
+	private boolean datesOverlap(CashflowDateRangeValue firstCfdrv, CashflowDateRangeValue secondCfdrv) {
+		YearMonth A = firstCfdrv.getYearMonthStart();
+		YearMonth B = null != firstCfdrv.getYearMonthEnd() ? firstCfdrv.getYearMonthEnd() : YearMonth.of(5000, 1);
+		YearMonth C = secondCfdrv.getYearMonthStart();
+		YearMonth D = null != secondCfdrv.getYearMonthEnd() ? secondCfdrv.getYearMonthEnd() : YearMonth.of(5000, 1);
+		return !(B.isBefore(C) || A.isAfter(D));
+	}
+	
 	/**
 	 * An existing RPDV is being updated (i.e. the id of the RPDV already exists).
 	 * 
@@ -232,6 +295,7 @@ public class AjaxDashboardController {
 		model.addAttribute("resourceParamTableDto", resourceParamDtoConverter.resourceParamsToResourceParamTableDto(resource.getResourceParams()));
 		model.addAttribute("cashflowTableDto", cashflowDtoConverter.cashflowsToCashflowTableDto(resource.getCashflows()));
 		model.addAttribute("resourceParamDateValueDto", new ResourceParamDateValueDto());
+		model.addAttribute("cashflowDateRangeValueDto", new CashflowDateRangeValueDto());
 	}
 
 	private String getErrorMessageFromBindingResult(BindingResult result) {
@@ -308,7 +372,7 @@ public class AjaxDashboardController {
 		CashflowIncome amandaEmploymentIncome = new CashflowIncome(messageSource.getMessage(CashflowIncome.NAME_EMPLOYMENT_INCOME, null, LocaleContextHolder.getLocale()), CashflowFrequency.MONTHLY, Boolean.TRUE);
 		amandaResource.addCashflow(amandaEmploymentIncome);
 		
-		CashflowDateRangeValue amandaEmploymentIncomeDRV = new CashflowDateRangeValue(YearMonth.of(2024, 1), BigDecimal.valueOf(2500.00));
+		CashflowDateRangeValue amandaEmploymentIncomeDRV = new CashflowDateRangeValue(YearMonth.of(2024, 1), Integer.valueOf(2500));
 		amandaEmploymentIncome.addCashflowDateRangeValue(amandaEmploymentIncomeDRV);
 		
 		scenario.addResource(amandaResource);

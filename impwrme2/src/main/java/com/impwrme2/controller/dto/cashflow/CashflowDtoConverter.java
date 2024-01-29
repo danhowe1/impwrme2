@@ -1,6 +1,5 @@
 package com.impwrme2.controller.dto.cashflow;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,7 @@ public class CashflowDtoConverter {
 		cashflowDto.setDetail(cashflow.getDetail());
 		cashflowDto.setFrequency(cashflow.getFrequency().getValue());
 		cashflowDto.setCpiAffected(cashflow.getCpiAffected());
+		cashflowDto.setCashflowType(cashflow.getCashflowType().getValue());
 		return cashflowDto;
 	}
 
@@ -42,7 +42,7 @@ public class CashflowDtoConverter {
 						dateMatchFound = true;
 						CashflowDateRangeValueDto cfdrvDto = cashflowDateRangeValueDtoConverter.entityToDto(cfdrv);
 						if (headerDateStr.equals(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(cfdrv.getYearMonthEnd()))) {
-							cfdrvDto.setValue(BigDecimal.ZERO);
+							cfdrvDto.setValue(Integer.valueOf(0));
 						}
 						cashflowDto.addCashflowDateRangeValueDto(cfdrvDto);
 						break;
