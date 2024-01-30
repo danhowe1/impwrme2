@@ -1,11 +1,11 @@
 package com.impwrme2.controller.dto.cashflowDateRangeValue;
 
-import com.impwrme2.controller.validator.CashflowDateRangeValueYearMonthConstraint;
+import com.impwrme2.controller.validator.CashflowDateRangeValueConstraint;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-@CashflowDateRangeValueYearMonthConstraint
+@CashflowDateRangeValueConstraint
 public class CashflowDateRangeValueDto {
 
 	private Long id;

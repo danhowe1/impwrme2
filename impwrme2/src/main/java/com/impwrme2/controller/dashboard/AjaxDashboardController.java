@@ -171,19 +171,28 @@ public class AjaxDashboardController {
 		}
 		
 		Cashflow cashflow = cashflowService.findById(cfdrvDto.getCashflowId()).get();
-		CashflowDateRangeValue cfdrv = cashflowDateRangeValueDtoConverter.dtoToEntity(cfdrvDto);
+		CashflowDateRangeValue cfdrv = cashflowDateRangeValueDtoConverter.dtoToEntity(cfdrvDto);		
+		List<CashflowDateRangeValue> cfdrvsToDelete = new ArrayList<CashflowDateRangeValue>();
+
 		for (CashflowDateRangeValue existingCfdrv : cashflow.getCashflowDateRangeValues()) {
-			if (existingCfdrv.getId().equals(cfdrv.getId())) {
-				cashflowDateRangeValueService.save(cfdrv);
-			} else if (datesOverlap(existingCfdrv, cfdrv)) {
+			if (!existingCfdrv.getId().equals(cfdrv.getId()) && datesOverlap(existingCfdrv, cfdrv)) {
+				// We've found a different cfdrv and the dates overlap in some way.
 				if (existingCfdrv.getYearMonthStart().isBefore(cfdrv.getYearMonthStart())) {
+					// Existing cfdrv is before this one starts so just need to make sure it's end date is removed.
 					existingCfdrv.setYearMonthEnd(null);
-					cashflowDateRangeValueService.save(cfdrv);
+					cashflowDateRangeValueService.save(existingCfdrv);
 				} else {
-					cashflowService.deleteCashflowDateRangeValue(cfdrv);
+					// The existing one starts after this one so mark it for deletion.
+					cfdrvsToDelete.add(existingCfdrv);
 				}
 			}
 		}
+		
+		for (CashflowDateRangeValue c : cfdrvsToDelete) {
+			cashflowService.deleteCashflowDateRangeValue(c);
+		}
+		
+		cashflowDateRangeValueService.save(cfdrv);
 		return "SUCCESS";
 	}
 

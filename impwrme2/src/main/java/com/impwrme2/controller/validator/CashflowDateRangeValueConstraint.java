@@ -10,10 +10,10 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 @Documented
-@Constraint(validatedBy = CashflowDateRangeValueYearMonthValidator.class)
+@Constraint(validatedBy = CashflowDateRangeValueValidator.class)
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CashflowDateRangeValueYearMonthConstraint {
+public @interface CashflowDateRangeValueConstraint {
 
 	String message() default "{msg.validation.unknownError}";
 

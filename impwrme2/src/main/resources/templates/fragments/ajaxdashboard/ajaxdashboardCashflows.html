@@ -13,8 +13,8 @@
 			const modalCfdrvHeader = /*[[#{msg.html.ajaxdashboard.cashflowDateRangeValueEdit.modal.header}]]*/'novalue';
 			var resourceDto;
 			var cashflowDtos;
-// 			var resourceDto = /*[[${resourceDto}]]*/'novalue';
-// 			var cashflowDtos = /*[[${cashflowTableDto.cashflowDtos}]]*/'novalue';
+			// 			var resourceDto = /*[[${resourceDto}]]*/'novalue';
+			// 			var cashflowDtos = /*[[${cashflowTableDto.cashflowDtos}]]*/'novalue';
 
 			function cashflowDateRangeValueEdit(cashflowIndex, cfdrvIndex) {
 				var cashflow = cashflowDtos[cashflowIndex];
@@ -96,17 +96,14 @@
 							id="cfdrvCashflowName">XXX</h5>
 					</div>
 					<form id="formCfdrvEditDialog"
-						th:object="${cashflowDateRangeValueDto}" method="post"
+						th:object="${cashflowDateRangeValueDto}"
 						class="was-validated">
 						<div class="modal-body">
 							<div class="container">
 
-								<input type="text" name="id" id="id" value="" />
-
-								<!-- 								<input type="checkbox" name="userAbleToChangeDate" -->
-								<!-- 									id="userAbleToChangeDate" style="display: none" />  -->
-								<input type="text" name="cashflowId" id="cashflowId" value="" />
-								<input type="text" name="cashflowType" id="cashflowType"
+								<input type="hidden" name="id" id="id" value="" />
+								<input type="hidden" name="cashflowId" id="cashflowId" value="" />
+								<input type="hidden" name="cashflowType" id="cashflowType"
 									value="" />
 
 								<div id="cfdrvEditDialogError" class="alert alert-danger"></div>
@@ -149,7 +146,7 @@
 									</div>
 									<div class="col-sm-6">
 										<input id="value" type="text" class="form-control"
-											th:field="*{value}" size="7" required pattern="^\d+$"
+											th:field="*{value}" size="7" required pattern="^[0-9]*[1-9][0-9]*$"
 											oninput="this.setCustomValidity('')"
 											th:title="#{msg.validation.notEmpty}">
 										<p th:if="${#fields.hasErrors('value')}" th:errorclass="error"
@@ -201,10 +198,12 @@
 					<td
 						th:text="#{'msg.class.cashflowFrequency.' + ${cashflowDto.frequency}}">XXX</td>
 					<td
-						th:each="cfrdvDto, cfrdvDtoStat : ${cashflowDto.cashflowDateRangeValueDtos}"
-						th:id="${cfrdvDto.id}" th:text="${cfrdvDto.value}"
-						th:attr="onclick=|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', '${cfrdvDtoStat.index}');|"
-						style="cursor: pointer;"></td>
+						th:each="cfrdvDto, cfrdvDtoStat : ${cashflowDto.cashflowDateRangeValueDtos}">
+						<div th:unless="0 == ${cfrdvDto.value}" th:id="${cfrdvDto.id}" th:text="${cfrdvDto.value}"
+							th:attr="onclick=|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', '${cfrdvDtoStat.index}');|"
+							style="cursor: pointer;"></div>
+						<div th:if="0 == ${cfrdvDto.value}" th:text="END">"XXX</div>
+					</td>
 					<td th:text="..."
 						th:attr="onclick=|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', null);|"
 						style="cursor: pointer;"></td>

@@ -13,7 +13,7 @@ import com.impwrme2.utils.YearMonthUtils;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class CashflowDateRangeValueYearMonthValidator implements ConstraintValidator<CashflowDateRangeValueYearMonthConstraint, CashflowDateRangeValueDto> {
+public class CashflowDateRangeValueValidator implements ConstraintValidator<CashflowDateRangeValueConstraint, CashflowDateRangeValueDto> {
 
 	@Autowired
 	private CashflowService cashflowService;
@@ -44,6 +44,9 @@ public class CashflowDateRangeValueYearMonthValidator implements ConstraintValid
 			if (null != cfdrvDtoYearMonthEnd && !cfdrvDtoYearMonthEnd.isAfter(cfdrvDtoYearMonthStart)) {
 				return getErrorMessageAndReturn(context, "{msg.validation.cashflowDateRangeValue.yearMonthEnd.notBeforeYearMonthStart}");				
 			}
+		}
+		if (0 == cfdrvDto.getValue().intValue()) {
+			return getErrorMessageAndReturn(context, "{msg.validation.cashflowDateRangeValue.value.notZero}");			
 		}
 		return true;
 	}
