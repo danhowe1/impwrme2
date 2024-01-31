@@ -4,7 +4,7 @@ import java.util.stream.Stream;
 
 public enum CashflowCategory {
 	
-	APPRECIATION_GROWTH(Values.APPRECIATION_GROWTH, CashflowType.APPRECIATION),
+//	APPRECIATION_GROWTH(Values.APPRECIATION_GROWTH, CashflowType.APPRECIATION),
 	DEPOSIT_ADDITIONAL_PAYMENT(Values.DEPOSIT_ADDITIONAL_PAYMENT, CashflowType.DEPOSIT),
 	EXPENSE_ASSET_OWNERSHIP(Values.EXPENSE_ASSET_OWNERSHIP, CashflowType.EXPENSE),
 	EXPENSE_FEES(Values.EXPENSE_FEES, CashflowType.EXPENSE),
@@ -32,7 +32,7 @@ public enum CashflowCategory {
 	}
 
 	public static class Values {
-		public static final String APPRECIATION_GROWTH = "APPRECIATION_GROWTH";
+//		public static final String APPRECIATION_GROWTH = "APPRECIATION_GROWTH";
 		public static final String DEPOSIT_ADDITIONAL_PAYMENT = "DEPOSIT_ADDITIONAL_PAYMENT";
 		public static final String EXPENSE_ASSET_OWNERSHIP = "EXPENSE_ASSET_OWNERSHIP";
 		public static final String EXPENSE_FEES = "EXPENSE_FEES";

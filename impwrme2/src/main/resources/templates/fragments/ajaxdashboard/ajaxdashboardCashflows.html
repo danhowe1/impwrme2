@@ -15,7 +15,7 @@
 			var cashflowDtos;
 			// 			var resourceDto = /*[[${resourceDto}]]*/'novalue';
 			// 			var cashflowDtos = /*[[${cashflowTableDto.cashflowDtos}]]*/'novalue';
-				
+
 			function cashflowDateRangeValueEdit(cashflowIndex, cfdrvIndex) {
 
 				var cashflow = cashflowDtos[cashflowIndex];
@@ -96,15 +96,13 @@
 							id="cfdrvCashflowCategory">XXX</h5>
 					</div>
 					<form id="formCfdrvEditDialog"
-						th:object="${cashflowDateRangeValueDto}"
-						class="was-validated">
+						th:object="${cashflowDateRangeValueDto}" class="was-validated">
 						<div class="modal-body">
 							<div class="container">
 
-								<input type="hidden" name="id" id="id" value="" />
-								<input type="hidden" name="cashflowId" id="cashflowId" value="" />
-								<input type="hidden" name="cashflowType" id="cashflowType"
-									value="" />
+								<input type="hidden" name="id" id="id" value="" /> <input
+									type="hidden" name="cashflowId" id="cashflowId" value="" /> <input
+									type="hidden" name="cashflowType" id="cashflowType" value="" />
 
 								<div id="cfdrvEditDialogError" class="alert alert-danger"></div>
 
@@ -146,7 +144,8 @@
 									</div>
 									<div class="col-sm-6">
 										<input id="value" type="text" class="form-control"
-											th:field="*{value}" size="7" required pattern="^[0-9]*[1-9][0-9]*$"
+											th:field="*{value}" size="7" required
+											pattern="^-?[0-9]*[1-9][0-9]*$"
 											oninput="this.setCustomValidity('')"
 											th:title="#{msg.validation.notEmpty}">
 										<p th:if="${#fields.hasErrors('value')}" th:errorclass="error"
@@ -199,28 +198,41 @@
 						th:text="#{'msg.class.cashflowFrequency.' + ${cashflowDto.frequency}}">XXX</td>
 					<td
 						th:each="cfrdvDto, cfrdvDtoStat : ${cashflowDto.cashflowDateRangeValueDtos}">
-						<div th:unless="0 == ${cfrdvDto.value}" th:id="${cfrdvDto.id}" th:text="${cfrdvDto.value}"
+						<div th:unless="0 == ${cfrdvDto.value}" th:id="${cfrdvDto.id}"
+							th:text="${#numbers.formatInteger(cfrdvDto.value,1,'COMMA')}"
 							th:attr="onclick=|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', '${cfrdvDtoStat.index}');|"
 							style="cursor: pointer;"></div>
 						<div th:if="0 == ${cfrdvDto.value}" th:text="END">"XXX</div>
-					</td>					
+					</td>
 					<td th:text="'?'" data-bs-toggle="tooltip"
-					    th:attr="data-bs-title=#{msg.html.ajaxdashboard.cashflowTable.td.WhatIf} + ${cashflowDto.categoryMessage + '?'}"
+						th:attr="data-bs-title=#{msg.html.ajaxdashboard.cashflowTable.td.WhatIf} + ${cashflowDto.categoryMessage + '?'}"
 						th:onclick="|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', null);|"
 						style="cursor: pointer;"></td>
 				</tr>
 			</tbody>
 		</table>
 
+		<div class="mb-2">
+			<select class="form-select" id="cashflowToCreate"
+				name="cashflowToCreate"
+				th:onchange="'window.location.href = \'' + @{/app/ajaxdashboard/createCashflow/} + ${resourceDto.id} + '/\' + this.value'">
+				<option th:text="#{msg.html.ajaxdashboard.cashflowTable.select.WhatIf}" hidden="hidden">XXX</option>
+				<option
+					th:each="opt : ${resourceDto.cashflowCategoriesUsersCanCreate}"
+					th:value="${opt}"
+					th:text="#{'msg.class.cashflowCategory.' + ${opt}}"></option>
+			</select>
+		</div>
+
 		<script type="text/javascript" th:inline="javascript">
 			$(document).ready(function() {
 				// Once this fragment has loaded, populate the JS variables declared above.
 				resourceDto = /*[[${resourceDto}]]*/'novalue';
 				cashflowDtos = /*[[${cashflowTableDto.cashflowDtos}]]*/'novalue';
-				
+
 				// Tooltips must be initialised to work.
 				$('body').tooltip({
-				    selector: '[data-bs-toggle=tooltip]'
+					selector : '[data-bs-toggle=tooltip]'
 				});
 			});
 

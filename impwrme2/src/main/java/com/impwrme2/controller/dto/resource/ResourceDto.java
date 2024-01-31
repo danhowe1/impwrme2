@@ -1,5 +1,8 @@
 package com.impwrme2.controller.dto.resource;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 
@@ -16,6 +19,8 @@ public class ResourceDto {
 
 	@NotEmpty(message = "{msg.validation.resource.resourceType.notEmpty}")
 	private String resourceType;
+
+	public List<String> cashflowCategoriesUsersCanCreate = new ArrayList<String>();
 
 	//-------------------
 	// Getters & setters.
@@ -53,4 +58,11 @@ public class ResourceDto {
 		this.resourceType = resourceType;
 	}
 
+	public void addCashflowCategoryUsersCanCreate(String cashflowCategorysUsersCanCreate) {
+		this.cashflowCategoriesUsersCanCreate.add(cashflowCategorysUsersCanCreate);
+	}
+
+	public List<String> getCashflowCategoriesUsersCanCreate() {
+		return cashflowCategoriesUsersCanCreate;
+	}
 }

@@ -1,5 +1,9 @@
 package com.impwrme2.model.resource;
 
+import java.util.List;
+
+import com.impwrme2.model.cashflow.CashflowCategory;
+
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
@@ -23,5 +27,10 @@ public class ResourceScenario extends Resource {
 	@Override
 	public ResourceType getResourceType() {
 		return ResourceType.SCENARIO;
+	}
+
+	@Override
+	public List<CashflowCategory> getCashflowCategoriesUsersCanCreate() {
+		return List.of();
 	}
 }

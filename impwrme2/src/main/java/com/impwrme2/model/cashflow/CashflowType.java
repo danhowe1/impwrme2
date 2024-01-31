@@ -4,7 +4,7 @@ import java.util.stream.Stream;
 
 public enum CashflowType {
 
-	APPRECIATION(Values.APPRECIATION),
+//	APPRECIATION(Values.APPRECIATION),
 	DEPOSIT(Values.DEPOSIT),
 	WITHDRAWAL(Values.WITHDRAWAL),
 	EXPENSE(Values.EXPENSE),
@@ -17,7 +17,7 @@ public enum CashflowType {
 	}
 
 	public static class Values {
-		public static final String APPRECIATION = "APPRECIATION";
+//		public static final String APPRECIATION = "APPRECIATION";
 		public static final String DEPOSIT = "DEPOSIT";
 		public static final String WITHDRAWAL = "WITHDRAWAL";
 		public static final String EXPENSE = "EXPENSE";

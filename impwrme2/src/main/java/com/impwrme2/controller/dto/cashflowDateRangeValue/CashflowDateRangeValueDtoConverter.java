@@ -33,7 +33,7 @@ public class CashflowDateRangeValueDtoConverter {
 		if (null != cfdrvDto.getId()) {
 			cfdrv = cashflowDateRangeValueService.findById(cfdrvDto.getId()).get();
 			cfdrv.setYearMonthStart(YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cfdrvDto.getYearMonthStart()));
-			cfdrv.setYearMonthEnd(YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cfdrvDto.getYearMonthEnd()));
+			cfdrv.setYearMonthEnd(YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cfdrvDto.getYearMonthEnd()));			
 			cfdrv.setValue(cfdrvDto.getValue());
 		} else {
 			cfdrv = new CashflowDateRangeValue(YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cfdrvDto.getYearMonthStart()), YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cfdrvDto.getYearMonthEnd()), cfdrvDto.getValue());
