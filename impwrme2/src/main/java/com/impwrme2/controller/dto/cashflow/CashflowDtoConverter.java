@@ -25,11 +25,10 @@ public class CashflowDtoConverter {
 	public CashflowDto entityToDto(Cashflow cashflow) {
 		CashflowDto cashflowDto = new CashflowDto();
 		cashflowDto.setId(cashflow.getId());
-		cashflowDto.setCategoryMessage(messageSource.getMessage("msg.class.cashflowCategory." + cashflow.getCategory().getValue(), null, LocaleContextHolder.getLocale()));
+		cashflowDto.setCategoryMessage(messageSource.getMessage(cashflow.getCategory().getMessageCode(), null, LocaleContextHolder.getLocale()));
 		cashflowDto.setDetail(cashflow.getDetail());
 		cashflowDto.setFrequency(cashflow.getFrequency().getValue());
 		cashflowDto.setCpiAffected(cashflow.getCpiAffected());
-		cashflowDto.setType(cashflow.getType().getValue());
 		return cashflowDto;
 	}
 
@@ -57,7 +56,6 @@ public class CashflowDtoConverter {
 					CashflowDateRangeValueDto cfdrvDto = new CashflowDateRangeValueDto();
 					cfdrvDto.setYearMonthStart(headerDateStr);
 					cfdrvDto.setCashflowId(cashflow.getId());
-					cfdrvDto.setCashflowType(cashflow.getType().getValue());
 					cashflowDto.addCashflowDateRangeValueDto(cfdrvDto);
 				}
 			}

@@ -4,46 +4,52 @@ import java.util.stream.Stream;
 
 public enum CashflowCategory {
 	
-	ADDITIONAL_PAYMENT(Values.ADDITIONAL_PAYMENT),
-	ASSET_OWNERSHIP(Values.ASSET_OWNERSHIP),
-	ASSET_SALE(Values.ASSET_SALE),
-	BALANCE(Values.BALANCE),
-	DIVIDENDS(Values.DIVIDENDS),
-	EMPLOYMENT(Values.EMPLOYMENT),
-	FEES(Values.FEES),
-	GROWTH(Values.GROWTH),
-	HOLIDAYS(Values.HOLIDAYS),
-	INTEREST(Values.INTEREST),
-	LIVING_ESSENTIAL(Values.LIVING_ESSENTIAL),
-	LIVING_NON_ESSENTIAL(Values.LIVING_NON_ESSENTIAL),
-	PRINCIPAL(Values.PRINCIPAL),
-	REDRAW(Values.REDRAW),
-	RENT(Values.RENT),
-	UTILITIES(Values.UTILITIES);
+	APPRECIATION_GROWTH(Values.APPRECIATION_GROWTH, CashflowType.APPRECIATION),
+	DEPOSIT_ADDITIONAL_PAYMENT(Values.DEPOSIT_ADDITIONAL_PAYMENT, CashflowType.DEPOSIT),
+	EXPENSE_ASSET_OWNERSHIP(Values.EXPENSE_ASSET_OWNERSHIP, CashflowType.EXPENSE),
+	EXPENSE_FEES(Values.EXPENSE_FEES, CashflowType.EXPENSE),
+	EXPENSE_HOLIDAYS(Values.EXPENSE_HOLIDAYS, CashflowType.EXPENSE),
+	EXPENSE_INTEREST(Values.EXPENSE_INTEREST, CashflowType.EXPENSE),
+	EXPENSE_LIVING_ESSENTIAL(Values.EXPENSE_LIVING_ESSENTIAL, CashflowType.EXPENSE),
+	EXPENSE_LIVING_NON_ESSENTIAL(Values.EXPENSE_LIVING_NON_ESSENTIAL, CashflowType.EXPENSE),
+	EXPENSE_MISC(Values.EXPENSE_MISC, CashflowType.EXPENSE),	
+	EXPENSE_PRINCIPAL(Values.EXPENSE_PRINCIPAL, CashflowType.EXPENSE),
+	EXPENSE_RENT(Values.EXPENSE_RENT, CashflowType.EXPENSE),
+	EXPENSE_UTILITIES(Values.EXPENSE_UTILITIES, CashflowType.EXPENSE),
+	INCOME_ASSET_SALE(Values.INCOME_ASSET_SALE, CashflowType.INCOME),
+	INCOME_DIVIDENDS(Values.INCOME_DIVIDENDS, CashflowType.INCOME),
+	INCOME_EMPLOYMENT(Values.INCOME_EMPLOYMENT, CashflowType.INCOME),
+	INCOME_MISC(Values.INCOME_MISC, CashflowType.INCOME),
+	INCOME_RENT(Values.INCOME_RENT, CashflowType.INCOME),
+	WITHDRAWAL_REDRAW(Values.WITHDRAWAL_REDRAW, CashflowType.WITHDRAWAL);
 
 	private final String value;
+	private final CashflowType type;
 
-	CashflowCategory(String value) {
+	CashflowCategory(String value, CashflowType type) {
 		this.value = value;
+		this.type = type;
 	}
 
 	public static class Values {
-		public static final String ADDITIONAL_PAYMENT = "ADDITIONAL_PAYMENT";
-		public static final String ASSET_OWNERSHIP = "ASSET_OWNERSHIP";
-		public static final String ASSET_SALE = "ASSET_SALE";
-		public static final String BALANCE = "BALANCE";
-		public static final String DIVIDENDS = "DIVIDENDS";
-		public static final String EMPLOYMENT = "EMPLOYMENT";
-		public static final String FEES = "FEES";
-		public static final String GROWTH = "GROWTH";
-		public static final String HOLIDAYS = "HOLIDAYS";
-		public static final String INTEREST = "INTEREST";
-		public static final String LIVING_ESSENTIAL = "LIVING_ESSENTIAL";
-		public static final String LIVING_NON_ESSENTIAL = "LIVING_NON_ESSENTIAL";
-		public static final String PRINCIPAL = "PRINCIPAL";
-		public static final String REDRAW = "REDRAW";
-		public static final String RENT = "RENT";
-		public static final String UTILITIES = "UTILITIES";
+		public static final String APPRECIATION_GROWTH = "APPRECIATION_GROWTH";
+		public static final String DEPOSIT_ADDITIONAL_PAYMENT = "DEPOSIT_ADDITIONAL_PAYMENT";
+		public static final String EXPENSE_ASSET_OWNERSHIP = "EXPENSE_ASSET_OWNERSHIP";
+		public static final String EXPENSE_FEES = "EXPENSE_FEES";
+		public static final String EXPENSE_HOLIDAYS = "EXPENSE_HOLIDAYS";
+		public static final String EXPENSE_INTEREST = "EXPENSE_INTEREST";
+		public static final String EXPENSE_LIVING_ESSENTIAL = "EXPENSE_LIVING_ESSENTIAL";
+		public static final String EXPENSE_LIVING_NON_ESSENTIAL = "EXPENSE_LIVING_NON_ESSENTIAL";
+		public static final String EXPENSE_MISC = "EXPENSE_MISC";
+		public static final String EXPENSE_PRINCIPAL = "EXPENSE_PRINCIPAL";
+		public static final String EXPENSE_RENT = "EXPENSE_RENT";
+		public static final String EXPENSE_UTILITIES = "EXPENSE_UTILITIES";
+		public static final String INCOME_ASSET_SALE = "INCOME_ASSET_SALE";
+		public static final String INCOME_DIVIDENDS = "INCOME_DIVIDENDS";
+		public static final String INCOME_EMPLOYMENT = "INCOME_EMPLOYMENT";
+		public static final String INCOME_MISC = "INCOME_MISC";
+		public static final String INCOME_RENT = "INCOME_RENT";
+		public static final String WITHDRAWAL_REDRAW = "WITHDRAWAL_REDRAW";
 	}
 
 	public String getValue() {
@@ -54,6 +60,14 @@ public enum CashflowCategory {
 		return category.value;
 	}
 
+	public CashflowType getType() {
+		return type;
+	}
+
+	public String getMessageCode() {
+		return "msg.class.cashflowCategory." + CashflowCategory.getCategory(value).getValue();
+	}
+	
 	public static CashflowCategory getCategory(String value) {
 		return Stream.of(CashflowCategory.values()).filter(c -> c.value.equals(value)).findFirst()
 				.orElseThrow(IllegalArgumentException::new);

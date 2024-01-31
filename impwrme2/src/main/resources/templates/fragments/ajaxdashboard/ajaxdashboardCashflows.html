@@ -217,6 +217,11 @@
 				// Once this fragment has loaded, populate the JS variables declared above.
 				resourceDto = /*[[${resourceDto}]]*/'novalue';
 				cashflowDtos = /*[[${cashflowTableDto.cashflowDtos}]]*/'novalue';
+				
+				// Tooltips must be initialised to work.
+				$('body').tooltip({
+				    selector: '[data-bs-toggle=tooltip]'
+				});
 			});
 
 			document.querySelector('#formCfdrvEditDialog').addEventListener('submit', function(e) {

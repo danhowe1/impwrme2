@@ -9,8 +9,6 @@ import com.impwrme2.model.resource.Resource;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -18,8 +16,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -29,9 +25,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "cashflow", uniqueConstraints = @UniqueConstraint(columnNames = {"category", "detail", "resource_id"}))
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
-public abstract class Cashflow implements Comparable<Cashflow>, Serializable {
+public class Cashflow implements Comparable<Cashflow>, Serializable {
 
 	private static final long serialVersionUID = -7351769216489053280L;
 
@@ -81,9 +75,6 @@ public abstract class Cashflow implements Comparable<Cashflow>, Serializable {
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "resource_id")
 	private Resource resource;
-
-	@Enumerated(EnumType.STRING)
-	public abstract CashflowType getType();
 
 	@OneToMany(mappedBy = "cashflow", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, targetEntity=CashflowDateRangeValue.class)
 	private List<CashflowDateRangeValue> cashflowDateRangeValues = new ArrayList<CashflowDateRangeValue>();

@@ -2,7 +2,6 @@ package com.impwrme2.controller.dto.cashflowDateRangeValue;
 
 import com.impwrme2.controller.validator.CashflowDateRangeValueConstraint;
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 @CashflowDateRangeValueConstraint
@@ -20,9 +19,6 @@ public class CashflowDateRangeValueDto {
 
 	@NotNull(message = "{msg.validation.cashflowDateRangeValue.cashflow.notNull}")
 	private Long cashflowId;
-
-	@NotEmpty(message = "{msg.validation.cashflowDateRangeValue.cashflowType.notEmpty}")
-	private String cashflowType;
 
 	//-------------------
 	// Getters & setters.
@@ -66,13 +62,5 @@ public class CashflowDateRangeValueDto {
 
 	public void setCashflowId(Long cashflowId) {
 		this.cashflowId = cashflowId;
-	}
-
-	public String getCashflowType() {
-		return cashflowType;
-	}
-
-	public void setCashflowType(String cashflowType) {
-		this.cashflowType = cashflowType;
 	}
 }
