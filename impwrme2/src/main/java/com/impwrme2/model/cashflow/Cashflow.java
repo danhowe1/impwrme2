@@ -25,13 +25,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "cashflow", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "detail", "resource_id"}))
+@Table(name = "cashflow", uniqueConstraints = @UniqueConstraint(columnNames = {"category", "detail", "resource_id"}))
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "cashflow_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Cashflow implements Comparable<Cashflow>, Serializable {
 
 	private static final long serialVersionUID = -7351769216489053280L;
@@ -40,17 +39,17 @@ public abstract class Cashflow implements Comparable<Cashflow>, Serializable {
 	 * Protected constructor required for Hibernate only.
 	 */
 	protected Cashflow() {
-		this.name = null;
+		this.category = null;
 		this.detail = null;
 		this.frequency = null;
 		this.cpiAffected = null;}
 	
-	public Cashflow(String name, CashflowFrequency frequency, Boolean cpiAffected) {
-		this(name, "", frequency, cpiAffected);
+	public Cashflow(CashflowCategory category, CashflowFrequency frequency, Boolean cpiAffected) {
+		this(category, "", frequency, cpiAffected);
 	}
 	
-	public Cashflow(String name, String detail, CashflowFrequency frequency, Boolean cpiAffected) {
-		this.name = name;
+	public Cashflow(CashflowCategory category, String detail, CashflowFrequency frequency, Boolean cpiAffected) {
+		this.category = category;
 		this.detail = detail;
 		this.frequency = frequency;
 		this.cpiAffected = cpiAffected;
@@ -61,9 +60,10 @@ public abstract class Cashflow implements Comparable<Cashflow>, Serializable {
 	@Column(name = "cashflow_id")
 	private Long id;
 	
-	@Column(name = "name")
-	@NotEmpty(message = "{msg.validation.cashflow.name.notEmpty}")
-	private final String name;
+	@Column(name = "category")
+	@NotNull(message = "{msg.validation.cashflow.category.notNull}")
+	@Enumerated(EnumType.STRING)
+	private final CashflowCategory category;
 
 	@Column(name = "detail")
 	@NotNull(message = "{msg.validation.cashflow.detail.notNull}")
@@ -82,7 +82,8 @@ public abstract class Cashflow implements Comparable<Cashflow>, Serializable {
 	@JoinColumn(name = "resource_id")
 	private Resource resource;
 
-	public abstract CashflowType getCashflowType();
+	@Enumerated(EnumType.STRING)
+	public abstract CashflowType getType();
 
 	@OneToMany(mappedBy = "cashflow", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, targetEntity=CashflowDateRangeValue.class)
 	private List<CashflowDateRangeValue> cashflowDateRangeValues = new ArrayList<CashflowDateRangeValue>();
@@ -105,8 +106,8 @@ public abstract class Cashflow implements Comparable<Cashflow>, Serializable {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public CashflowCategory getCategory() {
+		return category;
 	}
 
 	public String getDetail() {

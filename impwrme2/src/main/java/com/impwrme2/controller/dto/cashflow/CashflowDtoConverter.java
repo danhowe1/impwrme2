@@ -3,6 +3,8 @@ package com.impwrme2.controller.dto.cashflow;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.impwrme2.controller.dto.cashflowDateRangeValue.CashflowDateRangeValueDto;
@@ -16,15 +18,18 @@ public class CashflowDtoConverter {
 
 	@Autowired
 	CashflowDateRangeValueDtoConverter cashflowDateRangeValueDtoConverter;
+
+	@Autowired
+	MessageSource messageSource;
 	
 	public CashflowDto entityToDto(Cashflow cashflow) {
 		CashflowDto cashflowDto = new CashflowDto();
 		cashflowDto.setId(cashflow.getId());
-		cashflowDto.setName(cashflow.getName());
+		cashflowDto.setCategoryMessage(messageSource.getMessage("msg.class.cashflowCategory." + cashflow.getCategory().getValue(), null, LocaleContextHolder.getLocale()));
 		cashflowDto.setDetail(cashflow.getDetail());
 		cashflowDto.setFrequency(cashflow.getFrequency().getValue());
 		cashflowDto.setCpiAffected(cashflow.getCpiAffected());
-		cashflowDto.setCashflowType(cashflow.getCashflowType().getValue());
+		cashflowDto.setType(cashflow.getType().getValue());
 		return cashflowDto;
 	}
 
@@ -52,7 +57,7 @@ public class CashflowDtoConverter {
 					CashflowDateRangeValueDto cfdrvDto = new CashflowDateRangeValueDto();
 					cfdrvDto.setYearMonthStart(headerDateStr);
 					cfdrvDto.setCashflowId(cashflow.getId());
-					cfdrvDto.setCashflowType(cashflow.getCashflowType().getValue());
+					cfdrvDto.setCashflowType(cashflow.getType().getValue());
 					cashflowDto.addCashflowDateRangeValueDto(cfdrvDto);
 				}
 			}

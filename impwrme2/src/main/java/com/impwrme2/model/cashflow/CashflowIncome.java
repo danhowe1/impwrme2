@@ -9,8 +9,6 @@ public class CashflowIncome extends Cashflow {
 
 	private static final long serialVersionUID = -2762991462764978544L;
 
-	public static final String NAME_EMPLOYMENT_INCOME = "msg.class.cashflowIncome.name.employmentIncome";
-
 	/**
 	 * Protected constructor required for Hibernate only.
 	 */
@@ -18,16 +16,16 @@ public class CashflowIncome extends Cashflow {
 		super();
 	};
 
-	public CashflowIncome(String name, CashflowFrequency frequency, Boolean cpiAffected) {
-		super(name, "", frequency, cpiAffected);
+	public CashflowIncome(CashflowCategory category, CashflowFrequency frequency, Boolean cpiAffected) {
+		super(category, "", frequency, cpiAffected);
 	}
 	
-	public CashflowIncome(String name, String detail, CashflowFrequency frequency, Boolean cpiAffected) {
-		super(name, detail, frequency, cpiAffected);
+	public CashflowIncome(CashflowCategory category, String detail, CashflowFrequency frequency, Boolean cpiAffected) {
+		super(category, detail, frequency, cpiAffected);
 	}
 
 	@Override
-	public CashflowType getCashflowType() {
+	public CashflowType getType() {
 		return CashflowType.INCOME;
 	}
 

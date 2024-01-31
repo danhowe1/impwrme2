@@ -24,7 +24,7 @@ public class CashflowDateRangeValueDtoConverter {
 		cfdrvDto.setYearMonthStart(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(cfdrv.getYearMonthStart()));
 		cfdrvDto.setYearMonthEnd(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(cfdrv.getYearMonthEnd()));
 		cfdrvDto.setCashflowId(cfdrv.getCashflow().getId());
-		cfdrvDto.setCashflowType(cfdrv.getCashflow().getCashflowType().getValue());
+		cfdrvDto.setCashflowType(cfdrv.getCashflow().getType().getValue());
 		cfdrvDto.setValue(cfdrv.getValue());
 		return cfdrvDto;
 	}

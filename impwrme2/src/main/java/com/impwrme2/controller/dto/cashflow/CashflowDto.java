@@ -12,8 +12,8 @@ public class CashflowDto {
 
 	private Long id;
 	
-	@NotEmpty(message = "{msg.validation.cashflow.name.notEmpty}")
-	private String name;
+	@NotEmpty(message = "{msg.validation.cashflow.category.notEmpty}")
+	private String categoryMessage;
 
 	@NotNull(message = "{msg.validation.cashflow.detail.notNull}")
 	private String detail;
@@ -25,7 +25,7 @@ public class CashflowDto {
     private boolean cpiAffected;
 
 	@NotEmpty(message = "{msg.validation.notEmpty}")
-	private String cashflowType;
+	private String type;
 
 	private List<CashflowDateRangeValueDto> cashflowDateRangeValueDtos = new ArrayList<CashflowDateRangeValueDto>();
 
@@ -41,12 +41,12 @@ public class CashflowDto {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getCategoryMessage() {
+		return categoryMessage;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setCategoryMessage(String categoryMessage) {
+		this.categoryMessage = categoryMessage;
 	}
 
 	public String getDetail() {
@@ -73,12 +73,12 @@ public class CashflowDto {
 		this.cpiAffected = cpiAffected;
 	}
 
-	public String getCashflowType() {
-		return cashflowType;
+	public String getType() {
+		return type;
 	}
 
-	public void setCashflowType(String cashflowType) {
-		this.cashflowType = cashflowType;
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public List<CashflowDateRangeValueDto> getCashflowDateRangeValueDtos() {

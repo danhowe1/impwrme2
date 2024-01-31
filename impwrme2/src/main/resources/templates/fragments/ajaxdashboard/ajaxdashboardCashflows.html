@@ -15,14 +15,14 @@
 			var cashflowDtos;
 			// 			var resourceDto = /*[[${resourceDto}]]*/'novalue';
 			// 			var cashflowDtos = /*[[${cashflowTableDto.cashflowDtos}]]*/'novalue';
-
+				
 			function cashflowDateRangeValueEdit(cashflowIndex, cfdrvIndex) {
-				var cashflow = cashflowDtos[cashflowIndex];
 
+				var cashflow = cashflowDtos[cashflowIndex];
 				document.getElementById('cfdrvEditDialogError').style.display = "none";
-				document.getElementById('cfdrvCashflowName').innerText = modalCfdrvHeader + ' ' + cashflow.name + '?';
+				document.getElementById('cfdrvCashflowCategory').innerText = modalCfdrvHeader + ' ' + cashflow.categoryMessage + '?';
 				$("#cfdrvEditDialog #cashflowId").val(cashflow.id);
-				$("#cfdrvEditDialog #cashflowType").val(cashflow.cashflowType);
+				$("#cfdrvEditDialog #cashflowType").val(cashflow.type);
 
 				var cfdrv = null;
 				if (null !== cfdrvIndex) {
@@ -93,7 +93,7 @@
 					<div class="modal-header">
 						<h5
 							th:text="#{msg.html.ajaxdashboard.cashflowDateRangeValueEdit.modal.header}"
-							id="cfdrvCashflowName">XXX</h5>
+							id="cfdrvCashflowCategory">XXX</h5>
 					</div>
 					<form id="formCfdrvEditDialog"
 						th:object="${cashflowDateRangeValueDto}"
@@ -176,19 +176,19 @@
 			<caption th:text="#{msg.html.ajaxdashboard.cashflowTable.caption}">XXX</caption>
 			<thead>
 				<tr>
-					<th th:text="#{msg.html.ajaxdashboard.cashflowTable.th.name}">XXX</th>
+					<th th:text="#{msg.html.ajaxdashboard.cashflowTable.th.category}">XXX</th>
 					<th th:text="#{msg.html.ajaxdashboard.cashflowTable.th.cpi}">XXX</th>
 					<th th:text="#{msg.html.ajaxdashboard.cashflowTable.th.frequency}">XXX</th>
 					<th
 						th:each="dateHeader, dateHeaderStat : ${cashflowTableDto.dates}"
 						th:text="${dateHeader}">XXX</th>
-					<th th:text="#{msg.html.ajaxdashboard.resourceParamTable.WhatIf}">XXX</th>
+					<th th:text="#{msg.html.ajaxdashboard.cashflowTable.th.WhatIf}">XXX</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr
 					th:each="cashflowDto, cashflowDtoStat : ${cashflowTableDto.cashflowDtos}">
-					<td th:text="${cashflowDto.name}">XXX</td>
+					<td th:text="${cashflowDto.categoryMessage}">XXX</td>
 					<td>
 						<div class="form-check d-flex justify-content-center">
 							<input class="form-check-input" type="checkbox"
@@ -203,9 +203,10 @@
 							th:attr="onclick=|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', '${cfrdvDtoStat.index}');|"
 							style="cursor: pointer;"></div>
 						<div th:if="0 == ${cfrdvDto.value}" th:text="END">"XXX</div>
-					</td>
-					<td th:text="..."
-						th:attr="onclick=|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', null);|"
+					</td>					
+					<td th:text="'?'" data-bs-toggle="tooltip"
+					    th:attr="data-bs-title=#{msg.html.ajaxdashboard.cashflowTable.td.WhatIf} + ${cashflowDto.categoryMessage + '?'}"
+						th:onclick="|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', null);|"
 						style="cursor: pointer;"></td>
 				</tr>
 			</tbody>

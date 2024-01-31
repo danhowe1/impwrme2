@@ -32,6 +32,8 @@ import com.impwrme2.controller.dto.resourceDropdown.ResourceDropdownDto;
 import com.impwrme2.controller.dto.resourceParam.ResourceParamDtoConverter;
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDto;
 import com.impwrme2.model.cashflow.Cashflow;
+import com.impwrme2.model.cashflow.CashflowCategory;
+import com.impwrme2.model.cashflow.CashflowExpense;
 import com.impwrme2.model.cashflow.CashflowFrequency;
 import com.impwrme2.model.cashflow.CashflowIncome;
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
@@ -104,7 +106,7 @@ public class AjaxDashboardController {
 
 		String userId = user.getUserInfo().getSubject();
 		Resource resource;
-//		session.removeAttribute("SESSION_CURRENT_RESOURCE_ID");
+//session.removeAttribute("SESSION_CURRENT_RESOURCE_ID");
 		Long currentResourceId = (Long) session.getAttribute("SESSION_CURRENT_RESOURCE_ID");
 		if (null == currentResourceId) {
 			List<Scenario> scenarios = scenarioService.findByUserId(userId);
@@ -378,12 +380,18 @@ public class AjaxDashboardController {
 		ResourceParamDateValueInteger retirementAgeVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(65));
 		retirementAge.addResourceParamDateValue(retirementAgeVal);
 
-		CashflowIncome amandaEmploymentIncome = new CashflowIncome(messageSource.getMessage(CashflowIncome.NAME_EMPLOYMENT_INCOME, null, LocaleContextHolder.getLocale()), CashflowFrequency.MONTHLY, Boolean.TRUE);
+		CashflowIncome amandaEmploymentIncome = new CashflowIncome(CashflowCategory.EMPLOYMENT, CashflowFrequency.MONTHLY, Boolean.TRUE);
 		amandaResource.addCashflow(amandaEmploymentIncome);
 		
 		CashflowDateRangeValue amandaEmploymentIncomeDRV = new CashflowDateRangeValue(YearMonth.of(2024, 1), Integer.valueOf(2500));
 		amandaEmploymentIncome.addCashflowDateRangeValue(amandaEmploymentIncomeDRV);
 		
+		CashflowExpense amandaLivingExpense = new CashflowExpense(CashflowCategory.LIVING_ESSENTIAL, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		amandaResource.addCashflow(amandaLivingExpense);
+		
+		CashflowDateRangeValue amandaLivingExpenseDRV = new CashflowDateRangeValue(YearMonth.of(2024, 1), Integer.valueOf(-3000));
+		amandaLivingExpense.addCashflowDateRangeValue(amandaLivingExpenseDRV);
+	
 		scenario.addResource(amandaResource);
 		
 		// ----
