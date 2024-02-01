@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+
+</head>
+<body>
+	<div id="ajaxdashboardResourceElements"
+		th:fragment="ajaxdashboardResourceElements">
+
+		<div class="bg-white rounded-3 px-2">
+			<div class="row">
+				<div class="col"
+					th:insert="~{fragments/ajaxdashboard/ajaxdashboardResourceDisplay :: ajaxdashboardResourceDisplay}"></div>
+			</div>
+
+			<div class="row">
+				<div class="col-auto"
+					th:insert="~{fragments/ajaxdashboard/ajaxdashboardResourceParams :: ajaxdashboardResourceParams}"></div>
+
+				<div class="col-auto"
+					th:insert="~{fragments/ajaxdashboard/ajaxdashboardCashflows :: ajaxdashboardCashflows}"></div>
+			</div>
+		</div>
+
+	</div>
+</body>
+</html>

@@ -5,7 +5,6 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -20,13 +19,11 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.impwrme2.controller.dto.cashflow.CashflowDtoConverter;
 import com.impwrme2.controller.dto.cashflowDateRangeValue.CashflowDateRangeValueDto;
-import com.impwrme2.controller.dto.cashflowDateRangeValue.CashflowDateRangeValueDtoConverter;
 import com.impwrme2.controller.dto.resource.ResourceDtoConverter;
 import com.impwrme2.controller.dto.resourceDropdown.ResourceDropdownDto;
 import com.impwrme2.controller.dto.resourceParam.ResourceParamDtoConverter;
@@ -40,64 +37,41 @@ import com.impwrme2.model.resource.ResourceHousehold;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
-import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.model.resourceParam.ResourceParamBigDecimal;
 import com.impwrme2.model.resourceParam.ResourceParamInteger;
-import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecimal;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueInteger;
 import com.impwrme2.model.scenario.Scenario;
-import com.impwrme2.service.cashflow.CashflowService;
-import com.impwrme2.service.cashflowDateRangeValue.CashflowDateRangeValueService;
 import com.impwrme2.service.resource.ResourceService;
-import com.impwrme2.service.resourceParam.ResourceParamService;
-import com.impwrme2.service.resourceParamDateValue.ResourceParamDateValueService;
 import com.impwrme2.service.scenario.ScenarioService;
-import com.impwrme2.utils.YearMonthUtils;
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.GsonBuilder;
 import com.nimbusds.jose.shaded.gson.JsonArray;
 import com.nimbusds.jose.shaded.gson.JsonObject;
 
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/app/ajaxdashboard")
 public class AjaxDashboardController {
 
 	@Autowired
-	private ResourceDtoConverter resourceDtoConverter;
+	protected CashflowDtoConverter cashflowDtoConverter;
 
 	@Autowired
-	private CashflowDtoConverter cashflowDtoConverter;
+	protected ResourceDtoConverter resourceDtoConverter;
 
 	@Autowired
-	private CashflowDateRangeValueDtoConverter cashflowDateRangeValueDtoConverter;
-
-	@Autowired
-	private ResourceParamDtoConverter resourceParamDtoConverter;
+	protected ResourceParamDtoConverter resourceParamDtoConverter;
 
 	@Autowired
 	private ScenarioService scenarioService;
 
 	@Autowired
-	private ResourceService resourceService;
+	protected ResourceService resourceService;
 
 	@Autowired
-	private ResourceParamService resourceParamService;
-
-	@Autowired
-	private ResourceParamDateValueService resourceParamDateValueService;
-
-	@Autowired
-	private CashflowService cashflowService;
-
-	@Autowired
-	private CashflowDateRangeValueService cashflowDateRangeValueService;
-
-	@Autowired
-	private MessageSource messageSource;
+	protected MessageSource messageSource;
 
 	@GetMapping(value = { "", "/" })
 	public String ajaxdashboard(@AuthenticationPrincipal OidcUser user, Model model, HttpSession session, Locale locale) {
@@ -131,174 +105,15 @@ public class AjaxDashboardController {
 		return generateJsonChartData();
 	}
 
-	@GetMapping(value = { "/showResource/{resourceId}" })
-	public String showResource(@PathVariable Long resourceId, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
+	@GetMapping(value = { "/showResourceElements/{resourceId}" })
+	public String showResourceElements(@PathVariable Long resourceId, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
 		Resource resource = resourceService.findById(resourceId).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + resourceId));
 		setUpModelAfterResourceUpdated(resource, model, session);
-		return "fragments/ajaxdashboard/ajaxdashboardResourceDisplay :: ajaxdashboardResourceDisplay";
+		model.addAttribute("resourceDropdownDto", new ResourceDropdownDto(resource.getScenario(), resource.getResourceType()));
+		return "fragments/ajaxdashboard/ajaxdashboardResourceElements :: ajaxdashboardResourceElements";
 	}
 
-	@PostMapping(value = "/saveResourceParamDateValue")
-	@ResponseBody
-	public String saveResourceParamDateValue(@Valid ResourceParamDateValueDto rpdvDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model) {
-		if (result.hasErrors()) {
-			return getErrorMessageFromBindingResult(result);
-		}
-		if (null != rpdvDto.getId()) {
-			updateExistingRpdv(rpdvDto);
-		} else {
-			saveNewRpdvOrUpdateExistingRpdv(rpdvDto);
-		}
-		return "SUCCESS";
-	}
-
-	@PostMapping(value = "/deleteResourceParamDateValue")
-	@ResponseBody
-	public String deleteResourceParamDateValue(@Valid ResourceParamDateValueDto rpdvDto) {
-		if (!rpdvDto.isUserAbleToChangeDate()) {
-			return messageSource.getMessage("msg.validation.resourceParamDateValue.deleteNotAllowed", null, LocaleContextHolder.getLocale());
-		}
-		ResourceParamDateValue<?> rpdv = resourceParamDateValueService.findById(rpdvDto.getId()).get();
-		resourceParamService.deleteResourceParamDateValue(rpdv);
-		return "SUCCESS";
-	}
-
-	@PostMapping(value = "/saveCashflowDateRangeValue")
-	@ResponseBody
-	public String saveCashflowDateRangeValue(@Valid CashflowDateRangeValueDto cfdrvDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model) {
-		if (result.hasErrors()) {
-			return getErrorMessageFromBindingResult(result);
-		}
-		
-		Cashflow cashflow = cashflowService.findById(cfdrvDto.getCashflowId()).get();
-		CashflowDateRangeValue cfdrv = cashflowDateRangeValueDtoConverter.dtoToEntity(cfdrvDto);		
-		List<CashflowDateRangeValue> cfdrvsToDelete = new ArrayList<CashflowDateRangeValue>();
-
-		for (CashflowDateRangeValue existingCfdrv : cashflow.getCashflowDateRangeValues()) {
-			if (!existingCfdrv.getId().equals(cfdrv.getId()) && datesOverlap(existingCfdrv, cfdrv)) {
-				// We've found a different cfdrv and the dates overlap in some way.
-				if (existingCfdrv.getYearMonthStart().isBefore(cfdrv.getYearMonthStart())) {
-					// Existing cfdrv is before this one starts so just need to make sure it's end date is removed.
-					existingCfdrv.setYearMonthEnd(null);
-					cashflowDateRangeValueService.save(existingCfdrv);
-				} else {
-					// The existing one starts after this one so mark it for deletion.
-					cfdrvsToDelete.add(existingCfdrv);
-				}
-			}
-		}
-		
-		for (CashflowDateRangeValue c : cfdrvsToDelete) {
-			cashflowService.deleteCashflowDateRangeValue(c);
-		}
-		
-		cashflowDateRangeValueService.save(cfdrv);
-		return "SUCCESS";
-	}
-
-	@PostMapping(value = "/deleteCashflowDateRangeValue")
-	@ResponseBody
-	public String deleteCashflowDateRangeValue(@Valid CashflowDateRangeValueDto cfdrvDto) {
-		CashflowDateRangeValue cfdrv = cashflowDateRangeValueService.findById(cfdrvDto.getId()).get();
-		if (cfdrv.getCashflow().getResource().getStartYearMonth().equals(cfdrv.getYearMonthStart())) {
-			return messageSource.getMessage("msg.validation.cashflowDateRangeValue.deleteNotAllowed", null, LocaleContextHolder.getLocale());
-		}
-		cashflowService.deleteCashflowDateRangeValue(cfdrv);
-		return "SUCCESS";
-	}
-
-	/**
-	 * Check for strictly overlapping dates. See https://www.baeldung.com/java-check-two-date-ranges-overlap.
-	 * @param firstCfdrv The first CashflowDateRange value to be compared.
-	 * @param secondCfdrv The second CashflowDateRange value to be compared.
-	 * @return true if any of the dates overlap.
-	 */
-	private boolean datesOverlap(CashflowDateRangeValue firstCfdrv, CashflowDateRangeValue secondCfdrv) {
-		YearMonth A = firstCfdrv.getYearMonthStart();
-		YearMonth B = null != firstCfdrv.getYearMonthEnd() ? firstCfdrv.getYearMonthEnd() : YearMonth.of(5000, 1);
-		YearMonth C = secondCfdrv.getYearMonthStart();
-		YearMonth D = null != secondCfdrv.getYearMonthEnd() ? secondCfdrv.getYearMonthEnd() : YearMonth.of(5000, 1);
-		return !(B.isBefore(C) || A.isAfter(D));
-	}
-	
-	/**
-	 * An existing RPDV is being updated (i.e. the id of the RPDV already exists).
-	 * 
-	 * If there exists another RPDV with the same date, then the RPDV being updated here is deleted and the existing one is updated with the value from the passed rpdvDto.
-	 * 
-	 * If there doesn't exist another RPDV with the same date then the RPDV being updated by the user has both the date and value updated.
-	 * 
-	 * @param rpdvDto The ResourceParamDateValueDto object containing the updated data.
-	 */
-	private void updateExistingRpdv(ResourceParamDateValueDto rpdvDto) {
-		ResourceParamDateValue<?> rpdvOfCurrentDto = resourceParamDateValueService.findById(rpdvDto.getId()).get();
-		Optional<Long> idOfAnotherRpdvWithSameDate = rpdvOfCurrentDto.getResourceParam().getIdOfRpdvWithDuplicateDate(rpdvDto.getId(), YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth()));
-		if (!idOfAnotherRpdvWithSameDate.isEmpty()) {
-			deletePassedRpdvAndUpdateExistingWithSameDate(rpdvOfCurrentDto, idOfAnotherRpdvWithSameDate.get(), rpdvDto.getValue());
-		} else {
-			updateRpdvDateValue(rpdvOfCurrentDto, YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth()), rpdvDto.getValue());
-		}
-	}
-
-	/**
-	 * Another RPDV with the same date exists so the RPDV being updated here is deleted and the existing one is updated with the value from the passed rpdvDto.
-	 * 
-	 * @param resourceParamDateValueToDelete  The RPDV that the user is currently trying to update. This will be deleted.
-	 * @param idOfPreExistingRpdvWithSameDate The ID of the pre-existing RPDV that has the same date.
-	 * @param newValue                        The new value the user has supplied. The existing RPDV will be updated with this value.
-	 */
-	private void deletePassedRpdvAndUpdateExistingWithSameDate(ResourceParamDateValue<?> resourceParamDateValueToDelete, Long idOfPreExistingRpdvWithSameDate, String newValue) {
-		// Delete the rpdv we've been passed as it's now a duplicate.
-		resourceParamService.deleteResourceParamDateValue(resourceParamDateValueToDelete);
-
-		// Update the value on the existing rpdv & save.
-		ResourceParamDateValue<?> preExistingRpdv = resourceParamDateValueService.findById(idOfPreExistingRpdvWithSameDate).get();
-		updateRpdvValueOnly(preExistingRpdv, newValue);
-	}
-
-	/**
-	 * An new RPDV is attempting to bre created (i.e. the id of the RPDV is null).
-	 * 
-	 * If there exists another RPDV with the same date, then the RPDV being updated here is ignored and the existing one is updated with the value from the passed rpdvDto.
-	 * 
-	 * If there doesn't exist another RPDV with the same date then the RPDV being passed by the user is created with the passed date and value updated.
-	 * 
-	 * @param rpdvDto The ResourceParamDateValueDto object containing the new data.
-	 */
-	private void saveNewRpdvOrUpdateExistingRpdv(ResourceParamDateValueDto rpdvDto) {
-		ResourceParam<?> resourceParamOfCurrentDto = resourceParamService.findById(rpdvDto.getResourceParamId()).get();
-		Optional<Long> idOfAnotherRpdvWithSameDate = resourceParamOfCurrentDto.getIdOfRpdvWithDuplicateDate(rpdvDto.getId(), YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth()));
-		if (!idOfAnotherRpdvWithSameDate.isEmpty()) {
-			ResourceParamDateValue<?> preExistingRpdv = resourceParamDateValueService.findById(idOfAnotherRpdvWithSameDate.get()).get();
-			updateRpdvValueOnly(preExistingRpdv, rpdvDto.getValue());
-		} else {
-			createBrandNewRpdv(rpdvDto);
-		}
-	}
-
-	/**
-	 * Create a brand new RPDV
-	 * 
-	 * @param rpdvDto The RPDV containing the new data.
-	 */
-	private void createBrandNewRpdv(ResourceParamDateValueDto rpdvDto) {
-		ResourceParam<?> resourceParam = resourceParamService.findById(rpdvDto.getResourceParamId()).get();
-		ResourceParamDateValue<?> resourceParamDateValue = resourceParamDtoConverter.dtoToEntity(rpdvDto);
-		resourceParam.addResourceParamDateValueGeneric(resourceParamDateValue);
-		resourceParamDateValueService.save(resourceParamDateValue);
-	}
-
-	private void updateRpdvValueOnly(ResourceParamDateValue<?> resourceParamDateValue, String newValue) {
-		updateRpdvDateValue(resourceParamDateValue, resourceParamDateValue.getYearMonth(), newValue);
-	}
-
-	private void updateRpdvDateValue(ResourceParamDateValue<?> resourceParamDateValue, YearMonth newYearMonth, String newValue) {
-		resourceParamDateValue.setYearMonth(newYearMonth);
-		resourceParamDateValue.setValueFromString(newValue);
-		resourceParamDateValueService.save(resourceParamDateValue);
-	}
-
-	private void setUpModelAfterResourceUpdated(Resource resource, Model model, HttpSession session) {
+	protected void setUpModelAfterResourceUpdated(Resource resource, Model model, HttpSession session) {
 		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resource.getId());
 		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
 		model.addAttribute("resourceParamTableDto", resourceParamDtoConverter.resourceParamsToResourceParamTableDto(resource.getResourceParams()));
@@ -307,7 +122,7 @@ public class AjaxDashboardController {
 		model.addAttribute("cashflowDateRangeValueDto", new CashflowDateRangeValueDto());
 	}
 
-	private String getErrorMessageFromBindingResult(BindingResult result) {
+	protected String getErrorMessageFromBindingResult(BindingResult result) {
 		for (Object object : result.getAllErrors()) {
 			if (object instanceof FieldError) {
 				FieldError fieldError = (FieldError) object;

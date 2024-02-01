@@ -6,15 +6,27 @@
 
 </head>
 <body>
-	<div th:fragment="ajaxdashboardCashflows"
+	<div id="ajaxdashboardCashflows" th:fragment="ajaxdashboardCashflows"
 		th:unless="${cashflowTableDto.cashflowDtos.empty}">
 
 		<script type="text/javascript" th:inline="javascript">
 			const modalCfdrvHeader = /*[[#{msg.html.ajaxdashboard.cashflowDateRangeValueEdit.modal.header}]]*/'novalue';
 			var resourceDto;
 			var cashflowDtos;
-			// 			var resourceDto = /*[[${resourceDto}]]*/'novalue';
-			// 			var cashflowDtos = /*[[${cashflowTableDto.cashflowDtos}]]*/'novalue';
+
+			function showCashflows(resourceId) {
+				var url = baseUrl + 'cashflow/showCashflows/' + resourceId;
+				$.ajax({
+					url : url,
+					type : "GET",
+					success : function(response) {
+						$("#ajaxdashboardCashflows").html(response);
+					},
+					error : function(jqXHR) {
+						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
+					}
+				});
+			}
 
 			function cashflowDateRangeValueEdit(cashflowIndex, cfdrvIndex) {
 
@@ -68,7 +80,7 @@
 
 				return $.ajax({
 					type : 'post',
-					url : baseUrl + controllerMethod,
+					url : baseUrl + 'cashflow/' + controllerMethod,
 					data : data,
 					beforeSend : function(xhr) {
 						xhr.setRequestHeader(header, token);
@@ -216,7 +228,9 @@
 			<select class="form-select" id="cashflowToCreate"
 				name="cashflowToCreate"
 				th:onchange="'window.location.href = \'' + @{/app/ajaxdashboard/createCashflow/} + ${resourceDto.id} + '/\' + this.value'">
-				<option th:text="#{msg.html.ajaxdashboard.cashflowTable.select.WhatIf}" hidden="hidden">XXX</option>
+				<option
+					th:text="#{msg.html.ajaxdashboard.cashflowTable.select.WhatIf}"
+					hidden="hidden">XXX</option>
 				<option
 					th:each="opt : ${resourceDto.cashflowCategoriesUsersCanCreate}"
 					th:value="${opt}"
@@ -226,6 +240,7 @@
 
 		<script type="text/javascript" th:inline="javascript">
 			$(document).ready(function() {
+
 				// Once this fragment has loaded, populate the JS variables declared above.
 				resourceDto = /*[[${resourceDto}]]*/'novalue';
 				cashflowDtos = /*[[${cashflowTableDto.cashflowDtos}]]*/'novalue';
@@ -253,7 +268,7 @@
 					} else {
 						$('#cfdrvEditDialog').modal('hide');
 						loadChartData();
-						showResource(resourceId);
+						showCashflows(resourceId);
 					}
 				});
 			});

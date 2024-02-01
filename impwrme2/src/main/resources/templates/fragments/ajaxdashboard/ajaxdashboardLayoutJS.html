@@ -9,13 +9,13 @@
 	th:fragment="ajaxdashboardLayoutJS">
 	var baseUrl = window.location.origin + window.location.pathname + '/';
 
-	function showResource(resourceId) {
-		var url = baseUrl + 'showResource/' + resourceId;
+	function showResourceElements(resourceId) {
+		var url = baseUrl + 'showResourceElements/' + resourceId;
 		$.ajax({
 			url : url,
 			type : "GET",
 			success : function(response) {
-				$("#ajaxdashboardResourceDisplay").html(response);
+				$("#ajaxdashboardResourceElements").html(response);
 			},
 			error : function(jqXHR) {
 				alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
