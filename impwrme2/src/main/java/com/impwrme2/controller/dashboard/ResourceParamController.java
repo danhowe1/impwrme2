@@ -4,6 +4,7 @@ import java.time.YearMonth;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -16,10 +17,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.impwrme2.controller.BaseController;
+import com.impwrme2.controller.dto.resource.ResourceDtoConverter;
+import com.impwrme2.controller.dto.resourceParam.ResourceParamDtoConverter;
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDto;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
+import com.impwrme2.service.resource.ResourceService;
 import com.impwrme2.service.resourceParam.ResourceParamService;
 import com.impwrme2.service.resourceParamDateValue.ResourceParamDateValueService;
 import com.impwrme2.utils.YearMonthUtils;
@@ -29,7 +34,16 @@ import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/app/ajaxdashboard/resourceParam")
-public class ResourceParamController extends AjaxDashboardController {
+public class ResourceParamController {
+
+	@Autowired
+	private ResourceDtoConverter resourceDtoConverter;
+
+	@Autowired
+	private ResourceParamDtoConverter resourceParamDtoConverter;
+
+	@Autowired
+	private ResourceService resourceService;
 
 	@Autowired
 	private ResourceParamService resourceParamService;
@@ -37,10 +51,13 @@ public class ResourceParamController extends AjaxDashboardController {
 	@Autowired
 	private ResourceParamDateValueService resourceParamDateValueService;
 
+	@Autowired
+	private MessageSource messageSource;
+
 	@GetMapping(value = { "/showResourceParams/{resourceId}" })
 	public String showResourceParams(@PathVariable Long resourceId, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
 		Resource resource = resourceService.findById(resourceId).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + resourceId));
-		setUpModelAfterResourceUpdated(resource, model, session);
+		setUpModelAfterResourceParamsUpdated(resource, model, session);
 		return "fragments/ajaxdashboard/ajaxdashboardResourceParams :: ajaxdashboardResourceParams";
 	}
 
@@ -48,7 +65,7 @@ public class ResourceParamController extends AjaxDashboardController {
 	@ResponseBody
 	public String saveResourceParamDateValue(@Valid ResourceParamDateValueDto rpdvDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model) {
 		if (result.hasErrors()) {
-			return getErrorMessageFromBindingResult(result);
+			return BaseController.getErrorMessageFromBindingResult(messageSource, result);
 		}
 		if (null != rpdvDto.getId()) {
 			updateExistingRpdv(rpdvDto);
@@ -67,6 +84,12 @@ public class ResourceParamController extends AjaxDashboardController {
 		ResourceParamDateValue<?> rpdv = resourceParamDateValueService.findById(rpdvDto.getId()).get();
 		resourceParamService.deleteResourceParamDateValue(rpdv);
 		return "SUCCESS";
+	}
+
+	private void setUpModelAfterResourceParamsUpdated(Resource resource, Model model, HttpSession session) {
+		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
+		model.addAttribute("resourceParamTableDto", resourceParamDtoConverter.resourceParamsToResourceParamTableDto(resource.getResourceParams()));
+		model.addAttribute("resourceParamDateValueDto", new ResourceParamDateValueDto());
 	}
 
 	/**

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -17,29 +18,45 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.impwrme2.controller.BaseController;
+import com.impwrme2.controller.dto.cashflow.CashflowDtoConverter;
 import com.impwrme2.controller.dto.cashflowDateRangeValue.CashflowDateRangeValueDto;
 import com.impwrme2.controller.dto.cashflowDateRangeValue.CashflowDateRangeValueDtoConverter;
+import com.impwrme2.controller.dto.resource.ResourceDtoConverter;
 import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.service.cashflow.CashflowService;
 import com.impwrme2.service.cashflowDateRangeValue.CashflowDateRangeValueService;
+import com.impwrme2.service.resource.ResourceService;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/app/ajaxdashboard/cashflow")
-public class CashflowController extends AjaxDashboardController {
+public class CashflowController {
+
+	@Autowired
+	private ResourceDtoConverter resourceDtoConverter;
+
+	@Autowired
+	private CashflowDtoConverter cashflowDtoConverter;
 
 	@Autowired
 	private CashflowDateRangeValueDtoConverter cashflowDateRangeValueDtoConverter;
+
+	@Autowired
+	protected ResourceService resourceService;
 
 	@Autowired
 	private CashflowService cashflowService;
 
 	@Autowired
 	private CashflowDateRangeValueService cashflowDateRangeValueService;
+
+	@Autowired
+	private MessageSource messageSource;
 
 	@GetMapping(value = { "/showCashflows/{resourceId}" })
 	public String showCashflows(@PathVariable Long resourceId, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
@@ -48,20 +65,11 @@ public class CashflowController extends AjaxDashboardController {
 		return "fragments/ajaxdashboard/ajaxdashboardCashflows :: ajaxdashboardCashflows";
 	}
 	
-	private void setUpModelAfterCashflowsUpdated(Resource resource, Model model, HttpSession session) {
-//		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resource.getId());
-		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
-//		model.addAttribute("resourceParamTableDto", resourceParamDtoConverter.resourceParamsToResourceParamTableDto(resource.getResourceParams()));
-		model.addAttribute("cashflowTableDto", cashflowDtoConverter.cashflowsToCashflowTableDto(resource.getCashflows()));
-//		model.addAttribute("resourceParamDateValueDto", new ResourceParamDateValueDto());
-		model.addAttribute("cashflowDateRangeValueDto", new CashflowDateRangeValueDto());
-	}
-
 	@PostMapping(value = "/saveCashflowDateRangeValue")
 	@ResponseBody
 	public String saveCashflowDateRangeValue(@Valid CashflowDateRangeValueDto cfdrvDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model) {
 		if (result.hasErrors()) {
-			return getErrorMessageFromBindingResult(result);
+			return BaseController.getErrorMessageFromBindingResult(messageSource, result);
 		}
 		
 		Cashflow cashflow = cashflowService.findById(cfdrvDto.getCashflowId()).get();
@@ -99,6 +107,12 @@ public class CashflowController extends AjaxDashboardController {
 		}
 		cashflowService.deleteCashflowDateRangeValue(cfdrv);
 		return "SUCCESS";
+	}
+
+	private void setUpModelAfterCashflowsUpdated(Resource resource, Model model, HttpSession session) {
+		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
+		model.addAttribute("cashflowTableDto", cashflowDtoConverter.cashflowsToCashflowTableDto(resource.getCashflows()));
+		model.addAttribute("cashflowDateRangeValueDto", new CashflowDateRangeValueDto());
 	}
 
 	/**

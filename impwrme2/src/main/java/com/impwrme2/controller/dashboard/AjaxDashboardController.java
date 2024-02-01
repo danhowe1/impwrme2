@@ -7,16 +7,11 @@ import java.util.List;
 import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,22 +51,19 @@ import jakarta.servlet.http.HttpSession;
 public class AjaxDashboardController {
 
 	@Autowired
-	protected CashflowDtoConverter cashflowDtoConverter;
+	private CashflowDtoConverter cashflowDtoConverter;
 
 	@Autowired
-	protected ResourceDtoConverter resourceDtoConverter;
+	private ResourceDtoConverter resourceDtoConverter;
 
 	@Autowired
-	protected ResourceParamDtoConverter resourceParamDtoConverter;
+	private ResourceParamDtoConverter resourceParamDtoConverter;
 
 	@Autowired
 	private ScenarioService scenarioService;
 
 	@Autowired
-	protected ResourceService resourceService;
-
-	@Autowired
-	protected MessageSource messageSource;
+	private ResourceService resourceService;
 
 	@GetMapping(value = { "", "/" })
 	public String ajaxdashboard(@AuthenticationPrincipal OidcUser user, Model model, HttpSession session, Locale locale) {
@@ -89,7 +81,6 @@ public class AjaxDashboardController {
 			} else {
 				return "forward:/app/scenario/list";
 			}
-			session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resource.getId());
 		} else {
 			resource = resourceService.findById(currentResourceId).get();
 		}
@@ -109,7 +100,6 @@ public class AjaxDashboardController {
 	public String showResourceElements(@PathVariable Long resourceId, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
 		Resource resource = resourceService.findById(resourceId).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + resourceId));
 		setUpModelAfterResourceUpdated(resource, model, session);
-		model.addAttribute("resourceDropdownDto", new ResourceDropdownDto(resource.getScenario(), resource.getResourceType()));
 		return "fragments/ajaxdashboard/ajaxdashboardResourceElements :: ajaxdashboardResourceElements";
 	}
 
@@ -120,20 +110,6 @@ public class AjaxDashboardController {
 		model.addAttribute("cashflowTableDto", cashflowDtoConverter.cashflowsToCashflowTableDto(resource.getCashflows()));
 		model.addAttribute("resourceParamDateValueDto", new ResourceParamDateValueDto());
 		model.addAttribute("cashflowDateRangeValueDto", new CashflowDateRangeValueDto());
-	}
-
-	protected String getErrorMessageFromBindingResult(BindingResult result) {
-		for (Object object : result.getAllErrors()) {
-			if (object instanceof FieldError) {
-				FieldError fieldError = (FieldError) object;
-				return fieldError.getDefaultMessage();
-			}
-			if (object instanceof ObjectError) {
-				ObjectError objectError = (ObjectError) object;
-				return objectError.getDefaultMessage();
-			}
-		}
-		return messageSource.getMessage("msg.validation.unknownError", null, LocaleContextHolder.getLocale());
 	}
 
 	private Scenario populateInitialTestScenario(String userId) {
