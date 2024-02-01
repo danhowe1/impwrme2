@@ -4,6 +4,7 @@ import java.time.YearMonth;
 
 import com.impwrme2.model.YearMonthIntegerAttributeConverter;
 import com.impwrme2.model.cashflow.Cashflow;
+import com.impwrme2.model.cashflow.CashflowType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -31,14 +32,14 @@ public class CashflowDateRangeValue {
 		this.value = null;
 		}
 
-	public CashflowDateRangeValue(final YearMonth yearMonthStart, Integer value) {
-		this(yearMonthStart, null, value);
+	public CashflowDateRangeValue(final CashflowType type, final YearMonth yearMonthStart, final Integer value) {
+		this(type, yearMonthStart, null, value);
 	}
 	
-	public CashflowDateRangeValue(final YearMonth yearMonthStart, final YearMonth yearMonthEnd, Integer value) {
+	public CashflowDateRangeValue(final CashflowType type, final YearMonth yearMonthStart, final YearMonth yearMonthEnd, final Integer value) {
 		this.yearMonthStart = yearMonthStart;
 		this.yearMonthEnd = yearMonthEnd;
-		this.value = value;
+		this.setValue(value, type);
 	}
 	
 	@Id
@@ -95,8 +96,13 @@ public class CashflowDateRangeValue {
 		return value;
 	}
 
-	public void setValue(Integer value) {
+	public void setValue(final Integer value, final CashflowType type) {
 		this.value = value;
+		if ((value.intValue()>0) && (type.equals(CashflowType.EXPENSE) || type.equals(CashflowType.WITHDRAWAL))) {
+			this.value = -value;
+		} else if ((value.intValue()<=0) && (type.equals(CashflowType.INCOME) || type.equals(CashflowType.DEPOSIT))) {
+			this.value = -value;
+		}
 	}
 	
 	public Cashflow getCashflow() {

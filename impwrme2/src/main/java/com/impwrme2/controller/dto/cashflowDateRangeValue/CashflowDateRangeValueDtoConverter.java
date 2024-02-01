@@ -33,11 +33,12 @@ public class CashflowDateRangeValueDtoConverter {
 		if (null != cfdrvDto.getId()) {
 			cfdrv = cashflowDateRangeValueService.findById(cfdrvDto.getId()).get();
 			cfdrv.setYearMonthStart(YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cfdrvDto.getYearMonthStart()));
-			cfdrv.setYearMonthEnd(YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cfdrvDto.getYearMonthEnd()));			
-			cfdrv.setValue(cfdrvDto.getValue());
+			cfdrv.setYearMonthEnd(YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cfdrvDto.getYearMonthEnd()));
+			cfdrv.setValue(cfdrvDto.getValue(), cfdrv.getCashflow().getCategory().getType());
 		} else {
-			cfdrv = new CashflowDateRangeValue(YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cfdrvDto.getYearMonthStart()), YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cfdrvDto.getYearMonthEnd()), cfdrvDto.getValue());
 			Cashflow cashflow = cashflowService.findById(cfdrvDto.getCashflowId()).get();
+			cfdrv = new CashflowDateRangeValue(cashflow.getCategory().getType(), YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cfdrvDto.getYearMonthStart()), YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cfdrvDto.getYearMonthEnd()),
+					cfdrvDto.getValue());
 			cashflow.addCashflowDateRangeValue(cfdrv);
 		}
 		return cfdrv;

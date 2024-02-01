@@ -381,13 +381,13 @@ public class AjaxDashboardController {
 		Cashflow amandaEmploymentIncome = new Cashflow(CashflowCategory.INCOME_EMPLOYMENT, CashflowFrequency.MONTHLY, Boolean.TRUE);
 		amandaResource.addCashflow(amandaEmploymentIncome);
 		
-		CashflowDateRangeValue amandaEmploymentIncomeDRV = new CashflowDateRangeValue(YearMonth.of(2024, 1), Integer.valueOf(2500));
+		CashflowDateRangeValue amandaEmploymentIncomeDRV = new CashflowDateRangeValue(amandaEmploymentIncome.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(2500));
 		amandaEmploymentIncome.addCashflowDateRangeValue(amandaEmploymentIncomeDRV);
 		
 		Cashflow amandaLivingExpense = new Cashflow(CashflowCategory.EXPENSE_LIVING_ESSENTIAL, CashflowFrequency.MONTHLY, Boolean.TRUE);
 		amandaResource.addCashflow(amandaLivingExpense);
 		
-		CashflowDateRangeValue amandaLivingExpenseDRV = new CashflowDateRangeValue(YearMonth.of(2024, 1), Integer.valueOf(-3000));
+		CashflowDateRangeValue amandaLivingExpenseDRV = new CashflowDateRangeValue(amandaLivingExpense.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-3000));
 		amandaLivingExpense.addCashflowDateRangeValue(amandaLivingExpenseDRV);
 	
 		scenario.addResource(amandaResource);
