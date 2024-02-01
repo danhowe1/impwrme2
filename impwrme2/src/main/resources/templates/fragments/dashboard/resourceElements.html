@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+
+</head>
+<body>
+	<div id="resourceElements"
+		th:fragment="resourceElements">
+
+		<div class="bg-white rounded-3 px-2">
+			<div class="row">
+				<div class="col"
+					th:insert="~{fragments/dashboard/resourceDisplay :: resourceDisplay}"></div>
+			</div>
+
+			<div class="row">
+				<div class="col-auto"
+					th:insert="~{fragments/dashboard/resourceParams :: resourceParams}"></div>
+
+				<div class="col-auto"
+					th:insert="~{fragments/dashboard/cashflows :: cashflows}"></div>
+			</div>
+		</div>
+
+	</div>
+</body>
+</html>

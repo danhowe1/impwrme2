@@ -6,11 +6,11 @@
 
 </head>
 <body>
-	<div id="ajaxdashboardResourceParams" th:fragment="ajaxdashboardResourceParams"
+	<div id="resourceParams" th:fragment="resourceParams"
 		th:unless="${resourceParamTableDto.resourceParamDtos.empty}">
 
 		<script type="text/javascript" th:inline="javascript">
-			const modalRpdvHeader = /*[[#{msg.html.ajaxdashboard.resourceParamDateValueEdit.modal.header}]]*/'novalue';
+			const modalRpdvHeader = /*[[#{msg.html.dashboard.resourceParamDateValueEdit.modal.header}]]*/'novalue';
 
 			function showResourceParams(resourceId) {
 				var url = baseUrl + 'resourceParam/showResourceParams/' + resourceId;
@@ -18,7 +18,7 @@
 					url : url,
 					type : "GET",
 					success : function(response) {
-						$("#ajaxdashboardResourceParams").html(response);
+						$("#resourceParams").html(response);
 					},
 					error : function(jqXHR) {
 						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
@@ -105,7 +105,7 @@
 				<div class="modal-content">
 					<div class="modal-header">
 						<h5
-							th:text="#{msg.html.ajaxdashboard.resourceParamDateValueEdit.modal.header}"
+							th:text="#{msg.html.dashboard.resourceParamDateValueEdit.modal.header}"
 							id="paramName">XXX</h5>
 					</div>
 					<form id="formRpdvEditDialog"
@@ -126,7 +126,7 @@
 								<div class="mb-1 row">
 									<div class="col-sm-6">
 										<label class="col-form-label"
-											th:text="#{msg.html.ajaxdashboard.resourceParamDateValueEdit.yearMonth.label}"></label>
+											th:text="#{msg.html.dashboard.resourceParamDateValueEdit.yearMonth.label}"></label>
 									</div>
 									<div class="col-sm-6">
 										<input id="yearMonth" type="text" class="form-control"
@@ -141,7 +141,7 @@
 								<div class="mb-1 row">
 									<div class="col-sm-6">
 										<label class="col-form-label"
-											th:text="#{msg.html.ajaxdashboard.resourceParamDateValueEdit.value.label}"></label>
+											th:text="#{msg.html.dashboard.resourceParamDateValueEdit.value.label}"></label>
 									</div>
 									<div class="col-sm-6">
 										<input id="value" type="text" class="form-control"
@@ -159,7 +159,7 @@
 								<a class="btn btn-link" role="button" data-bs-dismiss="modal">Cancel</a>
 								<input id="deleteBtn" class="btn btn-danger" type="submit"
 									th:value="Delete"
-									th:formaction="@{/app/ajaxdashboard/deleteResourceParamDateValue}" />
+									th:formaction="@{/app/dashboard/deleteResourceParamDateValue}" />
 							</div>
 						</div>
 					</form>
@@ -174,14 +174,14 @@
 		<table id="parametersTable"
 			class="table table-primary table-borderless table-striped table-sm caption-top rounded-3 overflow-hidden">
 			<caption
-				th:text="#{msg.html.ajaxdashboard.resourceParamTable.Parameters}">XXX</caption>
+				th:text="#{msg.html.dashboard.resourceParamTable.Parameters}">XXX</caption>
 			<thead>
 				<tr>
-					<th th:text="#{msg.html.ajaxdashboard.resourceParamTable.Setting}">XXX</th>
+					<th th:text="#{msg.html.dashboard.resourceParamTable.Setting}">XXX</th>
 					<th
 						th:each="dateHeader, dateHeaderStat : ${resourceParamTableDto.dates}"
 						th:text="${dateHeader}">XXX</th>
-					<th th:text="#{msg.html.ajaxdashboard.resourceParamTable.WhatIf}">XXX</th>
+					<th th:text="#{msg.html.dashboard.resourceParamTable.WhatIf}">XXX</th>
 				</tr>
 			</thead>
 			<tbody>

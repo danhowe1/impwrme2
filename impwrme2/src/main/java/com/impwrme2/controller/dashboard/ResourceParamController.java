@@ -33,7 +33,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 @Controller
-@RequestMapping("/app/ajaxdashboard/resourceParam")
+@RequestMapping("/app/dashboard/resourceParam")
 public class ResourceParamController {
 
 	@Autowired
@@ -58,7 +58,7 @@ public class ResourceParamController {
 	public String showResourceParams(@PathVariable Long resourceId, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
 		Resource resource = resourceService.findById(resourceId).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + resourceId));
 		setUpModelAfterResourceParamsUpdated(resource, model, session);
-		return "fragments/ajaxdashboard/ajaxdashboardResourceParams :: ajaxdashboardResourceParams";
+		return "fragments/dashboard/resourceParams :: resourceParams";
 	}
 
 	@PostMapping(value = "/saveResourceParamDateValue")

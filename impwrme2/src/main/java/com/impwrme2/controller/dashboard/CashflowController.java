@@ -34,7 +34,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 @Controller
-@RequestMapping("/app/ajaxdashboard/cashflow")
+@RequestMapping("/app/dashboard/cashflow")
 public class CashflowController {
 
 	@Autowired
@@ -62,7 +62,7 @@ public class CashflowController {
 	public String showCashflows(@PathVariable Long resourceId, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
 		Resource resource = resourceService.findById(resourceId).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + resourceId));
 		setUpModelAfterCashflowsUpdated(resource, model, session);
-		return "fragments/ajaxdashboard/ajaxdashboardCashflows :: ajaxdashboardCashflows";
+		return "fragments/dashboard/cashflows :: cashflows";
 	}
 	
 	@PostMapping(value = "/saveCashflowDateRangeValue")

@@ -6,8 +6,8 @@
 
 </head>
 <body>
-	<div id="ajaxdashboardResourceNavBar"
-		th:fragment="ajaxdashboardResourceNavBar">
+	<div id="resourceNavBar"
+		th:fragment="resourceNavBar">
 
 		<script type="text/javascript" th:inline="javascript">
 			
@@ -43,7 +43,7 @@
 			}
 
 			function setActiveResourceTab() {
-				var activeTabLabel = /*[[#{${'msg.html.ajaxdashboard.' + resourceDropdownDto.activeResourceNavLabel}}]]*/'noValue';
+				var activeTabLabel = /*[[#{${'msg.html.dashboard.' + resourceDropdownDto.activeResourceNavLabel}}]]*/'noValue';
 				const resourcesTabs = Array.from(document.querySelectorAll('#resourcesTabs>ul>li>a'));
 				resourcesTabs.forEach(function(currentTab) {
 					if (currentTab.textContent === activeTabLabel) {
@@ -57,7 +57,7 @@
 			<ul class="nav nav-tabs">
 				<li class="nav-item"><a class="nav-link" aria-current="page"
 					href="#"
-					th:text="#{${'msg.html.ajaxdashboard.' + resourceDropdownDto.scenarioTabLabel}}"
+					th:text="#{${'msg.html.dashboard.' + resourceDropdownDto.scenarioTabLabel}}"
 					th:attr="onclick=|showResourceElements('${resourceDropdownDto.scenarioResourceId}')|">XXX</a></li>
 
 				<li
@@ -65,7 +65,7 @@
 					class="nav-item dropdown"><a class="nav-link dropdown-toggle"
 					data-bs-toggle="dropdown" href="#" role="button"
 					aria-expanded="false"
-					th:text="#{${'msg.html.ajaxdashboard.' + resourceTab.resourceTabLabel}}">XXX</a>
+					th:text="#{${'msg.html.dashboard.' + resourceTab.resourceTabLabel}}">XXX</a>
 
 					<ul class="dropdown-menu">
 						<li

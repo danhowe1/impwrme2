@@ -6,11 +6,11 @@
 
 </head>
 <body>
-	<div id="ajaxdashboardCashflows" th:fragment="ajaxdashboardCashflows"
+	<div id="cashflows" th:fragment="cashflows"
 		th:unless="${cashflowTableDto.cashflowDtos.empty}">
 
 		<script type="text/javascript" th:inline="javascript">
-			const modalCfdrvHeader = /*[[#{msg.html.ajaxdashboard.cashflowDateRangeValueEdit.modal.header}]]*/'novalue';
+			const modalCfdrvHeader = /*[[#{msg.html.dashboard.cashflowDateRangeValueEdit.modal.header}]]*/'novalue';
 			var resourceDto;
 			var cashflowDtos;
 
@@ -20,7 +20,7 @@
 					url : url,
 					type : "GET",
 					success : function(response) {
-						$("#ajaxdashboardCashflows").html(response);
+						$("#cashflows").html(response);
 					},
 					error : function(jqXHR) {
 						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
@@ -104,7 +104,7 @@
 				<div class="modal-content">
 					<div class="modal-header">
 						<h5
-							th:text="#{msg.html.ajaxdashboard.cashflowDateRangeValueEdit.modal.header}"
+							th:text="#{msg.html.dashboard.cashflowDateRangeValueEdit.modal.header}"
 							id="cfdrvCashflowCategory">XXX</h5>
 					</div>
 					<form id="formCfdrvEditDialog"
@@ -121,7 +121,7 @@
 								<div class="mb-1 row">
 									<div class="col-sm-6">
 										<label class="col-form-label"
-											th:text="#{msg.html.ajaxdashboard.cashflowDateRangeValueEdit.yearMonthStart.label}"></label>
+											th:text="#{msg.html.dashboard.cashflowDateRangeValueEdit.yearMonthStart.label}"></label>
 									</div>
 									<div class="col-sm-6">
 										<input id="yearMonthStart" type="text" class="form-control"
@@ -136,7 +136,7 @@
 								<div class="mb-1 row">
 									<div class="col-sm-6">
 										<label class="col-form-label"
-											th:text="#{msg.html.ajaxdashboard.cashflowDateRangeValueEdit.yearMonthEnd.label}"></label>
+											th:text="#{msg.html.dashboard.cashflowDateRangeValueEdit.yearMonthEnd.label}"></label>
 									</div>
 									<div class="col-sm-6">
 										<input id="yearMonthEnd" type="text" class="form-control"
@@ -152,7 +152,7 @@
 								<div class="mb-1 row">
 									<div class="col-sm-6">
 										<label class="col-form-label"
-											th:text="#{msg.html.ajaxdashboard.cashflowDateRangeValueEdit.value.label}"></label>
+											th:text="#{msg.html.dashboard.cashflowDateRangeValueEdit.value.label}"></label>
 									</div>
 									<div class="col-sm-6">
 										<input id="value" type="text" class="form-control"
@@ -170,7 +170,7 @@
 								<a class="btn btn-link" role="button" data-bs-dismiss="modal">Cancel</a>
 								<input id="cfdrvDeleteBtn" class="btn btn-danger" type="submit"
 									th:value="Delete"
-									th:formaction="@{/app/ajaxdashboard/deleteCashflowDateRangeValue}" />
+									th:formaction="@{/app/dashboard/deleteCashflowDateRangeValue}" />
 							</div>
 						</div>
 					</form>
@@ -184,16 +184,16 @@
 
 		<table id="cashflowTable"
 			class="table table-primary table-borderless table-striped table-sm caption-top rounded-3 overflow-hidden">
-			<caption th:text="#{msg.html.ajaxdashboard.cashflowTable.caption}">XXX</caption>
+			<caption th:text="#{msg.html.dashboard.cashflowTable.caption}">XXX</caption>
 			<thead>
 				<tr>
-					<th th:text="#{msg.html.ajaxdashboard.cashflowTable.th.category}">XXX</th>
-					<th th:text="#{msg.html.ajaxdashboard.cashflowTable.th.cpi}">XXX</th>
-					<th th:text="#{msg.html.ajaxdashboard.cashflowTable.th.frequency}">XXX</th>
+					<th th:text="#{msg.html.dashboard.cashflowTable.th.category}">XXX</th>
+					<th th:text="#{msg.html.dashboard.cashflowTable.th.cpi}">XXX</th>
+					<th th:text="#{msg.html.dashboard.cashflowTable.th.frequency}">XXX</th>
 					<th
 						th:each="dateHeader, dateHeaderStat : ${cashflowTableDto.dates}"
 						th:text="${dateHeader}">XXX</th>
-					<th th:text="#{msg.html.ajaxdashboard.cashflowTable.th.WhatIf}">XXX</th>
+					<th th:text="#{msg.html.dashboard.cashflowTable.th.WhatIf}">XXX</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -217,7 +217,7 @@
 						<div th:if="0 == ${cfrdvDto.value}" th:text="END">"XXX</div>
 					</td>
 					<td th:text="'?'" data-bs-toggle="tooltip"
-						th:attr="data-bs-title=#{msg.html.ajaxdashboard.cashflowTable.td.WhatIf} + ${cashflowDto.categoryMessage + '?'}"
+						th:attr="data-bs-title=#{msg.html.dashboard.cashflowTable.td.WhatIf} + ${cashflowDto.categoryMessage + '?'}"
 						th:onclick="|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', null);|"
 						style="cursor: pointer;"></td>
 				</tr>
@@ -227,9 +227,9 @@
 		<div class="mb-2">
 			<select class="form-select" id="cashflowToCreate"
 				name="cashflowToCreate"
-				th:onchange="'window.location.href = \'' + @{/app/ajaxdashboard/createCashflow/} + ${resourceDto.id} + '/\' + this.value'">
+				th:onchange="'window.location.href = \'' + @{/app/dashboard/createCashflow/} + ${resourceDto.id} + '/\' + this.value'">
 				<option
-					th:text="#{msg.html.ajaxdashboard.cashflowTable.select.WhatIf}"
+					th:text="#{msg.html.dashboard.cashflowTable.select.WhatIf}"
 					hidden="hidden">XXX</option>
 				<option
 					th:each="opt : ${resourceDto.cashflowCategoriesUsersCanCreate}"
