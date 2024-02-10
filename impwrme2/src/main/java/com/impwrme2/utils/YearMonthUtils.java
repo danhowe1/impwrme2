@@ -4,6 +4,8 @@ import java.time.YearMonth;
 
 public final class YearMonthUtils {
 
+	public static final YearMonth YEAR_MONTH_MAX = YearMonth.of(3000, 1);
+	
     /**
      * Format a YearMonth object into 'MM YYYY'
      * @param yearMonth Object to be converter.

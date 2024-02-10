@@ -8,7 +8,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.impwrme2.model.resource.Resource;
+import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourceScenario;
+import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -55,6 +57,21 @@ public class Scenario implements Serializable {
 	
 	@OneToMany(mappedBy = "scenario", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	private Set<Resource> resources = new HashSet<Resource>();
+
+	public YearMonth calculateEndYearMonth() {
+		YearMonth endYearMonth = YearMonth.now();
+		for (Resource resource : getResources()) {
+			if (resource instanceof ResourcePerson person) {
+				YearMonth birthYearMonth = (YearMonth) resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH, resource.getStartYearMonth()).get().getValue();
+				Integer departureAge = (Integer) resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_DEPARTURE_AGE, resource.getStartYearMonth()).get().getValue();
+				YearMonth endDate = birthYearMonth.plusYears(departureAge);
+				if (endDate.isAfter(endYearMonth)) {
+					endYearMonth = endDate;
+				}
+			}
+		}
+		return endYearMonth;
+	}
 
 	//-------------------
 	// Getters & setters.

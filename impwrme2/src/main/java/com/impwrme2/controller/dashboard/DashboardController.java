@@ -3,6 +3,7 @@ package com.impwrme2.controller.dashboard;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -27,16 +28,22 @@ import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.cashflow.CashflowFrequency;
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
+import com.impwrme2.model.journalEntry.JournalEntry;
+import com.impwrme2.model.journalEntry.JournalEntryResponse;
 import com.impwrme2.model.resource.Resource;
+import com.impwrme2.model.resource.ResourceCreditCard;
 import com.impwrme2.model.resource.ResourceHousehold;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParamBigDecimal;
 import com.impwrme2.model.resourceParam.ResourceParamInteger;
+import com.impwrme2.model.resourceParam.ResourceParamYearMonth;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecimal;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueInteger;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueYearMonth;
 import com.impwrme2.model.scenario.Scenario;
+import com.impwrme2.service.journalEntry.JournalEntryService;
 import com.impwrme2.service.resource.ResourceService;
 import com.impwrme2.service.scenario.ScenarioService;
 import com.nimbusds.jose.shaded.gson.Gson;
@@ -65,35 +72,36 @@ public class DashboardController {
 	@Autowired
 	private ResourceService resourceService;
 
+	@Autowired
+	private JournalEntryService journalEntryService;
+
 	@GetMapping(value = { "", "/" })
 	public String dashboard(@AuthenticationPrincipal OidcUser user, Model model, HttpSession session, Locale locale) {
 
 		String userId = user.getUserInfo().getSubject();
-		Resource resource;
-//session.removeAttribute("SESSION_CURRENT_RESOURCE_ID");
-		Long currentResourceId = (Long) session.getAttribute("SESSION_CURRENT_RESOURCE_ID");
-		if (null == currentResourceId) {
+//session.removeAttribute("SESSION_CURRENT_RESOURCE");
+		Resource currentResource = (Resource) session.getAttribute("SESSION_CURRENT_RESOURCE");
+		if (null == currentResource) {
 			List<Scenario> scenarios = scenarioService.findByUserId(userId);
 			if (0 == scenarios.size()) {
-				resource = populateInitialTestScenario(userId).getSortedResources().first();
+				currentResource = populateInitialTestScenario(userId).getSortedResources().first();
 			} else if (scenarios.size() == 1) {
-				resource = scenarios.get(0).getSortedResources().first();
+				currentResource = scenarios.get(0).getSortedResources().first();
 			} else {
 				return "forward:/app/scenario/list";
 			}
-		} else {
-			resource = resourceService.findById(currentResourceId).get();
 		}
 		 
-		setUpModelAfterResourceUpdated(resource, model, session);
-		model.addAttribute("resourceDropdownDto", new ResourceDropdownDto(resource.getScenario(), resource.getResourceType()));
+		setUpModelAfterResourceUpdated(currentResource, model, session);
+		model.addAttribute("resourceDropdownDto", new ResourceDropdownDto(currentResource.getScenario(), currentResource.getResourceType()));
+		
 		return "dashboard/dashboard";
 	}
 
 	@GetMapping(value = "/getChartData", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public String getChartData() {
-		return generateJsonChartData();
+	public String getChartData(HttpSession session) {
+		return generateJsonChartData(session);
 	}
 
 	@GetMapping(value = { "/showResourceElements/{resourceId}" })
@@ -104,7 +112,7 @@ public class DashboardController {
 	}
 
 	protected void setUpModelAfterResourceUpdated(Resource resource, Model model, HttpSession session) {
-		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resource.getId());
+		session.setAttribute("SESSION_CURRENT_RESOURCE", resource);
 		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
 		model.addAttribute("resourceParamTableDto", resourceParamDtoConverter.resourceParamsToResourceParamTableDto(resource.getResourceParams()));
 		model.addAttribute("cashflowTableDto", cashflowDtoConverter.cashflowsToCashflowTableDto(resource.getCashflows()));
@@ -162,13 +170,24 @@ public class DashboardController {
 		Resource amandaResource = new ResourcePerson("Amanda");
 		amandaResource.setStartYearMonth(YearMonth.of(2024, 1));
 
+		ResourceParamYearMonth birthYearMonth = new ResourceParamYearMonth(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH);
+		amandaResource.addResourceParam(birthYearMonth);
+
+		ResourceParamDateValueYearMonth birthYearMonthVal = new ResourceParamDateValueYearMonth(YearMonth.of(2024, 1), false, YearMonth.of(1972, 2));
+		birthYearMonth.addResourceParamDateValue(birthYearMonthVal);
+
+		ResourceParamInteger departureAge = new ResourceParamInteger(ResourceParamNameEnum.PERSON_DEPARTURE_AGE);
+		amandaResource.addResourceParam(departureAge);
+
+		ResourceParamDateValueInteger deprtureAgeVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(100));
+		departureAge.addResourceParamDateValue(deprtureAgeVal);
+
 		ResourceParamInteger retirementAge = new ResourceParamInteger(ResourceParamNameEnum.PERSON_RETIREMENT_AGE);
-		retirementAge.setResource(amandaResource);
 		amandaResource.addResourceParam(retirementAge);
 
 		ResourceParamDateValueInteger retirementAgeVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(65));
 		retirementAge.addResourceParamDateValue(retirementAgeVal);
-
+		
 		Cashflow amandaEmploymentIncome = new Cashflow(CashflowCategory.INCOME_EMPLOYMENT, CashflowFrequency.MONTHLY, Boolean.TRUE);
 		amandaResource.addCashflow(amandaEmploymentIncome);
 		
@@ -183,20 +202,28 @@ public class DashboardController {
 	
 		scenario.addResource(amandaResource);
 		
-		// ----
-		// Dan.
-		// ----
+		// ------------
+		// Credit card.
+		// ------------
 		
-		Resource danResource = new ResourcePerson("Dan");
-		danResource.setStartYearMonth(YearMonth.of(2024, 1));
+		Resource creditCard = new ResourceCreditCard("Credit Card");
+		creditCard.setStartYearMonth(YearMonth.of(2024, 1));
 
-		scenario.addResource(danResource);
+		ResourceParamInteger balanceLegalMin = new ResourceParamInteger(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MIN);
+		creditCard.addResourceParam(balanceLegalMin);
+
+		ResourceParamDateValueInteger balanceLegalMinVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(-15000));
+		balanceLegalMin.addResourceParamDateValue(balanceLegalMinVal);
+
+		scenario.addResource(creditCard);
 		
 		return scenario;
 	}
 
-	private String generateJsonChartData() {
+	private String generateJsonChartData(HttpSession session) {
 
+		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(session);
+		
 		JsonObject dataTable = new JsonObject();
 		JsonArray jsonRows = new JsonArray();
 
@@ -247,5 +274,15 @@ public class DashboardController {
 		String result = gson.toJson(dataTable);
 
 		return result;
+	}
+
+	private JournalEntryResponse getOrCreateJournalEntries(HttpSession session) {
+		JournalEntryResponse journalEntryResponse = (JournalEntryResponse) session.getAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");		
+		if (null == journalEntryResponse) {
+			Resource resource = (Resource) session.getAttribute("SESSION_CURRENT_RESOURCE");
+			journalEntryResponse = journalEntryService.run(resource.getScenario());
+			session.setAttribute("SESSION_JOURNAL_ENTRY_RESPONSE", journalEntryResponse);
+		}
+		return journalEntryResponse;
 	}
 }

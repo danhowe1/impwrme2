@@ -4,11 +4,12 @@ import java.util.stream.Stream;
 
 public enum CashflowType {
 
-//	APPRECIATION(Values.APPRECIATION),
+	JE_BALANCE_OPENING(Values.JE_BALANCE_OPENING),
 	DEPOSIT(Values.DEPOSIT),
 	WITHDRAWAL(Values.WITHDRAWAL),
 	EXPENSE(Values.EXPENSE),
-	INCOME(Values.INCOME);
+	INCOME(Values.INCOME),
+	JE_BALANCE_CLOSING(Values.JE_BALANCE_CLOSING);
 	
 	private final String value;
 
@@ -17,11 +18,12 @@ public enum CashflowType {
 	}
 
 	public static class Values {
-//		public static final String APPRECIATION = "APPRECIATION";
+		public static final String JE_BALANCE_OPENING = "JE_BALANCE_OPENING";
 		public static final String DEPOSIT = "DEPOSIT";
 		public static final String WITHDRAWAL = "WITHDRAWAL";
 		public static final String EXPENSE = "EXPENSE";
 		public static final String INCOME = "INCOME";
+		public static final String JE_BALANCE_CLOSING = "JE_BALANCE_CLOSING";
 	}
 
 	public String getValue() {

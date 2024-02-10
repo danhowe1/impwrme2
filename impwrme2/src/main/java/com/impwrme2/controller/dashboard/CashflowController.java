@@ -67,7 +67,7 @@ public class CashflowController {
 	
 	@PostMapping(value = "/saveCashflowDateRangeValue")
 	@ResponseBody
-	public String saveCashflowDateRangeValue(@Valid CashflowDateRangeValueDto cfdrvDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model) {
+	public String saveCashflowDateRangeValue(@Valid CashflowDateRangeValueDto cfdrvDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
 		if (result.hasErrors()) {
 			return BaseController.getErrorMessageFromBindingResult(messageSource, result);
 		}
@@ -95,17 +95,19 @@ public class CashflowController {
 		}
 		
 		cashflowDateRangeValueService.save(cfdrv);
+		session.removeAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");
 		return "SUCCESS";
 	}
 
 	@PostMapping(value = "/deleteCashflowDateRangeValue")
 	@ResponseBody
-	public String deleteCashflowDateRangeValue(@Valid CashflowDateRangeValueDto cfdrvDto) {
+	public String deleteCashflowDateRangeValue(@Valid CashflowDateRangeValueDto cfdrvDto, HttpSession session) {
 		CashflowDateRangeValue cfdrv = cashflowDateRangeValueService.findById(cfdrvDto.getId()).get();
 		if (cfdrv.getCashflow().getResource().getStartYearMonth().equals(cfdrv.getYearMonthStart())) {
 			return messageSource.getMessage("msg.validation.cashflowDateRangeValue.deleteNotAllowed", null, LocaleContextHolder.getLocale());
 		}
 		cashflowService.deleteCashflowDateRangeValue(cfdrv);
+		session.removeAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");
 		return "SUCCESS";
 	}
 

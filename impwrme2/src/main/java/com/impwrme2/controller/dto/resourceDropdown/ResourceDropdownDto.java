@@ -20,6 +20,7 @@ public class ResourceDropdownDto {
 
 	private final static String RESOURCE_NAV_LABEL_SCENARIO = "resourceNavLabelScenario";
 	private final static String RESOURCE_NAV_LABEL_FAMILY = "resourceNavLabelFamily";
+	private final static String RESOURCE_NAV_LABEL_LOANS = "resourceNavLabelLoans";
 
 	private final ResourceType activeResourceType;
 	private Long scenarioResourceId;
@@ -45,6 +46,8 @@ public class ResourceDropdownDto {
 	private String getResourceNavLabel(ResourceType resourceType) {
 		
 		switch (resourceType) {
+		case CREDIT_CARD:
+			return RESOURCE_NAV_LABEL_LOANS;
 		case HOUSEHOLD:
 			return RESOURCE_NAV_LABEL_FAMILY;
 		case PERSON:

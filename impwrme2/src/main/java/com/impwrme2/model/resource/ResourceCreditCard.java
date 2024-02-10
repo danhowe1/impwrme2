@@ -1,5 +1,6 @@
 package com.impwrme2.model.resource;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.impwrme2.model.cashflow.CashflowCategory;
@@ -8,29 +9,29 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 @Entity
-@DiscriminatorValue(ResourceType.Values.HOUSEHOLD)
-public class ResourceHousehold extends Resource {
+@DiscriminatorValue(ResourceType.Values.CREDIT_CARD)
+public class ResourceCreditCard extends Resource {
 
-	private static final long serialVersionUID = -8656133449708260413L;
+	private static final long serialVersionUID = 1183308310916669229L;
 
 	/**
 	 * Protected constructor required for Hibernate only.
 	 */
-	protected ResourceHousehold() {
+	protected ResourceCreditCard() {
 		super();
 	}
 	
-	public ResourceHousehold(final String name) {
+	public ResourceCreditCard(final String name) {
 		super(name);
 	}
 
 	@Override
 	public ResourceType getResourceType() {
-		return ResourceType.HOUSEHOLD;
+		return ResourceType.CREDIT_CARD;
 	}
 
 	@Override
 	public List<CashflowCategory> getCashflowCategoriesUsersCanCreate() {
-		return List.of(CashflowCategory.EXPENSE_HOLIDAYS, CashflowCategory.EXPENSE_RENT);
+		return Collections.emptyList();
 	}
 }

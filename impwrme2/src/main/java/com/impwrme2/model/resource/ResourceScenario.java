@@ -1,8 +1,10 @@
 package com.impwrme2.model.resource;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.impwrme2.model.cashflow.CashflowCategory;
+import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -32,5 +34,9 @@ public class ResourceScenario extends Resource {
 	@Override
 	public List<CashflowCategory> getCashflowCategoriesUsersCanCreate() {
 		return List.of();
+	}
+	
+	public BigDecimal getCpi() {
+		return (BigDecimal) getResourceParamDateValue(ResourceParamNameEnum.SCENARIO_CPI, getStartYearMonth()).get().getValue();
 	}
 }

@@ -5,13 +5,16 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.hibernate.annotations.SortNatural;
 
 import com.impwrme2.model.YearMonthIntegerAttributeConverter;
 import com.impwrme2.model.cashflow.Cashflow;
+import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParam;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 import com.impwrme2.model.scenario.Scenario;
 
 import jakarta.persistence.CascadeType;
@@ -126,6 +129,20 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 		return 0;
 	}
 
+	public Optional<ResourceParam<?>> getResourceParam(ResourceParamNameEnum name) {
+		Optional<ResourceParam<?>> resourceParam = getResourceParams().stream().filter(c -> c.getName().equals(name)).findFirst();
+		return resourceParam;
+	}
+	
+	public Optional<ResourceParamDateValue<?>> getResourceParamDateValue(ResourceParamNameEnum name, YearMonth yearMonth) {
+		Optional<ResourceParam<?>> resourceParamOpt = getResourceParam(name);
+		if (resourceParamOpt.isEmpty()) {
+			return Optional.empty();
+		}
+		ResourceParam<?> resourceParam = resourceParamOpt.get();
+		return Optional.of(resourceParam.getResourceParamDateValues().stream().filter(c -> c.getYearMonth().equals(yearMonth)).findFirst().orElseThrow(IllegalArgumentException::new));
+	}
+		
 	//-------------------
 	// Getters & setters.
 	//-------------------

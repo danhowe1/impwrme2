@@ -1,11 +1,14 @@
 package com.impwrme2.model.cashflow;
 
 import java.io.Serializable;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.resource.Resource;
+import com.impwrme2.utils.YearMonthUtils;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -85,6 +88,16 @@ public class Cashflow implements Comparable<Cashflow>, Serializable {
 		return 0;
 	}
 
+	/**
+	 * Returns a CashflowDateRangeValue if the yearMonth is equal to or after the start date and before the end date.
+	 * @param yearMonth Date to test against.
+	 * @return The CashflowDateRangeValue adhering to the date criteria.
+	 */
+	public Optional<CashflowDateRangeValue> getCashflowDateRangeValue(YearMonth yearMonth) {
+		Optional<CashflowDateRangeValue> cfdrv = getCashflowDateRangeValues().stream().filter(c -> ((!c.getYearMonthStart().isAfter(yearMonth)) && (null == c.getYearMonthEnd() ? YearMonthUtils.YEAR_MONTH_MAX : c.getYearMonthEnd()).isAfter(yearMonth))).findFirst();
+		return cfdrv;
+	}
+	
 	//-------------------
 	// Getters & setters.
 	//-------------------

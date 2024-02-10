@@ -63,7 +63,7 @@ public class ResourceParamController {
 
 	@PostMapping(value = "/saveResourceParamDateValue")
 	@ResponseBody
-	public String saveResourceParamDateValue(@Valid ResourceParamDateValueDto rpdvDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model) {
+	public String saveResourceParamDateValue(@Valid ResourceParamDateValueDto rpdvDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
 		if (result.hasErrors()) {
 			return BaseController.getErrorMessageFromBindingResult(messageSource, result);
 		}
@@ -72,17 +72,19 @@ public class ResourceParamController {
 		} else {
 			saveNewRpdvOrUpdateExistingRpdv(rpdvDto);
 		}
+		session.removeAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");
 		return "SUCCESS";
 	}
 
 	@PostMapping(value = "/deleteResourceParamDateValue")
 	@ResponseBody
-	public String deleteResourceParamDateValue(@Valid ResourceParamDateValueDto rpdvDto) {
+	public String deleteResourceParamDateValue(@Valid ResourceParamDateValueDto rpdvDto, HttpSession session) {
 		if (!rpdvDto.isUserAbleToChangeDate()) {
 			return messageSource.getMessage("msg.validation.resourceParamDateValue.deleteNotAllowed", null, LocaleContextHolder.getLocale());
 		}
 		ResourceParamDateValue<?> rpdv = resourceParamDateValueService.findById(rpdvDto.getId()).get();
 		resourceParamService.deleteResourceParamDateValue(rpdv);
+		session.removeAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");
 		return "SUCCESS";
 	}
 
