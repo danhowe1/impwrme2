@@ -10,12 +10,9 @@ public class ResourceMonthlyAmounts {
 
 	public ResourceMonthlyAmounts(final IResourceEngine resourceEngine, final YearMonth yearMonth) {
 		this.resource = resourceEngine.getResource();
-		this.balanceLiquidLegalMin = resourceEngine.getBalanceLiquidLegalMin(yearMonth);
 	}
 	
 	private final Resource resource;
-
-	private final BigDecimal balanceLiquidLegalMin;
 
 	private BigDecimal liquidPotAmount = BigDecimal.valueOf(0);
 	
@@ -24,7 +21,7 @@ public class ResourceMonthlyAmounts {
 	private BigDecimal fixedAmount = BigDecimal.valueOf(0);
 
 	public BigDecimal getLiquidBalance( ) {
-		return getLiquidDepositsAmount().add(getLiquidPotAmount()).add(balanceLiquidLegalMin);
+		return getLiquidDepositsAmount().add(getLiquidPotAmount()).add(getLiquidDepositsAmount());
 	}
 	
 	public BigDecimal getAssetValue( ) {
@@ -52,12 +49,24 @@ public class ResourceMonthlyAmounts {
 		return liquidPotAmount;
 	}
 
+	public void addToLiquidPotAmount(BigDecimal amount) {
+		this.liquidPotAmount = this.liquidPotAmount.add(amount);
+	}
+
+	public void subtractFromLiquidPotAmount(BigDecimal amount) {
+		this.liquidPotAmount = this.liquidPotAmount.subtract(amount);
+	}
+
 	public BigDecimal getLiquidDepositsAmount() {
 		return liquidDepositsAmount;
 	}
 	
 	public void addToLiquidDepositsAmount(BigDecimal amount) {
 		this.liquidDepositsAmount = this.liquidDepositsAmount.add(amount);
+	}
+
+	public void subtractFromLiquidDepositsAmount(BigDecimal amount) {
+		this.liquidDepositsAmount = this.liquidDepositsAmount.subtract(amount);
 	}
 
 	public BigDecimal getFixedAmount() {

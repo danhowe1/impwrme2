@@ -3,7 +3,6 @@ package com.impwrme2.controller.dashboard;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -28,10 +27,10 @@ import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.cashflow.CashflowFrequency;
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
-import com.impwrme2.model.journalEntry.JournalEntry;
 import com.impwrme2.model.journalEntry.JournalEntryResponse;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceCreditCard;
+import com.impwrme2.model.resource.ResourceCurrentAccount;
 import com.impwrme2.model.resource.ResourceHousehold;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourceScenario;
@@ -100,8 +99,8 @@ public class DashboardController {
 
 	@GetMapping(value = "/getChartData", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public String getChartData(HttpSession session) {
-		return generateJsonChartData(session);
+	public String getChartData(@AuthenticationPrincipal OidcUser user, HttpSession session) {
+		return generateJsonChartData(user, session);
 	}
 
 	@GetMapping(value = { "/showResourceElements/{resourceId}" })
@@ -215,14 +214,41 @@ public class DashboardController {
 		ResourceParamDateValueInteger balanceLegalMinVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(-15000));
 		balanceLegalMin.addResourceParamDateValue(balanceLegalMinVal);
 
+		ResourceParamInteger balanceOpeningLiquid = new ResourceParamInteger(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
+		creditCard.addResourceParam(balanceOpeningLiquid);
+
+		ResourceParamDateValueInteger balanceOpeningLiquidVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(-12000));
+		balanceOpeningLiquid.addResourceParamDateValue(balanceOpeningLiquidVal);		
+		
 		scenario.addResource(creditCard);
+		
+		// ----------------
+		// Current account.
+		// ----------------
+		
+		Resource currentAccount = new ResourceCurrentAccount("Current Account");
+		currentAccount.setStartYearMonth(YearMonth.of(2024, 1));
+
+//		ResourceParamInteger currentAccountBalanceLegalMax = new ResourceParamInteger(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MAX);
+//		currentAccount.addResourceParam(currentAccountBalanceLegalMax);
+//
+//		ResourceParamDateValueInteger currentAccountBalanceLegalMaxVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.MAX_VALUE);
+//		currentAccountBalanceLegalMax.addResourceParamDateValue(currentAccountBalanceLegalMaxVal);
+
+		ResourceParamInteger currentAccountBalanceOpeningLiquid = new ResourceParamInteger(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
+		currentAccount.addResourceParam(currentAccountBalanceOpeningLiquid);
+
+		ResourceParamDateValueInteger currentAccountBalanceOpeningLiquidVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(910000));
+		currentAccountBalanceOpeningLiquid.addResourceParamDateValue(currentAccountBalanceOpeningLiquidVal);		
+		
+		scenario.addResource(currentAccount);
 		
 		return scenario;
 	}
 
-	private String generateJsonChartData(HttpSession session) {
+	private String generateJsonChartData(OidcUser user, HttpSession session) {
 
-		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(session);
+		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(user, session);
 		
 		JsonObject dataTable = new JsonObject();
 		JsonArray jsonRows = new JsonArray();
@@ -276,11 +302,12 @@ public class DashboardController {
 		return result;
 	}
 
-	private JournalEntryResponse getOrCreateJournalEntries(HttpSession session) {
+	private JournalEntryResponse getOrCreateJournalEntries(OidcUser user, HttpSession session) {
 		JournalEntryResponse journalEntryResponse = (JournalEntryResponse) session.getAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");		
 		if (null == journalEntryResponse) {
-			Resource resource = (Resource) session.getAttribute("SESSION_CURRENT_RESOURCE");
-			journalEntryResponse = journalEntryService.run(resource.getScenario());
+			Resource sessionResource = (Resource) session.getAttribute("SESSION_CURRENT_RESOURCE");
+			Scenario scenario = scenarioService.findByIdAndUserId(sessionResource.getScenario().getId(), user.getUserInfo().getSubject()).get();
+			journalEntryResponse = journalEntryService.run(scenario);
 			session.setAttribute("SESSION_JOURNAL_ENTRY_RESPONSE", journalEntryResponse);
 		}
 		return journalEntryResponse;

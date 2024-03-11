@@ -1,7 +1,6 @@
 package com.impwrme2.model.journalEntry;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import com.impwrme2.model.cashflow.CashflowCategory;
@@ -11,11 +10,11 @@ public class JournalEntry implements Comparable<JournalEntry>, Serializable{
 
 	private static final long serialVersionUID = -2429094711348472282L;
 
-	public JournalEntry(Resource resource, YearMonth date, CashflowCategory category, BigDecimal amount) {
+	public JournalEntry(Resource resource, YearMonth date, CashflowCategory category, Integer amount) {
 		this(resource, date, category, null, amount);
 	}
 	
-	public JournalEntry(Resource resource, YearMonth date, CashflowCategory category, String detail, BigDecimal amount) {
+	public JournalEntry(Resource resource, YearMonth date, CashflowCategory category, String detail, Integer amount) {
 		this.resource = resource;
 		this.date = date;
 		this.category = category;
@@ -31,13 +30,14 @@ public class JournalEntry implements Comparable<JournalEntry>, Serializable{
 	
 	private final String detail;
 	
-	private final BigDecimal amount;
+	private final Integer amount;
 		
 	public String toString() {
 		StringBuffer sb = new StringBuffer();		
 		sb.append(date.toString() + " ");
 		sb.append(String.format("%1$-" + 40 + "s", category.getValue()));
 		sb.append(String.format("%1$-" + 20 + "s", resource.getName()));
+		sb.append(String.format("%1$-" + 20 + "s", null == detail ? "" : detail));
 		sb.append(String.format("%1$" + 10 + "s", amount));
 		return sb.toString();
 	}
@@ -62,7 +62,7 @@ public class JournalEntry implements Comparable<JournalEntry>, Serializable{
 		return detail;
 	}
 
-	public BigDecimal getAmount() {
+	public Integer getAmount() {
 		return amount;
 	}
 

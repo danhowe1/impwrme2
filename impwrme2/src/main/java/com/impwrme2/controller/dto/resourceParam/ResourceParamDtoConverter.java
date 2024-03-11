@@ -21,9 +21,10 @@ public class ResourceParamDtoConverter {
 	private ResourceParamDateValueDtoConverter rpdvDtoConverter;
 
 	public ResourceParamDto entityToDto(ResourceParam<?> resourceParam) {
+		String resourceTypeStr = resourceParam.getResource().getResourceType().getValue();
 		ResourceParamDto resourceParamDto = new ResourceParamDto();
 		resourceParamDto.setId(resourceParam.getId());
-		resourceParamDto.setName(resourceParam.getName().getMessageCode());
+		resourceParamDto.setName(resourceParam.getName().getMessageCode() + "." + resourceTypeStr);
 		resourceParamDto.setUserAbleToCreateNewDateValue(resourceParam.isUserAbleToCreateNewDateValue());
 		resourceParamDto.setResourceParamType(resourceParam.getResourceParamType().getValue());
 		return resourceParamDto;

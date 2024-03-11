@@ -1,7 +1,6 @@
 package com.impwrme2.controller.dto.resourceDropdown;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +20,7 @@ public class ResourceDropdownDto {
 	private final static String RESOURCE_NAV_LABEL_SCENARIO = "resourceNavLabelScenario";
 	private final static String RESOURCE_NAV_LABEL_FAMILY = "resourceNavLabelFamily";
 	private final static String RESOURCE_NAV_LABEL_LOANS = "resourceNavLabelLoans";
+	private final static String RESOURCE_NAV_LABEL_SAVINGS = "resourceNavLabelSavings";
 
 	private final ResourceType activeResourceType;
 	private Long scenarioResourceId;
@@ -38,9 +38,9 @@ public class ResourceDropdownDto {
 			}
 		}
 		
-		for (ResourceDropdownTabDto tab : resourceTabMap.values()) {
-			Collections.sort(tab.getResourceTabItems());			
-		}
+//		for (ResourceDropdownTabDto tab : resourceTabMap.values()) {
+//			Collections.sort(tab.getResourceTabItems());			
+//		}
 	}
 
 	private String getResourceNavLabel(ResourceType resourceType) {
@@ -48,6 +48,8 @@ public class ResourceDropdownDto {
 		switch (resourceType) {
 		case CREDIT_CARD:
 			return RESOURCE_NAV_LABEL_LOANS;
+		case CURRENT_ACCOUNT:
+			return RESOURCE_NAV_LABEL_SAVINGS;
 		case HOUSEHOLD:
 			return RESOURCE_NAV_LABEL_FAMILY;
 		case PERSON:
@@ -66,7 +68,7 @@ public class ResourceDropdownDto {
 			resourceTabMap.put(resourceNavLabel, tab);
 		}
 		tab.addResourceTabItem(new ResourceDropdownTabItemDto(resource));
-		Collections.sort(tab.getResourceTabItems());
+//		Collections.sort(tab.getResourceTabItems());
 	}
 
 	// -------------------

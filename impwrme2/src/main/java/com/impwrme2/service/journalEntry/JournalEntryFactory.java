@@ -1,23 +1,27 @@
 package com.impwrme2.service.journalEntry;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.YearMonth;
+
+import org.springframework.stereotype.Component;
 
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.journalEntry.JournalEntry;
 import com.impwrme2.model.resource.Resource;
 
+@Component
 public class JournalEntryFactory {
 
-	public static JournalEntry createBalanceOpeningLiquid(Resource resource, YearMonth yearMonth, BigDecimal amount) {
-		return new JournalEntry(resource, yearMonth, CashflowCategory.JE_BALANCE_OPENING_LIQUID, amount);
+	public JournalEntry create(Resource resource, YearMonth yearMonth, BigDecimal amount, CashflowCategory category) {
+		return create(resource, yearMonth, amount, category, null);
 	}
 
-	public static JournalEntry createBalanceOpeningAssetValue(Resource resource, YearMonth yearMonth, BigDecimal amount) {
-		return new JournalEntry(resource, yearMonth, CashflowCategory.JE_BALANCE_OPENING_ASSET_VALUE, amount);
+	public JournalEntry create(Resource resource, YearMonth yearMonth, BigDecimal amount, CashflowCategory category, String detail) {
+		return new JournalEntry(resource, yearMonth, category, integerOf(amount));
 	}
 
-	public static JournalEntry create(Resource resource, YearMonth yearMonth, BigDecimal amount, CashflowCategory category) {
-		return new JournalEntry(resource, yearMonth, category, amount);
+	private Integer integerOf(BigDecimal decimal) {
+		return decimal.setScale(0, RoundingMode.HALF_UP).intValue();
 	}
 }

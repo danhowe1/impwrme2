@@ -1,8 +1,10 @@
 package com.impwrme2.model.resource;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +14,7 @@ import org.hibernate.annotations.SortNatural;
 
 import com.impwrme2.model.YearMonthIntegerAttributeConverter;
 import com.impwrme2.model.cashflow.Cashflow;
+import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
@@ -109,6 +112,11 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 	}
 
 	@Override
+	public List<CashflowCategory> getCashflowCategoriesUsersCanCreate() {
+		return Collections.emptyList();
+	}
+
+	@Override
 	public int compareTo(Resource o) {
 		
 		int compareResourceType = this.getResourceType().compareTo(o.getResourceType());
@@ -133,14 +141,20 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 		Optional<ResourceParam<?>> resourceParam = getResourceParams().stream().filter(c -> c.getName().equals(name)).findFirst();
 		return resourceParam;
 	}
-	
+
 	public Optional<ResourceParamDateValue<?>> getResourceParamDateValue(ResourceParamNameEnum name, YearMonth yearMonth) {
 		Optional<ResourceParam<?>> resourceParamOpt = getResourceParam(name);
 		if (resourceParamOpt.isEmpty()) {
 			return Optional.empty();
 		}
-		ResourceParam<?> resourceParam = resourceParamOpt.get();
-		return Optional.of(resourceParam.getResourceParamDateValues().stream().filter(c -> c.getYearMonth().equals(yearMonth)).findFirst().orElseThrow(IllegalArgumentException::new));
+				
+		Optional<?> rpdvOpt = resourceParamOpt.get().getResourceParamDateValues().stream().filter(c -> c.getYearMonth().equals(yearMonth)).findFirst();
+		if (rpdvOpt.isEmpty()) {
+			return Optional.empty();
+		}
+		
+		return (Optional<ResourceParamDateValue<?>>) rpdvOpt;
+//		return Optional.of(resourceParam.getResourceParamDateValues().stream().filter(c -> c.getYearMonth().equals(yearMonth)).findFirst().orElseThrow(IllegalArgumentException::new));
 	}
 		
 	//-------------------

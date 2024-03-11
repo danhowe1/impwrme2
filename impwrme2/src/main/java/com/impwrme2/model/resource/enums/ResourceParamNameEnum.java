@@ -22,16 +22,16 @@ public enum ResourceParamNameEnum {
 	}
 
 	public static class MessageCodes {
-		public static final String BALANCE_LIQUID_LEGAL_MAX = "msg.class.resourceParamNameEnum.global.balanceLiquidLegalMax";
-		public static final String BALANCE_LIQUID_LEGAL_MIN = "msg.class.resourceParamNameEnum.global.balanceLiquidLegalMin";
-		public static final String BALANCE_OPENING_LIQUID = "msg.class.resourceParamNameEnum.global.balanceOpeningLiquid";
-		public static final String BALANCE_OPENING_FIXED = "msg.class.resourceParamNameEnum.global.balanceOpeningFixed";
+		public static final String BALANCE_LIQUID_LEGAL_MAX = "msg.class.resourceParamNameEnum.balanceLiquidLegalMax";
+		public static final String BALANCE_LIQUID_LEGAL_MIN = "msg.class.resourceParamNameEnum.balanceLiquidLegalMin";
+		public static final String BALANCE_OPENING_LIQUID = "msg.class.resourceParamNameEnum.balanceOpeningLiquid";
+		public static final String BALANCE_OPENING_FIXED = "msg.class.resourceParamNameEnum.balanceOpeningFixed";
 		
-		public static final String SCENARIO_CPI = "msg.class.resourceParamNameEnum.scenario.cpi";
-		public static final String SCENARIO_SHARE_MARKET_GROWTH_RATE = "msg.class.resourceParamNameEnum.scenario.shareMarketGrowthRate";
-		public static final String PERSON_BIRTH_YEAR_MONTH = "msg.class.resourceParamNameEnum.person.birthMonthYear";		
-		public static final String PERSON_DEPARTURE_AGE = "msg.class.resourceParamNameEnum.person.departureAge";		
-		public static final String PERSON_RETIREMENT_AGE = "msg.class.resourceParamNameEnum.person.retirementAge";		
+		public static final String SCENARIO_CPI = "msg.class.resourceParamNameEnum.cpi";
+		public static final String SCENARIO_SHARE_MARKET_GROWTH_RATE = "msg.class.resourceParamNameEnum.shareMarketGrowthRate";
+		public static final String PERSON_BIRTH_YEAR_MONTH = "msg.class.resourceParamNameEnum.birthMonthYear";		
+		public static final String PERSON_DEPARTURE_AGE = "msg.class.resourceParamNameEnum.departureAge";		
+		public static final String PERSON_RETIREMENT_AGE = "msg.class.resourceParamNameEnum.retirementAge";		
 	}
 
 	public String getMessageCode(ResourceParamNameEnum paramName) {
