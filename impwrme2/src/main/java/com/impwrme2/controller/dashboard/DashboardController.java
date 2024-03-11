@@ -2,12 +2,10 @@ package com.impwrme2.controller.dashboard;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
@@ -15,7 +13,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.impwrme2.controller.dto.cashflow.CashflowDtoConverter;
 import com.impwrme2.controller.dto.cashflowDateRangeValue.CashflowDateRangeValueDto;
@@ -27,7 +24,6 @@ import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.cashflow.CashflowFrequency;
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
-import com.impwrme2.model.journalEntry.JournalEntryResponse;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceCreditCard;
 import com.impwrme2.model.resource.ResourceCurrentAccount;
@@ -45,10 +41,6 @@ import com.impwrme2.model.scenario.Scenario;
 import com.impwrme2.service.journalEntry.JournalEntryService;
 import com.impwrme2.service.resource.ResourceService;
 import com.impwrme2.service.scenario.ScenarioService;
-import com.nimbusds.jose.shaded.gson.Gson;
-import com.nimbusds.jose.shaded.gson.GsonBuilder;
-import com.nimbusds.jose.shaded.gson.JsonArray;
-import com.nimbusds.jose.shaded.gson.JsonObject;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -95,12 +87,6 @@ public class DashboardController {
 		model.addAttribute("resourceDropdownDto", new ResourceDropdownDto(currentResource.getScenario(), currentResource.getResourceType()));
 		
 		return "dashboard/dashboard";
-	}
-
-	@GetMapping(value = "/getChartData", produces = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public String getChartData(@AuthenticationPrincipal OidcUser user, HttpSession session) {
-		return generateJsonChartData(user, session);
 	}
 
 	@GetMapping(value = { "/showResourceElements/{resourceId}" })
@@ -244,72 +230,5 @@ public class DashboardController {
 		scenario.addResource(currentAccount);
 		
 		return scenario;
-	}
-
-	private String generateJsonChartData(OidcUser user, HttpSession session) {
-
-		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(user, session);
-		
-		JsonObject dataTable = new JsonObject();
-		JsonArray jsonRows = new JsonArray();
-
-		List<String[][]> columnDefinitions = new ArrayList<String[][]>();
-		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Date" }, { "pattern", "" }, { "type", "string" } });
-		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Total" }, { "pattern", "" }, { "type", "number" } });
-		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Style" }, { "role", "style" }, { "type", "string" } });
-		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Toooltip" }, { "role", "tooltip" }, { "type", "string" } });
-
-		JsonArray columns = new JsonArray();
-		for (String[][] columnDefinition : columnDefinitions) {
-			JsonObject cell = new JsonObject();
-			for (int i = 0; i < columnDefinition.length; i++) {
-				cell.addProperty(columnDefinition[i][0], columnDefinition[i][1]);
-			}
-			columns.add(cell);
-		}
-		dataTable.add("cols", columns);
-
-		List<Object[]> rows = new ArrayList<Object[]>();
-		rows.add(new Object[] { "12 2024", Integer.valueOf(324), null, null });
-		rows.add(new Object[] { "12 2025", Integer.valueOf(654), "point { size: 12; shape-type: star; fill-color: #a52714; }", "Griffin St sold for $4,500,000" });
-		rows.add(new Object[] { "12 2026", Integer.valueOf(700), null, null });
-
-		for (Object[] rowData : rows) {
-			JsonObject row = new JsonObject();
-			JsonArray cells = new JsonArray();
-
-			for (Object cellData : rowData) {
-				JsonObject cell = new JsonObject();
-				if (null == cellData) {
-					cell.addProperty("v", "");					
-				} else if (cellData instanceof Integer) {
-					cell.addProperty("v", ((Integer) cellData).intValue());
-				} else {
-					cell.addProperty("v", cellData.toString());
-				}
-				cells.add(cell);
-			}
-
-			row.add("c", cells);
-			jsonRows.add(row);
-		}
-
-		dataTable.add("rows", jsonRows);
-
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		String result = gson.toJson(dataTable);
-
-		return result;
-	}
-
-	private JournalEntryResponse getOrCreateJournalEntries(OidcUser user, HttpSession session) {
-		JournalEntryResponse journalEntryResponse = (JournalEntryResponse) session.getAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");		
-		if (null == journalEntryResponse) {
-			Resource sessionResource = (Resource) session.getAttribute("SESSION_CURRENT_RESOURCE");
-			Scenario scenario = scenarioService.findByIdAndUserId(sessionResource.getScenario().getId(), user.getUserInfo().getSubject()).get();
-			journalEntryResponse = journalEntryService.run(scenario);
-			session.setAttribute("SESSION_JOURNAL_ENTRY_RESPONSE", journalEntryResponse);
-		}
-		return journalEntryResponse;
 	}
 }

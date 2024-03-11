@@ -23,6 +23,7 @@ import com.impwrme2.model.journalEntry.JournalEntry;
 import com.impwrme2.model.journalEntry.JournalEntryResponse;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceScenario;
+import com.impwrme2.model.resource.ResourceType;
 import com.impwrme2.model.resource.ResourceUnallocated;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
@@ -117,13 +118,20 @@ public class JournalEntryService {
 			// Generate the closing balances (including unallocated if necessary).
 			currentMonthsJournalEntries.addAll(generateJournalEntriesForClosingBalances(resourceEngines));
 			
-			if (potManager.getCurrentYearMonth().isBefore(YearMonth.of(2024, 3))) {
+//			if (potManager.getCurrentYearMonth().isBefore(YearMonth.of(2024, 4))) {
 				Collections.sort(currentMonthsJournalEntries);
 				for (JournalEntry journalEntry : currentMonthsJournalEntries) {
 					System.out.println(journalEntry.toString());
+					
+					if (journalEntry.getResource().getResourceType().equals(ResourceType.CREDIT_CARD) &&
+						journalEntry.getCategory().equals(CashflowCategory.JE_BALANCE_CLOSING_LIQUID) &&
+						journalEntry.getAmount() < -15000)  {
+						System.out.println("HERE!");
+					}
+						
 				}
 				System.out.println(potManager.toString());
-			}
+//			}
 			
 			// TODO Temporarily put a sanity check here to make sure we're not creating or destroying money.
 			
@@ -168,7 +176,7 @@ public class JournalEntryService {
 				potManager.addToPotBalance(BigDecimal.valueOf(liquidAmount));
 			}
 		}
-		return journalEntryFactory.create(resourceEngine.getResource(), potManager.getCurrentYearMonth(), potManager.getLiquidBalance(resourceEngine, potManager.getCurrentYearMonth()), CashflowCategory.JE_BALANCE_OPENING_LIQUID);
+		return journalEntryFactory.create(resourceEngine.getResource(), potManager.getCurrentYearMonth(), BigDecimal.valueOf(liquidAmount), CashflowCategory.JE_BALANCE_OPENING_LIQUID);
 	}
 	
 	private JournalEntry generateJournalEntryFixedAmountOpeningBalance(IResourceEngine resourceEngine) {

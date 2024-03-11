@@ -21,7 +21,7 @@ public class ResourceMonthlyAmounts {
 	private BigDecimal fixedAmount = BigDecimal.valueOf(0);
 
 	public BigDecimal getLiquidBalance( ) {
-		return getLiquidDepositsAmount().add(getLiquidPotAmount()).add(getLiquidDepositsAmount());
+		return getLiquidDepositsAmount().add(getLiquidPotAmount());
 	}
 	
 	public BigDecimal getAssetValue( ) {
