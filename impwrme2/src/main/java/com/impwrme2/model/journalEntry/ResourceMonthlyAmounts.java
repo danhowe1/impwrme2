@@ -1,6 +1,5 @@
 package com.impwrme2.model.journalEntry;
 
-import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import com.impwrme2.model.resource.Resource;
@@ -14,18 +13,18 @@ public class ResourceMonthlyAmounts {
 	
 	private final Resource resource;
 
-	private BigDecimal liquidPotAmount = BigDecimal.valueOf(0);
+	private Integer liquidPotAmount = Integer.valueOf(0);
 	
-	private BigDecimal liquidDepositsAmount = BigDecimal.valueOf(0);
+	private Integer liquidDepositsAmount = Integer.valueOf(0);
 	
-	private BigDecimal fixedAmount = BigDecimal.valueOf(0);
+	private Integer fixedAmount = Integer.valueOf(0);
 
-	public BigDecimal getLiquidBalance( ) {
-		return getLiquidDepositsAmount().add(getLiquidPotAmount());
+	public Integer getLiquidBalance( ) {
+		return getLiquidDepositsAmount() + getLiquidPotAmount();
 	}
 	
-	public BigDecimal getAssetValue( ) {
-		return getFixedAmount().add(getLiquidBalance());
+	public Integer getAssetValue( ) {
+		return getFixedAmount() + getLiquidBalance();
 	}
 
 	public String toString() {
@@ -45,35 +44,35 @@ public class ResourceMonthlyAmounts {
 		return resource;
 	}
 
-	public BigDecimal getLiquidPotAmount() {
+	public Integer getLiquidPotAmount() {
 		return liquidPotAmount;
 	}
 
-	public void addToLiquidPotAmount(BigDecimal amount) {
-		this.liquidPotAmount = this.liquidPotAmount.add(amount);
+	public void addToLiquidPotAmount(Integer amount) {
+		this.liquidPotAmount = this.liquidPotAmount +amount;
 	}
 
-	public void subtractFromLiquidPotAmount(BigDecimal amount) {
-		this.liquidPotAmount = this.liquidPotAmount.subtract(amount);
+	public void subtractFromLiquidPotAmount(Integer amount) {
+		this.liquidPotAmount = this.liquidPotAmount - amount;
 	}
 
-	public BigDecimal getLiquidDepositsAmount() {
+	public Integer getLiquidDepositsAmount() {
 		return liquidDepositsAmount;
 	}
 	
-	public void addToLiquidDepositsAmount(BigDecimal amount) {
-		this.liquidDepositsAmount = this.liquidDepositsAmount.add(amount);
+	public void addToLiquidDepositsAmount(Integer amount) {
+		this.liquidDepositsAmount = this.liquidDepositsAmount + amount;
 	}
 
-	public void subtractFromLiquidDepositsAmount(BigDecimal amount) {
-		this.liquidDepositsAmount = this.liquidDepositsAmount.subtract(amount);
+	public void subtractFromLiquidDepositsAmount(Integer amount) {
+		this.liquidDepositsAmount = this.liquidDepositsAmount - amount;
 	}
 
-	public BigDecimal getFixedAmount() {
+	public Integer getFixedAmount() {
 		return fixedAmount;
 	}
 	
-	public void addToFixedAmount(BigDecimal amount) {
-		this.fixedAmount = this.fixedAmount.add(amount);
+	public void addToFixedAmount(Integer amount) {
+		this.fixedAmount = this.fixedAmount + amount;
 	}
 }

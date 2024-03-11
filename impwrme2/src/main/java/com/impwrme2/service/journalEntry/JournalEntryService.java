@@ -77,13 +77,9 @@ public class JournalEntryService {
 					currentMonthsJournalEntries.add(generateJournalEntryFixedAmountOpeningBalance(resourceEngine));
 				} else {
 					// Contribute months opening balance to the pot.
-					BigDecimal balanceLiquidOpeningAmount = potManager.getLiquidPot(resourceEngine);
+					Integer balanceLiquidOpeningAmount = potManager.getLiquidPot(resourceEngine);
 					potManager.addToPotBalance(balanceLiquidOpeningAmount);
 					potManager.subtractFromLiquidPot(resourceEngine, potManager.getLiquidPot(resourceEngine));
-//					if (balanceLiquidOpeningAmount.compareTo(BigDecimal.ZERO) > 0) {
-//						// Don't contribute debt to the pot
-//						potManager.subtractFromLiquidPot(resourceEngine, potManager.getLiquidPot(resourceEngine));
-//					}					
 				}
 
 				
@@ -170,13 +166,13 @@ public class JournalEntryService {
 			liquidAmount = (Integer) rpdvOpt.get().getValue();
 			if (liquidAmount.intValue() > 0) {
 				// If there are savings in the account then we assume that these have been explicitly deposited by the user.
-				potManager.addToLiquidDepositsAmount(resourceEngine, BigDecimal.valueOf(liquidAmount));
+				potManager.addToLiquidDepositsAmount(resourceEngine, liquidAmount);
 			} else if (liquidAmount.intValue() < 0) {
 				// If this is debt then just put the amount straight into the pot. We assume the user wants to pay this off asap.
-				potManager.addToPotBalance(BigDecimal.valueOf(liquidAmount));
+				potManager.addToPotBalance(liquidAmount);
 			}
 		}
-		return journalEntryFactory.create(resourceEngine.getResource(), potManager.getCurrentYearMonth(), BigDecimal.valueOf(liquidAmount), CashflowCategory.JE_BALANCE_OPENING_LIQUID);
+		return journalEntryFactory.create(resourceEngine.getResource(), potManager.getCurrentYearMonth(), liquidAmount, CashflowCategory.JE_BALANCE_OPENING_LIQUID);
 	}
 	
 	private JournalEntry generateJournalEntryFixedAmountOpeningBalance(IResourceEngine resourceEngine) {
@@ -185,7 +181,7 @@ public class JournalEntryService {
 		if (rpdvOpt.isPresent()) {
 			fixedAmount = (Integer) rpdvOpt.get().getValue();
 		}
-		potManager.addToFixedAmount(resourceEngine, BigDecimal.valueOf(fixedAmount));
+		potManager.addToFixedAmount(resourceEngine, fixedAmount);
 		return journalEntryFactory.create(resourceEngine.getResource(), potManager.getCurrentYearMonth(), potManager.getAssetValue(resourceEngine, potManager.getCurrentYearMonth()), CashflowCategory.JE_BALANCE_OPENING_ASSET_VALUE);
 	}
 	
@@ -201,7 +197,7 @@ public class JournalEntryService {
 			if (cfdrvOpt.isPresent()) {
 				CashflowDateRangeValue cfdrv = cfdrvOpt.get();
 				if (cfdrv.getValue().intValue() != 0 && isCashflowDue(cfdrv, potManager.getCurrentYearMonth())) {
-					BigDecimal amount = calculateAmountWithCpi(cfdrv, potManager.getCurrentYearMonth());
+					Integer amount = calculateAmountWithCpi(cfdrv, potManager.getCurrentYearMonth());
 					journalEntries.add(createExpenseOrIncome(resourceEngine.getResource(), amount, cfdrv.getCashflow().getCategory(), cashflow.getDetail()));
 				}
 			}
@@ -211,17 +207,18 @@ public class JournalEntryService {
 
 	private List<JournalEntry> generateJournalEntriesForAutoWithdrawalsOnPreferredLimits(final List<IResourceEngine> resourceEngines) {
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
-		if (potManager.getCurrentMonthsPotBalance().compareTo(BigDecimal.ZERO) < 1) {
+		if (potManager.getCurrentMonthsPotBalance() < 0) {
 			Collections.reverse(resourceEngines);
 			for (IResourceEngine resourceEngine : resourceEngines) {
-				BigDecimal withdrawalAmount = potManager.getLiquidDeposits(resourceEngine);
-				BigDecimal balancePreferredMin = resourceEngine.getBalanceLiquidPreferredMin(potManager.getCurrentYearMonth());
-				withdrawalAmount = withdrawalAmount.subtract(balancePreferredMin);
-				withdrawalAmount = BigDecimal.valueOf(Math.min(withdrawalAmount.doubleValue(), potManager.getCurrentMonthsPotBalance().negate().doubleValue()));
-				if (withdrawalAmount.compareTo(BigDecimal.ZERO) != 0) {
+				Integer withdrawalAmount = potManager.getLiquidDeposits(resourceEngine);
+				Integer balancePreferredMin = resourceEngine.getBalanceLiquidPreferredMin(potManager.getCurrentYearMonth());
+				withdrawalAmount = withdrawalAmount - balancePreferredMin;
+				withdrawalAmount = Math.min(withdrawalAmount, potManager.getCurrentMonthsPotBalance() * -1);
+				if (withdrawalAmount != 0) {
 					journalEntries.add(createAutoWithdrawal(resourceEngine, withdrawalAmount));
 				}
-				if (potManager.getCurrentMonthsPotBalance().compareTo(BigDecimal.ZERO) < 1) {
+				// TODO The next line used to be < 1 to double check this...
+				if (potManager.getCurrentMonthsPotBalance() == 0) {
 					break;
 				}
 			}
@@ -230,14 +227,14 @@ public class JournalEntryService {
 	}
 	
 	private void generateNegativePotDistributionToDebtResources(final List<IResourceEngine> resourceEngines) {
-		if (potManager.getCurrentMonthsPotBalance().compareTo(BigDecimal.ZERO) < 1) {
+		if (potManager.getCurrentMonthsPotBalance() < 0) {
 			Collections.reverse(resourceEngines);
 			for (IResourceEngine resourceEngine : resourceEngines) {
-				BigDecimal amount = resourceEngine.getBalanceLiquidLegalMin(potManager.getCurrentYearMonth());
-				amount = BigDecimal.valueOf(Math.max(amount.doubleValue(), potManager.getCurrentMonthsPotBalance().doubleValue()));
-				potManager.addToPotBalance(amount.negate());
-				potManager.subtractFromLiquidPot(resourceEngine, amount.negate());
-				if (potManager.getCurrentMonthsPotBalance().compareTo(BigDecimal.ZERO) == 0) {
+				Integer amount = resourceEngine.getBalanceLiquidLegalMin(potManager.getCurrentYearMonth());
+				amount = Math.max(amount, potManager.getCurrentMonthsPotBalance());
+				potManager.addToPotBalance(amount * -1);
+				potManager.subtractFromLiquidPot(resourceEngine, amount * -1);
+				if (potManager.getCurrentMonthsPotBalance() == 0) {
 					break;
 				}
 			}
@@ -247,12 +244,12 @@ public class JournalEntryService {
 	private List<JournalEntry> generateJournalEntriesForClosingBalances(final List<IResourceEngine> resourceEngines) {
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
 		for (IResourceEngine resourceEngine : resourceEngines) {
-			BigDecimal balanceLiquid = potManager.getLiquidBalance(resourceEngine, potManager.getCurrentYearMonth());
+			Integer balanceLiquid = potManager.getLiquidBalance(resourceEngine, potManager.getCurrentYearMonth());
 			journalEntries.add(journalEntryFactory.create(resourceEngine.getResource(), potManager.getCurrentYearMonth(), balanceLiquid, CashflowCategory.JE_BALANCE_CLOSING_LIQUID));	
-			BigDecimal assetValue = potManager.getAssetValue(resourceEngine, potManager.getCurrentYearMonth());
+			Integer assetValue = potManager.getAssetValue(resourceEngine, potManager.getCurrentYearMonth());
 			journalEntries.add(journalEntryFactory.create(resourceEngine.getResource(), potManager.getCurrentYearMonth(), assetValue, CashflowCategory.JE_BALANCE_CLOSING_ASSET_VALUE));	
 		}
-		if (potManager.getCurrentMonthsPotBalance().compareTo(BigDecimal.ZERO) != 0) {
+		if (potManager.getCurrentMonthsPotBalance() != 0) {
 			journalEntries.add(journalEntryFactory.create(getResourceUnallocated(), potManager.getCurrentYearMonth(), potManager.getCurrentMonthsPotBalance(), CashflowCategory.JE_BALANCE_CLOSING_LIQUID));				
 			journalEntries.add(journalEntryFactory.create(getResourceUnallocated(), potManager.getCurrentYearMonth(), potManager.getCurrentMonthsPotBalance(), CashflowCategory.JE_BALANCE_CLOSING_ASSET_VALUE));
 		}
@@ -268,21 +265,21 @@ public class JournalEntryService {
 		return resourceUnallocated;
 	}
 
-	private JournalEntry createExpenseOrIncome(final Resource resource, final BigDecimal amount, CashflowCategory category, String detail) {
+	private JournalEntry createExpenseOrIncome(final Resource resource, final Integer amount, CashflowCategory category, String detail) {
 		potManager.addToPotBalance(amount);
 		return journalEntryFactory.create(resource, potManager.getCurrentYearMonth(), amount, category, detail);		
 	}
 
-	private JournalEntry createAutoWithdrawal(final IResourceEngine resourceEngine, final BigDecimal amount) {
+	private JournalEntry createAutoWithdrawal(final IResourceEngine resourceEngine, final Integer amount) {
 		potManager.addToPotBalance(amount);
 		potManager.subtractFromLiquidDeposits(resourceEngine, amount);
 		return journalEntryFactory.create(resourceEngine.getResource(), potManager.getCurrentYearMonth(), amount, CashflowCategory.JE_AUTO_WITHDRAWAL);	
 	}
 
-	private JournalEntry createWithdrawal(final IResourceEngine resourceEngine, final BigDecimal amount, CashflowCategory category, String detail) {
-		BigDecimal allowedAmount = BigDecimal.valueOf(Math.min(amount.floatValue(), potManager.getLiquidDeposits(resourceEngine).floatValue()));
-		return journalEntryFactory.create(resourceEngine.getResource(), potManager.getCurrentYearMonth(), allowedAmount, category, detail);	
-	}
+//	private JournalEntry createWithdrawal(final IResourceEngine resourceEngine, final Integer amount, CashflowCategory category, String detail) {
+//		Integer allowedAmount = Math.min(amount, potManager.getLiquidDeposits(resourceEngine));
+//		return journalEntryFactory.create(resourceEngine.getResource(), potManager.getCurrentYearMonth(), allowedAmount, category, detail);	
+//	}
 	
 	private boolean isCashflowDue(CashflowDateRangeValue cfdrv, YearMonth currentYearMonth) {
 		if (cfdrv.getCashflow().getFrequency().equals(CashflowFrequency.MONTHLY)) {
@@ -304,7 +301,7 @@ public class JournalEntryService {
 		return false;
 	}
 
-	private BigDecimal calculateAmountWithCpi(CashflowDateRangeValue cfdrv, YearMonth yearMonth) {
+	private Integer calculateAmountWithCpi(CashflowDateRangeValue cfdrv, YearMonth yearMonth) {
 		BigDecimal amount = BigDecimal.valueOf(cfdrv.getValue());
 		if (cfdrv.getCashflow().getCpiAffected()) {
 			BigDecimal cpi = cfdrv.getCashflow().getResource().getScenario().getResourceScenario().getCpi().divide(HUNDRED, SCALE_4_ROUNDING_HALF_EVEN);
@@ -312,6 +309,10 @@ public class JournalEntryService {
 			int yearsOfCpi = yearMonth.getYear() - cfdrv.getYearMonthStart().getYear();
 			amount = amount.multiply(cpi.pow(yearsOfCpi));
 		}
-		return amount;
+		return integerOf(amount);
+	}
+
+	private Integer integerOf(BigDecimal decimal) {
+		return decimal.setScale(0, RoundingMode.HALF_UP).intValue();
 	}
 }

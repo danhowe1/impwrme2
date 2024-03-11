@@ -141,7 +141,8 @@ public class DataDisplayController {
 		
 		Map<String, Integer> journalEntryYearTotalMap = new TreeMap<String, Integer>();
 		for (JournalEntry journalEntry : journalEntries) {		
-			if (journalEntry.getCategory().equals(CashflowCategory.JE_BALANCE_CLOSING_LIQUID)) {
+			if (journalEntry.getCategory().equals(CashflowCategory.JE_BALANCE_CLOSING_LIQUID) &&
+				journalEntry.getDate().getMonth().getValue() == 12) {
 				String key = String.valueOf(journalEntry.getDate().getYear());
 				Integer currentYearTotal = journalEntryYearTotalMap.get(key);
 				if (null == currentYearTotal) {

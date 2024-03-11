@@ -1,11 +1,9 @@
 package com.impwrme2.service.engine;
 
-import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Optional;
 
 import com.impwrme2.model.resource.Resource;
-import com.impwrme2.model.resource.ResourceType;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 
@@ -15,8 +13,8 @@ public class ResourceEngine implements IResourceEngine, Comparable<ResourceEngin
 //	private static final BigDecimal HUNDRED = new BigDecimal("100");
 
 	protected final Resource resource;
-	private BigDecimal balanceLiquidLegalMax = BigDecimal.ZERO;
-	private BigDecimal balanceLiquidLegalMin = BigDecimal.ZERO;
+	private Integer balanceLiquidLegalMax = 0;
+	private Integer balanceLiquidLegalMin = 0;
 	
 	/**
 	 * No-args constructor required for Spring instantiation.
@@ -35,31 +33,31 @@ public class ResourceEngine implements IResourceEngine, Comparable<ResourceEngin
 	}
 
 	@Override
-	public BigDecimal getBalanceLiquidLegalMax(YearMonth yearMonth) {
+	public Integer getBalanceLiquidLegalMax(YearMonth yearMonth) {
 		Optional<ResourceParamDateValue<?>> rpdvOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MAX, yearMonth);
 		if (rpdvOpt.isPresent()) {
-			balanceLiquidLegalMax = BigDecimal.valueOf((Integer) rpdvOpt.get().getValue());
+			balanceLiquidLegalMax = (Integer) rpdvOpt.get().getValue();
 		}
 		return balanceLiquidLegalMax;
 	}
 
 	@Override
-	public BigDecimal getBalanceLiquidLegalMin(YearMonth yearMonth) {
+	public Integer getBalanceLiquidLegalMin(YearMonth yearMonth) {
 		Optional<ResourceParamDateValue<?>> rpdvOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MIN, yearMonth);
 		if (rpdvOpt.isPresent()) {
-			balanceLiquidLegalMin = BigDecimal.valueOf((Integer) rpdvOpt.get().getValue());
+			balanceLiquidLegalMin = (Integer) rpdvOpt.get().getValue();
 		}
 		return balanceLiquidLegalMin;
 	}
 
 	@Override
-	public BigDecimal getBalanceLiquidPreferredMax(YearMonth yearMonth) {
+	public Integer getBalanceLiquidPreferredMax(YearMonth yearMonth) {
 		return getBalanceLiquidLegalMax(yearMonth);
 	}
 
 	@Override
-	public BigDecimal getBalanceLiquidPreferredMin(YearMonth yearMonth) {
-		return getBalanceLiquidLegalMin(yearMonth);
+	public Integer getBalanceLiquidPreferredMin(YearMonth yearMonth) {
+		return 0;
 	}
 
 	@Override

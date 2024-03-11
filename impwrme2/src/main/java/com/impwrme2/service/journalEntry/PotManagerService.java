@@ -1,6 +1,5 @@
 package com.impwrme2.service.journalEntry;
 
-import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,13 +17,13 @@ public class PotManagerService {
 	private Scenario scenario;
 	private	YearMonth currentYearMonth;
 	private Map<String, ResourceMonthlyAmounts> resourceMonthlyAmountsMap;
-	private BigDecimal currentMonthsPotBalance = BigDecimal.ZERO;
+	private Integer currentMonthsPotBalance = 0;
 	
 	public void initialise(final Scenario scenario) {
 		this.scenario = scenario;
 		this.currentYearMonth = scenario.getResourceScenario().getStartYearMonth();
 		this.resourceMonthlyAmountsMap = new HashMap<String, ResourceMonthlyAmounts>();
-		this.currentMonthsPotBalance = BigDecimal.ZERO;
+		this.currentMonthsPotBalance = 0;
 	}	
 	
 	public YearMonth getCurrentYearMonth() {
@@ -36,47 +35,47 @@ public class PotManagerService {
 //		previousMonthsPotBalance = currentMonthsPotBalance;
 	}
 
-	public void addToPotBalance(BigDecimal amount) {
-		currentMonthsPotBalance = currentMonthsPotBalance.add(amount);
+	public void addToPotBalance(Integer amount) {
+		currentMonthsPotBalance = currentMonthsPotBalance + amount;
 	}
 	
-	public BigDecimal getCurrentMonthsPotBalance() {
+	public Integer getCurrentMonthsPotBalance() {
 		return currentMonthsPotBalance;
 	}
 	
-	public BigDecimal getLiquidPot(final IResourceEngine resourceEngine) {
+	public Integer getLiquidPot(final IResourceEngine resourceEngine) {
 		return getResourceMonthlyBalances(resourceEngine, currentYearMonth).getLiquidPotAmount();
 	}
 	
-//	public void addToLiquidPot(final IResourceEngine resourceEngine, final BigDecimal amount) {
+//	public void addToLiquidPot(final IResourceEngine resourceEngine, final Integer amount) {
 //		getResourceMonthlyBalances(resourceEngine, currentYearMonth).addToLiquidPotAmount(amount);
 //	}
 
-	public void subtractFromLiquidPot(final IResourceEngine resourceEngine, final BigDecimal amount) {
+	public void subtractFromLiquidPot(final IResourceEngine resourceEngine, final Integer amount) {
 		getResourceMonthlyBalances(resourceEngine, currentYearMonth).subtractFromLiquidPotAmount(amount);
 	}
 
-	public BigDecimal getLiquidDeposits(final IResourceEngine resourceEngine) {
+	public Integer getLiquidDeposits(final IResourceEngine resourceEngine) {
 		return getResourceMonthlyBalances(resourceEngine, currentYearMonth).getLiquidDepositsAmount();
 	}
 	
-	public void subtractFromLiquidDeposits(final IResourceEngine resourceEngine, final BigDecimal amount) {
+	public void subtractFromLiquidDeposits(final IResourceEngine resourceEngine, final Integer amount) {
 		getResourceMonthlyBalances(resourceEngine, currentYearMonth).subtractFromLiquidDepositsAmount(amount);
 	}
 
-	public void addToLiquidDepositsAmount(final IResourceEngine resourceEngine, final BigDecimal amount) {
+	public void addToLiquidDepositsAmount(final IResourceEngine resourceEngine, final Integer amount) {
 		getResourceMonthlyBalances(resourceEngine, currentYearMonth).addToLiquidDepositsAmount(amount);
 	}
 
-	public BigDecimal getLiquidBalance(final IResourceEngine resourceEngine, final YearMonth yearMonth) {
+	public Integer getLiquidBalance(final IResourceEngine resourceEngine, final YearMonth yearMonth) {
 		return getResourceMonthlyBalances(resourceEngine, yearMonth).getLiquidBalance();
 	}
 	
-	public BigDecimal getAssetValue(final IResourceEngine resourceEngine, final YearMonth yearMonth) {
+	public Integer getAssetValue(final IResourceEngine resourceEngine, final YearMonth yearMonth) {
 		return getResourceMonthlyBalances(resourceEngine, yearMonth).getAssetValue();
 	}
 	
-	public void addToFixedAmount(final IResourceEngine resourceEngine, final BigDecimal amount) {
+	public void addToFixedAmount(final IResourceEngine resourceEngine, final Integer amount) {
 		getResourceMonthlyBalances(resourceEngine, currentYearMonth).addToFixedAmount(amount);
 	}
 
@@ -99,14 +98,14 @@ public class PotManagerService {
 //			if (liquidAmountOpt.isPresent()) {
 //				ResourceParam<?> rpLiquidDeposit = liquidAmountOpt.get();
 //				Integer liquidDepositAmount = (Integer) rpLiquidDeposit.getResourceParamDateValue().getValue();
-//				addToLiquidDepositsAmount(resource, resource.getStartYearMonth(), BigDecimal.valueOf(liquidDepositAmount.intValue()));
+//				addToLiquidDepositsAmount(resource, resource.getStartYearMonth(), Integer.valueOf(liquidDepositAmount.intValue()));
 //			}
 //			
 //			Optional<ResourceParam<?>> fixedAmountOpt = resource.getResourceParam(ResourceParamNameEnum.BALANCE_OPENING_FIXED);
 //			if (fixedAmountOpt.isPresent()) {
 //				ResourceParam<?> rpFixed = fixedAmountOpt.get();
 //				Integer fixedAmount = (Integer) rpFixed.getResourceParamDateValue().getValue();
-//				addToFixedAmount(resource, resource.getStartYearMonth(), BigDecimal.valueOf(fixedAmount.intValue()));
+//				addToFixedAmount(resource, resource.getStartYearMonth(), Integer.valueOf(fixedAmount.intValue()));
 //			}
 //		}
 //	}

@@ -13,15 +13,15 @@ import com.impwrme2.model.resource.Resource;
 @Component
 public class JournalEntryFactory {
 
-	public JournalEntry create(Resource resource, YearMonth yearMonth, BigDecimal amount, CashflowCategory category) {
+	public JournalEntry create(Resource resource, YearMonth yearMonth, Integer amount, CashflowCategory category) {
 		return create(resource, yearMonth, amount, category, null);
 	}
 
-	public JournalEntry create(Resource resource, YearMonth yearMonth, BigDecimal amount, CashflowCategory category, String detail) {
-		return new JournalEntry(resource, yearMonth, category, integerOf(amount));
+	public JournalEntry create(Resource resource, YearMonth yearMonth, Integer amount, CashflowCategory category, String detail) {
+		return new JournalEntry(resource, yearMonth, category, amount);
 	}
 
-	private Integer integerOf(BigDecimal decimal) {
-		return decimal.setScale(0, RoundingMode.HALF_UP).intValue();
-	}
+//	private Integer integerOf(BigDecimal decimal) {
+//		return decimal.setScale(0, RoundingMode.HALF_UP).intValue();
+//	}
 }
