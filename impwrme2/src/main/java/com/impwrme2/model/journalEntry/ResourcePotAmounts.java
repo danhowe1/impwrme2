@@ -1,23 +1,21 @@
 package com.impwrme2.model.journalEntry;
 
-import java.time.YearMonth;
-
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.service.engine.IResourceEngine;
 
-public class ResourceMonthlyAmounts {
+public class ResourcePotAmounts {
 
-	public ResourceMonthlyAmounts(final IResourceEngine resourceEngine, final YearMonth yearMonth) {
+	public ResourcePotAmounts(final IResourceEngine resourceEngine) {
 		this.resource = resourceEngine.getResource();
 	}
 	
 	private final Resource resource;
 
-	private Integer liquidPotAmount = Integer.valueOf(0);
+	private Integer liquidPotAmount = 0;
 	
-	private Integer liquidDepositsAmount = Integer.valueOf(0);
+	private Integer liquidDepositsAmount = 0;
 	
-	private Integer fixedAmount = Integer.valueOf(0);
+	private Integer fixedAmount = 0;
 
 	public Integer getLiquidBalance( ) {
 		return getLiquidDepositsAmount() + getLiquidPotAmount();
