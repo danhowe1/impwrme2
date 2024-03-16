@@ -27,6 +27,6 @@ public class DisplayFilterController {
     	}
     	session.setAttribute("SESSION_DISPLAY_FILTER", displayFilter);
     	model.addAttribute("displayFilter", displayFilter);
-		return "fragments/dashboard/chart :: chart";
+		return "fragments/dashboard/dataDisplay :: dataDisplay";
     }
 }
