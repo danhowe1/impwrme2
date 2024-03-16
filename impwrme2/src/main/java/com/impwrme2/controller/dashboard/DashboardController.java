@@ -38,9 +38,9 @@ import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecima
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueInteger;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueYearMonth;
 import com.impwrme2.model.scenario.Scenario;
-import com.impwrme2.service.journalEntry.JournalEntryService;
 import com.impwrme2.service.resource.ResourceService;
 import com.impwrme2.service.scenario.ScenarioService;
+import com.impwrme2.service.ui.UIDisplayFilter;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -63,9 +63,6 @@ public class DashboardController {
 	@Autowired
 	private ResourceService resourceService;
 
-	@Autowired
-	private JournalEntryService journalEntryService;
-
 	@GetMapping(value = { "", "/" })
 	public String dashboard(@AuthenticationPrincipal OidcUser user, Model model, HttpSession session, Locale locale) {
 
@@ -83,6 +80,10 @@ public class DashboardController {
 			}
 		}
 		 
+		// Display filter.
+		UIDisplayFilter displayFilter = getDisplayFilterFromSession(currentResource.getScenario(), session);
+		model.addAttribute("displayFilter", displayFilter);
+
 		setUpModelAfterResourceUpdated(currentResource, model, session);
 		model.addAttribute("resourceDropdownDto", new ResourceDropdownDto(currentResource.getScenario(), currentResource.getResourceType()));
 		
@@ -108,6 +109,21 @@ public class DashboardController {
 	private Scenario populateInitialTestScenario(String userId) {
 		Scenario scenario = getInitialTestScenario(userId);
 		return scenarioService.save(scenario, userId);
+	}
+
+	private UIDisplayFilter getDisplayFilterFromSession(final Scenario scenario, final HttpSession session) {
+		UIDisplayFilter displayFilter = (UIDisplayFilter) session.getAttribute("SESSION_DISPLAY_FILTER");
+		if (null == displayFilter) {
+			displayFilter = new UIDisplayFilter();
+			displayFilter.setYearStart(scenario.getStartYearMonth());
+			displayFilter.setYearEnd(scenario.calculateEndYearMonth());
+			for (int year=displayFilter.getYearStart().getYear(); year <= displayFilter.getYearEnd().getYear(); year++) {
+				displayFilter.addYearList(String.valueOf(year));
+			}
+
+			session.setAttribute("SESSION_DISPLAY_FILTER", displayFilter);
+		}
+		return displayFilter;
 	}
 
 	private Scenario getInitialTestScenario(String userId) {

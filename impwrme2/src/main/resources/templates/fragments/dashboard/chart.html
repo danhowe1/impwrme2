@@ -6,10 +6,58 @@
 
 </head>
 <body>
-	<div id="chart" class="p-2 mt-3 bg-dark-subtle rounded-3"
+	<div id="chart" class=""
 		th:fragment="chart">
 
 		<script type="text/javascript" th:inline="javascript">
+			function loadDisplayData() {
+				var displayFilter = /*[[${displayFilter}]]*/'novalue';
+				if (displayFilter.displayStyle == 'DISPLAY_STYLE_BALANCES_TABLE') {
+					loadBalancesTableData();
+				} else {
+					loadChartData();
+				}
+			}
+
+			/* --------------- */
+			/* Display filter. */
+			/* --------------- */
+
+			function changeDisplayFilter(filterValue) {
+				var url = baseUrl + 'displayFilter/update/' + filterValue;
+				$.ajax({
+					url : url,
+					type : "GET",
+					success : function(response) {
+						$("#chart").html(response);
+					},
+					error : function(jqXHR) {
+						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
+					}
+				});
+			}
+
+			/* ----------------- */
+			/* Table (Balances). */
+			/* ----------------- */
+
+			function loadBalancesTableData() {
+				$.getJSON(baseUrl + 'dataDisplay/getTableData', {
+					format : "json"
+				}).done(function(data) {
+					var oTable = $('#dashboardTable').DataTable({
+						columns : data.columns,
+						data : data.journalEntries
+					});
+				}).fail(function() {
+					console.log("error");
+				});
+			}
+
+			$(document).ready(function() {
+				loadDisplayData();
+			});
+
 			/* ------------- */
 			/* Google chart. */
 			/* ------------- */
@@ -17,8 +65,9 @@
 			google.charts.load('current', {
 				packages : [ 'corechart', 'bar', 'table' ]
 			});
+
 			google.setOnLoadCallback(function() {
-				loadChartData()
+				loadChartData();
 			})
 
 			function loadChartData() {
@@ -87,20 +136,44 @@
 		<div class="row">
 			<div class="col">
 				<ul class="nav nav-tabs">
-					<li class="nav-item"><a class="nav-link active"
-						aria-current="page" href="#">Chart</a></li>
+					<li th:if="*{displayFilter.displayStyle == 'DISPLAY_STYLE_CHART'}"
+						class="nav-item"><a class="nav-link active"
+						aria-current="page">Chart</a></li>
+					<li
+						th:unless="*{displayFilter.displayStyle == 'DISPLAY_STYLE_CHART'}"
+						class="nav-item"><a class="nav-link" aria-current="page"
+						href="#" onclick="changeDisplayFilter('DISPLAY_STYLE_CHART')">Chart</a></li>
+					<li
+						th:if="*{displayFilter.displayStyle == 'DISPLAY_STYLE_BALANCES_TABLE'}"
+						class="nav-item"><a class="nav-link active"
+						aria-current="page">Table (Balances)</a></li>
+					<li
+						th:unless="*{displayFilter.displayStyle == 'DISPLAY_STYLE_BALANCES_TABLE'}"
+						class="nav-item"><a class="nav-link" aria-current="page"
+						href="#" onclick="changeDisplayFilter('DISPLAY_STYLE_BALANCES_TABLE')">Table (Balances)</a></li>
 					<li class="nav-item"><a class="nav-link" href="#">Timeline</a></li>
-					<li class="nav-item"><a class="nav-link" href="#">Table</a></li>
 				</ul>
 			</div>
 		</div>
 
-		<div class="row">
-			<div class="col">
-				<div id="chart_div" class="chart"></div>
+		<div th:if="*{displayFilter.displayStyle == 'DISPLAY_STYLE_CHART'}">
+			<div class="row">
+				<div class="col">
+					<div id="chart_div" class="chart"></div>
+				</div>
 			</div>
 		</div>
 
+		<div th:if="*{displayFilter.displayStyle == 'DISPLAY_STYLE_BALANCES_TABLE'}"
+			style="overflow-x: auto;">
+			<div class="row bg-white">
+				<div class="col m-2">
+					<table id="dashboardTable"
+						class="table table-responsive table-bordered">
+					</table>
+				</div>
+			</div>
+		</div>
 	</div>
 </body>
 </html>
