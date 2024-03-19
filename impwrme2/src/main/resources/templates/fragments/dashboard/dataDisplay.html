@@ -6,8 +6,7 @@
 
 </head>
 <body>
-	<div id="dataDisplay" class=""
-		th:fragment="dataDisplay">
+	<div id="dataDisplay" class="" th:fragment="dataDisplay">
 
 		<script type="text/javascript" th:inline="javascript">
 			function loadDisplayData() {
@@ -37,6 +36,25 @@
 				});
 			}
 
+			function changeDisplayFilterYear(year) {
+				var token = $("meta[name='_csrf']").attr("content");
+				var header = $("meta[name='_csrf_header']").attr("content");
+				return $.ajax({
+					type : 'post',
+					url : baseUrl + 'displayFilter/changeDisplayFilterYear',
+					data : "year=" + year,
+					beforeSend : function(xhr) {
+						xhr.setRequestHeader(header, token);
+					},
+					success : function(response) {
+						loadDisplayData();
+					},
+					error : function(jqXHR) {
+						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
+					}
+				});
+			}
+			
 			/* ----------------- */
 			/* Table (Balances). */
 			/* ----------------- */
@@ -150,9 +168,24 @@
 					<li
 						th:unless="*{displayFilter.displayStyle == 'DISPLAY_STYLE_BALANCES_TABLE'}"
 						class="nav-item"><a class="nav-link" aria-current="page"
-						href="#" onclick="changeDisplayFilter('DISPLAY_STYLE_BALANCES_TABLE')">Table (Balances)</a></li>
+						href="#"
+						onclick="changeDisplayFilter('DISPLAY_STYLE_BALANCES_TABLE')">Table
+							(Balances)</a></li>
 					<li class="nav-item"><a class="nav-link" href="#">Timeline</a></li>
 				</ul>
+			</div>
+			<div class="col-auto">
+				<label for="yearEnd" class="col-form-label">End year</label>
+			</div>
+			<div class="col-auto">
+				<form>
+					<select id="displayFilter.yearEnd" onChange="changeDisplayFilterYear(this.value);"
+						class="form-select selectpicker" name="yearEnd"
+						th:field="*{displayFilter.yearEnd}">
+						<option th:each="year : *{displayFilter.yearList}"
+							th:value="${year}" th:text="${year}"></option>
+					</select>
+				</form>
 			</div>
 		</div>
 
@@ -164,7 +197,8 @@
 			</div>
 		</div>
 
-		<div th:if="*{displayFilter.displayStyle == 'DISPLAY_STYLE_BALANCES_TABLE'}"
+		<div
+			th:if="*{displayFilter.displayStyle == 'DISPLAY_STYLE_BALANCES_TABLE'}"
 			style="overflow-x: auto;">
 			<div class="row bg-white">
 				<div class="col m-2">

@@ -115,9 +115,8 @@ public class DashboardController {
 		UIDisplayFilter displayFilter = (UIDisplayFilter) session.getAttribute("SESSION_DISPLAY_FILTER");
 		if (null == displayFilter) {
 			displayFilter = new UIDisplayFilter();
-			displayFilter.setYearStart(scenario.getStartYearMonth());
-			displayFilter.setYearEnd(scenario.calculateEndYearMonth());
-			for (int year=displayFilter.getYearStart().getYear(); year <= displayFilter.getYearEnd().getYear(); year++) {
+			displayFilter.setYearEnd(scenario.calculateEndYearMonth().getYear());
+			for (int year=scenario.getStartYearMonth().getYear(); year <= displayFilter.getYearEnd(); year++) {
 				displayFilter.addYearList(String.valueOf(year));
 			}
 

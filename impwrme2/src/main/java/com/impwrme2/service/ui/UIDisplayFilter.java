@@ -1,6 +1,5 @@
 package com.impwrme2.service.ui;
 
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,8 +25,7 @@ public class UIDisplayFilter {
 	private boolean breakdownAggregate = true;
 	private boolean timePeriodAnnually = true;
 	
-	private YearMonth yearStart;
-	private YearMonth yearEnd;
+	private int yearEnd;
 	private List<String> yearList = new ArrayList<String>();
 
 	private String displayLevel = DISPLAY_LEVEL_BALANCES_ONLY;
@@ -64,19 +62,11 @@ public class UIDisplayFilter {
 		this.timePeriodAnnually = timePeriodAnnually;
 	}
 
-	public YearMonth getYearStart() {
-		return yearStart;
-	}
-
-	public void setYearStart(YearMonth yearStart) {
-		this.yearStart = yearStart;
-	}
-
-	public YearMonth getYearEnd() {
+	public int getYearEnd() {
 		return yearEnd;
 	}
 
-	public void setYearEnd(YearMonth yearEnd) {
+	public void setYearEnd(int yearEnd) {
 		this.yearEnd = yearEnd;
 	}
 

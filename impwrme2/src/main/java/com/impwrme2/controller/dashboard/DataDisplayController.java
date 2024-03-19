@@ -90,7 +90,10 @@ public class DataDisplayController {
 
 	private String generateJsonChartData(final OidcUser user, final HttpSession session) {
 
-		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(user, session);
+		Resource sessionResource = (Resource) session.getAttribute("SESSION_CURRENT_RESOURCE");
+		Scenario scenario = scenarioService.findByIdAndUserId(sessionResource.getScenario().getId(), user.getUserInfo().getSubject()).get();
+
+		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(session, scenario);
 		
 		UIDisplayFilter displayFilter = (UIDisplayFilter) session.getAttribute("SESSION_DISPLAY_FILTER");
 
@@ -127,19 +130,17 @@ public class DataDisplayController {
 		}
 		dataTable.add("cols", columns);
 
-		YearMonth currentYearMonth = displayFilter.getYearStart();
-		while (!currentYearMonth.isAfter(displayFilter.getYearEnd())) {
+		YearMonth currentYearMonth = scenario.getStartYearMonth();
+		while (currentYearMonth.getYear() <= displayFilter.getYearEnd()) {
 			if (!displayFilter.isTimePeriodAnnually() || currentYearMonth.getMonthValue() == 12) {
 				JsonObject row = new JsonObject();
 				JsonArray cells = new JsonArray();
-				JsonObject cellDate = new JsonObject();
-				JsonObject cellTotal = new JsonObject();
-				JsonObject cellStyle = new JsonObject();
-				JsonObject cellTooltip = new JsonObject();
 
+				JsonObject cellDate = new JsonObject();
 				cellDate.addProperty("v", currentYearMonth.toString());
 				cells.add(cellDate);
 			
+				JsonObject cellTotal = new JsonObject();
 				cellTotal.addProperty("v", dateResourceToAmountMap.get(currentYearMonth.toString()));
 				cells.add(cellTotal);
 
@@ -149,9 +150,11 @@ public class DataDisplayController {
 					cells.add(cell);
 				}
 
+				JsonObject cellStyle = new JsonObject();
 				cellStyle.addProperty("v", "");					
 				cells.add(cellStyle);
 
+				JsonObject cellTooltip = new JsonObject();
 				cellTooltip.addProperty("v", "");					
 				cells.add(cellTooltip);
 
@@ -222,11 +225,9 @@ public class DataDisplayController {
 		return result;
 	}
 
-	private JournalEntryResponse getOrCreateJournalEntries(OidcUser user, HttpSession session) {
+	private JournalEntryResponse getOrCreateJournalEntries(HttpSession session, Scenario scenario) {
 		JournalEntryResponse journalEntryResponse = (JournalEntryResponse) session.getAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");		
 		if (null == journalEntryResponse) {
-			Resource sessionResource = (Resource) session.getAttribute("SESSION_CURRENT_RESOURCE");
-			Scenario scenario = scenarioService.findByIdAndUserId(sessionResource.getScenario().getId(), user.getUserInfo().getSubject()).get();
 			journalEntryResponse = journalEntryService.run(scenario);
 			session.setAttribute("SESSION_JOURNAL_ENTRY_RESPONSE", journalEntryResponse);
 		}
@@ -236,10 +237,7 @@ public class DataDisplayController {
 	private List<JournalEntry> getFilteredClosingBalances(final List<JournalEntry> journalEntries, final UIDisplayFilter displayFilter) {
 		List<JournalEntry> filteredJournalEntries = new ArrayList<JournalEntry>();
 		for (JournalEntry journalEntry : journalEntries) {
-			if (journalEntry.getDate().isBefore(displayFilter.getYearStart())) {
-				continue;
-			}
-			if (journalEntry.getDate().isAfter(displayFilter.getYearEnd())) {
+			if (journalEntry.getDate().getYear() > displayFilter.getYearEnd()) {
 				continue;
 			}
 			if (journalEntry.getAmount().intValue() == 0) {
