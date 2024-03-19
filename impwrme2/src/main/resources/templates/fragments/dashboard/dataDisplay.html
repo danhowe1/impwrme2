@@ -72,10 +72,6 @@
 				});
 			}
 
-			$(document).ready(function() {
-				loadDisplayData();
-			});
-
 			/* ------------- */
 			/* Google chart. */
 			/* ------------- */
@@ -84,10 +80,13 @@
 				packages : [ 'corechart', 'bar', 'table' ]
 			});
 
-			google.setOnLoadCallback(function() {
+			/**
+			 * @see <a href="https://stackoverflow.com/questions/61818505/error-must-call-google-charts-load-before-google-charts-setonloadcallback">https://stackoverflow.com/questions/61818505/error-must-call-google-charts-load-before-google-charts-setonloadcallback</a>
+			 */
+/* 			google.setOnLoadCallback(function() {
 				loadChartData();
 			})
-
+ */
 			function loadChartData() {
 				var url = baseUrl + 'dataDisplay/getChartData';
 				$.ajax({
@@ -144,6 +143,10 @@
 				var chart1_chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 				chart1_chart.draw(dataTableData, options);
 			}
+
+			$(document).ready(function() {
+				loadDisplayData();
+			});
 
 			/* We use a resize to trigger the redraw of the chart.	*/
 			$(window).resize(function() {
