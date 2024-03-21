@@ -46,43 +46,20 @@ public class DataDisplayController {
 	@GetMapping(value = "/getChartData", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public String getChartData(@AuthenticationPrincipal OidcUser user, @RequestParam String jsDisplayFilter, final HttpSession session) {
-		System.out.println(jsDisplayFilter);
-
 		UIDisplayFilter displayFilter = new Gson().fromJson(jsDisplayFilter, UIDisplayFilter.class);
 		session.setAttribute("SESSION_DISPLAY_FILTER", displayFilter);
-
 		return generateJsonChartData(user, displayFilter, session);
 	}
 
 	@GetMapping(value = "/getBalancesTableData", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public String getBalancesTableData(@AuthenticationPrincipal OidcUser user, @RequestParam String jsDisplayFilter, final HttpSession session) {
-
 		UIDisplayFilter displayFilter = new Gson().fromJson(jsDisplayFilter, UIDisplayFilter.class);
 		session.setAttribute("SESSION_DISPLAY_FILTER", displayFilter);
-		
 		return generateJsonTableData(user, displayFilter, session);
 	}
 
-	private String generateJsonChartData(final OidcUser user, final UIDisplayFilter displayFilter, final HttpSession session) {
-
-		Resource sessionResource = (Resource) session.getAttribute("SESSION_CURRENT_RESOURCE");
-		Scenario scenario = scenarioService.findByIdAndUserId(sessionResource.getScenario().getId(), user.getUserInfo().getSubject()).get();
-
-		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(session, scenario);
-		
-		//TODO Remove...
-		displayFilter.setBreakdownAggregate(false);
-		
-		List<JournalEntry> filteredClosingBalances = getFilteredClosingBalances(journalEntryResponse.getJournalEntries(), displayFilter);
-		
-		Map<String, Integer> dateResourceToAmountMap = getClosingBalances(filteredClosingBalances, displayFilter);
-
-		JsonObject dataTable = new JsonObject();
-		JsonArray jsonRows = new JsonArray();
-
-		SortedSet<String> filteredResourceNames = getFilteredResourceNames(filteredClosingBalances ,displayFilter);
-		
+	private JsonArray chartColumns(SortedSet<String> filteredResourceNames) {
 		List<String[][]> columnDefinitions = new ArrayList<String[][]>();
 		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Date" }, { "pattern", "" }, { "type", "string" } });
 		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Total" }, { "pattern", "" }, { "type", "number" } });
@@ -102,40 +79,55 @@ public class DataDisplayController {
 			}
 			columns.add(cell);
 		}
-		dataTable.add("cols", columns);
+		return columns;
+	}
+	
+	private String generateJsonChartData(final OidcUser user, final UIDisplayFilter displayFilter, final HttpSession session) {
 
-		YearMonth currentYearMonth = scenario.getStartYearMonth();
-		while (currentYearMonth.getYear() <= displayFilter.getYearEnd()) {
-			if (!displayFilter.isTimePeriodAnnually() || currentYearMonth.getMonthValue() == 12) {
-				JsonObject row = new JsonObject();
-				JsonArray cells = new JsonArray();
+		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(user, session);
+		List<JournalEntry> filteredClosingBalances = getFilteredClosingBalances(journalEntryResponse.getJournalEntries(), displayFilter);
+		Map<String, Integer> dateResourceToAmountMap = getClosingBalances(filteredClosingBalances, displayFilter);
+		SortedSet<String> filteredResourceNames = getFilteredResourceNames(filteredClosingBalances ,displayFilter);
 
-				JsonObject cellDate = new JsonObject();
-				cellDate.addProperty("v", currentYearMonth.toString());
-				cells.add(cellDate);
-			
-				JsonObject cellTotal = new JsonObject();
-				cellTotal.addProperty("v", dateResourceToAmountMap.get(currentYearMonth.toString()));
-				cells.add(cellTotal);
+		JsonObject dataTable = new JsonObject();
+		JsonArray jsonRows = new JsonArray();
 
-				for (String resourceName : filteredResourceNames) {
-					JsonObject cell = new JsonObject();
-					cell.addProperty("v", dateResourceToAmountMap.get(currentYearMonth.toString() + "-" + resourceName));
-					cells.add(cell);
+		dataTable.add("cols", chartColumns(filteredResourceNames));
+
+		if (journalEntryResponse.getJournalEntries().size() > 0) {
+			YearMonth currentYearMonth = journalEntryResponse.getJournalEntries().get(0).getResource().getScenario().getStartYearMonth();
+			while (currentYearMonth.getYear() <= displayFilter.getYearEnd()) {
+				if (!displayFilter.isTimePeriodAnnually() || currentYearMonth.getMonthValue() == 12) {
+					JsonObject row = new JsonObject();
+					JsonArray cells = new JsonArray();
+	
+					JsonObject cellDate = new JsonObject();
+					cellDate.addProperty("v", currentYearMonth.toString());
+					cells.add(cellDate);
+				
+					JsonObject cellTotal = new JsonObject();
+					cellTotal.addProperty("v", dateResourceToAmountMap.get(currentYearMonth.toString()));
+					cells.add(cellTotal);
+	
+					for (String resourceName : filteredResourceNames) {
+						JsonObject cell = new JsonObject();
+						cell.addProperty("v", dateResourceToAmountMap.get(currentYearMonth.toString() + "-" + resourceName));
+						cells.add(cell);
+					}
+	
+					JsonObject cellStyle = new JsonObject();
+					cellStyle.addProperty("v", "");					
+					cells.add(cellStyle);
+	
+					JsonObject cellTooltip = new JsonObject();
+					cellTooltip.addProperty("v", "");					
+					cells.add(cellTooltip);
+	
+					row.add("c", cells);
+					jsonRows.add(row);				
 				}
-
-				JsonObject cellStyle = new JsonObject();
-				cellStyle.addProperty("v", "");					
-				cells.add(cellStyle);
-
-				JsonObject cellTooltip = new JsonObject();
-				cellTooltip.addProperty("v", "");					
-				cells.add(cellTooltip);
-
-				row.add("c", cells);
-				jsonRows.add(row);				
+				currentYearMonth = currentYearMonth.plusMonths(1);
 			}
-			currentYearMonth = currentYearMonth.plusMonths(1);
 		}
 		
 //		for (Map.Entry<String, Integer> entry : dateResourceToAmountMap.entrySet()) {
@@ -200,45 +192,85 @@ public class DataDisplayController {
 	}
 
 	private String generateJsonTableData(final OidcUser user, final UIDisplayFilter displayFilter, final HttpSession session) {
+
+		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(user, session);
+		List<JournalEntry> filteredClosingBalances = getFilteredClosingBalances(journalEntryResponse.getJournalEntries(), displayFilter);
+		Map<String, Integer> dateResourceToAmountMap = getClosingBalances(filteredClosingBalances, displayFilter);
+		SortedSet<String> filteredResourceNames = getFilteredResourceNames(filteredClosingBalances ,displayFilter);
+
 		JsonObject dataTable = new JsonObject();
-
 		JsonArray columns = new JsonArray();
+		JsonArray journalEntryRows = new JsonArray();
 
-		JsonObject col1 = new JsonObject();
-		col1.addProperty("data", "DATE");
-		col1.addProperty("title", "DATE");
-		columns.add(col1);
+		if (journalEntryResponse.getJournalEntries().size() > 0) {
+			boolean firstResourceName = true;
+			for (String resourceName : filteredResourceNames) {
+				JsonObject jsonRowData = new JsonObject();
+				YearMonth currentYearMonth = journalEntryResponse.getJournalEntries().get(0).getResource().getScenario().getStartYearMonth();
+				boolean firstDateInMonth = true;
+				while (currentYearMonth.getYear() <= displayFilter.getYearEnd()) {
+					if (!displayFilter.isTimePeriodAnnually() || currentYearMonth.getMonthValue() == 12) {
+						
+						if (firstResourceName) {
 
-		JsonObject col2 = new JsonObject();
-		col2.addProperty("data", "TOTAL");
-		col2.addProperty("title", "TOTAL");
-		columns.add(col2);
+							if (firstDateInMonth) {
+								JsonObject colResourceName = new JsonObject();
+								colResourceName.addProperty("data", "resourceName");
+								colResourceName.addProperty("title", "Resource");
+								columns.add(colResourceName);							
+							}
 
+							// Add this months date column.
+							JsonObject colDate = new JsonObject();
+							colDate.addProperty("data", currentYearMonth.toString());
+							colDate.addProperty("title", currentYearMonth.toString());
+							columns.add(colDate);							
+						}
+						
+						if (firstDateInMonth) {
+							jsonRowData.addProperty("resourceName", resourceName);
+						}
+
+						jsonRowData.addProperty(currentYearMonth.toString(), "4000");
+
+						firstDateInMonth = false;
+					}
+					currentYearMonth = currentYearMonth.plusMonths(1);
+				}
+				journalEntryRows.add(jsonRowData);
+				firstResourceName = false;	
+			}
+		}
 		dataTable.add("columns", columns);
 		
-		JsonArray journalEntryRows = new JsonArray();
+//		JsonArray journalEntryRows = new JsonArray();
 		
-		JsonObject journalEntry1 = new JsonObject();
-		journalEntry1.addProperty("DATE", "2024-01");
-		journalEntry1.addProperty("TOTAL", "1200");
-		journalEntryRows.add(journalEntry1);
-
-		JsonObject journalEntry2 = new JsonObject();
-		journalEntry2.addProperty("DATE", "2024-02");
-		journalEntry2.addProperty("TOTAL", "1674");
-		journalEntryRows.add(journalEntry2);
+//		JsonObject journalEntry1 = new JsonObject();
+//		journalEntry1.addProperty("resourceName", "2024-01");
+//		journalEntry1.addProperty("TOTAL", "1200");
+//		journalEntryRows.add(journalEntry1);
+//
+//		JsonObject journalEntry2 = new JsonObject();
+//		journalEntry2.addProperty("resourceName", "2024-02");
+//		journalEntry2.addProperty("TOTAL", "1674");
+//		journalEntryRows.add(journalEntry2);
 
 		dataTable.add("journalEntries", journalEntryRows);
 
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String result = gson.toJson(dataTable);
 
+		System.out.println(result);
+		
 		return result;
 	}
 	
-	private JournalEntryResponse getOrCreateJournalEntries(HttpSession session, Scenario scenario) {
+	private JournalEntryResponse getOrCreateJournalEntries(final OidcUser user, final HttpSession session) {
 		JournalEntryResponse journalEntryResponse = (JournalEntryResponse) session.getAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");		
 		if (null == journalEntryResponse) {
+			Resource sessionResource = (Resource) session.getAttribute("SESSION_CURRENT_RESOURCE");
+			Scenario scenario = scenarioService.findByIdAndUserId(sessionResource.getScenario().getId(), user.getUserInfo().getSubject()).get();
+
 			journalEntryResponse = journalEntryService.run(scenario);
 			session.setAttribute("SESSION_JOURNAL_ENTRY_RESPONSE", journalEntryResponse);
 		}
@@ -283,23 +315,29 @@ public class DataDisplayController {
 		for (JournalEntry journalEntry : journalEntries) {
 			if (!displayFilter.isTimePeriodAnnually() || journalEntry.getDate().getMonth().getValue() == 12) {
 				if (journalEntry.getAmount().intValue() != 0 && !displayFilter.isBreakdownAggregate()) {
-					String dateResourceKey = String.valueOf(journalEntry.getDate().toString() + "-" + journalEntry.getResource().getName());
-					Integer currentResourceValue = journalEntryDateResourceToAmountMap.get(dateResourceKey);
+					Integer currentResourceValue = journalEntryDateResourceToAmountMap.get(dateResourceKey(journalEntry));
 					if (null == currentResourceValue) {
-						journalEntryDateResourceToAmountMap.put(dateResourceKey, journalEntry.getAmount());
+						journalEntryDateResourceToAmountMap.put(dateResourceKey(journalEntry), journalEntry.getAmount());
 					} else {
-						journalEntryDateResourceToAmountMap.put(dateResourceKey, journalEntry.getAmount() + currentResourceValue);
+						journalEntryDateResourceToAmountMap.put(dateResourceKey(journalEntry), journalEntry.getAmount() + currentResourceValue);
 					}
 				}
-				String dateTotalKey = String.valueOf(journalEntry.getDate().toString());
-				Integer currentTotalValue = journalEntryDateResourceToAmountMap.get(dateTotalKey);
+				Integer currentTotalValue = journalEntryDateResourceToAmountMap.get(dateTotalKey(journalEntry));
 				if (null == currentTotalValue) {
-					journalEntryDateResourceToAmountMap.put(dateTotalKey, journalEntry.getAmount());
+					journalEntryDateResourceToAmountMap.put(dateTotalKey(journalEntry), journalEntry.getAmount());
 				} else {
-					journalEntryDateResourceToAmountMap.put(dateTotalKey, journalEntry.getAmount() + currentTotalValue);
+					journalEntryDateResourceToAmountMap.put(dateTotalKey(journalEntry), journalEntry.getAmount() + currentTotalValue);
 				}
 			}
 		}
 		return journalEntryDateResourceToAmountMap;
+	}
+	
+	private String dateResourceKey(final JournalEntry journalEntry) {
+		return String.valueOf(journalEntry.getDate().toString() + "-" + journalEntry.getResource().getName());
+	}
+
+	private String dateTotalKey(final JournalEntry journalEntry) {
+		return String.valueOf(journalEntry.getDate().toString());
 	}
 }

@@ -22,7 +22,7 @@ public class UIDisplayFilter {
 	
 	private String displayStyle = DISPLAY_STYLE_CHART;
 	private boolean assetTypeLiquid = true;
-	private boolean breakdownAggregate = true;
+	private boolean breakdownAggregate = false;
 	private boolean timePeriodAnnually = true;
 	
 	private int yearEnd;
