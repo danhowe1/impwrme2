@@ -9,72 +9,35 @@
 	<div id="dataDisplay" class="" th:fragment="dataDisplay">
 
 		<script type="text/javascript" th:inline="javascript">
-			function loadDisplayData() {
-				var displayFilter = /*[[${displayFilter}]]*/'novalue';
-				if (displayFilter.displayStyle == 'DISPLAY_STYLE_BALANCES_TABLE') {
-					loadBalancesTableData();
-				} else {
-					loadChartData();
-				}
-			}
+			var displayFilter = /*[[${displayFilter}]]*/'novalue';
 
-			/* --------------- */
-			/* Display filter. */
-			/* --------------- */
-
-			function changeDisplayFilter(filterValue) {
-				var url = baseUrl + 'displayFilter/update/' + filterValue;
-				$.ajax({
-					url : url,
-					type : "GET",
-					success : function(response) {
-						$("#dataDisplay").html(response);
-					},
-					error : function(jqXHR) {
-						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
-					}
-				});
-			}
-
-			function changeDisplayFilterYear(year) {
-				var token = $("meta[name='_csrf']").attr("content");
-				var header = $("meta[name='_csrf_header']").attr("content");
-				return $.ajax({
-					type : 'post',
-					url : baseUrl + 'displayFilter/changeDisplayFilterYear',
-					data : "year=" + year,
-					beforeSend : function(xhr) {
-						xhr.setRequestHeader(header, token);
-					},
-					success : function(response) {
-						loadDisplayData();
-					},
-					error : function(jqXHR) {
-						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
-					}
-				});
-			}
+			/* ----------------------- */
+			/* Public functions START. */
+			/* ----------------------- */
 			
-			/* ----------------- */
-			/* Table (Balances). */
-			/* ----------------- */
-
-			function loadBalancesTableData() {
-				$.getJSON(baseUrl + 'dataDisplay/getTableData', {
-					format : "json"
-				}).done(function(data) {
-					var oTable = $('#dashboardTable').DataTable({
-						columns : data.columns,
-						data : data.journalEntries
-					});
-				}).fail(function() {
-					console.log("error");
-				});
+			function loadDisplayData() {
+				if (displayFilter.displayStyle == 'DISPLAY_STYLE_CHART') {
+					document.getElementById('rowChart').style.display = "block";
+					document.getElementById('rowTableBalances').style.display = "none";
+					$($("ul[class='nav nav-tabs'] li a")[0]).addClass("active");
+					$($("ul[class='nav nav-tabs'] li a")[1]).removeClass("active");
+					loadChartData();
+				} else if (displayFilter.displayStyle == 'DISPLAY_STYLE_BALANCES_TABLE') {
+					document.getElementById('rowChart').style.display = "none";
+					document.getElementById('rowTableBalances').style.display = "block";
+					$($("ul[class='nav nav-tabs'] li a")[0]).removeClass("active");
+					$($("ul[class='nav nav-tabs'] li a")[1]).addClass("active");
+					loadBalancesTableData();
+				} 
 			}
 
-			/* ------------- */
-			/* Google chart. */
-			/* ------------- */
+			/* --------------------- */
+			/* Public functions END. */
+			/* --------------------- */
+			
+			/* ------------------- */
+			/* Google chart START. */
+			/* ------------------- */
 
 			google.charts.load('current', {
 				packages : [ 'corechart', 'bar', 'table' ]
@@ -83,17 +46,19 @@
 			/**
 			 * @see <a href="https://stackoverflow.com/questions/61818505/error-must-call-google-charts-load-before-google-charts-setonloadcallback">https://stackoverflow.com/questions/61818505/error-must-call-google-charts-load-before-google-charts-setonloadcallback</a>
 			 */
-/* 			google.setOnLoadCallback(function() {
-				loadChartData();
-			})
- */
+			/* 	
+				google.setOnLoadCallback(function() {
+			 		loadChartData();
+			 	})
+			 */
+			 
 			function loadChartData() {
 				var url = baseUrl + 'dataDisplay/getChartData';
 				$.ajax({
 					url : url,
 					type : "GET",
+					data : "jsDisplayFilter=" + encodeURIComponent(JSON.stringify(displayFilter)),
 					dataType : "json",
-					async : true,
 					success : function(data) {
 						if (data) {
 							drawLineChart(data);
@@ -140,50 +105,113 @@
 					title : "Liquid funds",
 					titleFontSize : 24
 				};
-				var chart1_chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-				chart1_chart.draw(dataTableData, options);
+				var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+				chart.draw(dataTableData, options);
 			}
-
-			$(document).ready(function() {
-				loadDisplayData();
-			});
 
 			/* We use a resize to trigger the redraw of the chart.	*/
 			$(window).resize(function() {
-				loadChartData();
+				if (displayFilter.displayStyle == 'DISPLAY_STYLE_CHART') {
+					loadChartData();
+				}
 			});
+
+			/* ----------------- */
+			/* Google chart END. */
+			/* ----------------- */
+
+			/* ----------------------- */
+			/* Table (Balances) START. */
+			/* ----------------------- */
+
+			function loadBalancesTableData() {
+				var url = baseUrl + 'dataDisplay/getBalancesTableData';
+				$.ajax({
+					url : url,
+					type : "GET",
+					data : "jsDisplayFilter=" + encodeURIComponent(JSON.stringify(displayFilter)),
+					dataType : "json",
+					success : function(data) {
+						var oTable = $('#dashboardTable').DataTable({
+							retrieve : true,
+							autoWidth: false,
+							columns : data.columns,
+							data : data.journalEntries
+						});
+					},
+					error : function(jqXHR) {
+						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
+					}
+				});
+			}
+
+			/* --------------------- */
+			/* Table (Balances) END. */
+			/* --------------------- */
+			
+			/* -------------------------------- */
+			/* Document loaded functions START. */
+			/* -------------------------------- */
+
+			$(document).ready(function() {
+
+				// Change of year end.
+				$("select[name=yearEnd]").on( "change", function() {
+					displayFilter.yearEnd = this.value;
+					loadDisplayData();
+				});
+				
+				// Change display style.
+				$("ul[class='nav nav-tabs']").on("click", "li", (function(e) {
+					var index = $(this).index();
+					if (index == 0 && displayFilter.displayStyle != 'DISPLAY_STYLE_CHART') {
+						displayFilter.displayStyle = 'DISPLAY_STYLE_CHART';
+					} else if (index == 1 && displayFilter.displayStyle != 'DISPLAY_STYLE_BALANCES_TABLE') {
+						displayFilter.displayStyle = 'DISPLAY_STYLE_BALANCES_TABLE';
+					}
+					loadDisplayData();
+				}));
+				
+				// Load the display data when the page finishes loading.
+				loadDisplayData();
+			});
+
+			/* ------------------------------ */
+			/* Document loaded functions END. */
+			/* ------------------------------ */
+
 		</script>
 
+		<!-- ------------------ -->
+		<!-- Row for nav tabs.. -->
+		<!-- ------------------ -->
+		
 		<div class="row">
+
+			<!-- -------------------------------------------- -->
+			<!-- Nav tabs used for choosing chart, table etc. -->
+			<!-- -------------------------------------------- -->
+
 			<div class="col">
 				<ul class="nav nav-tabs">
-					<li th:if="*{displayFilter.displayStyle == 'DISPLAY_STYLE_CHART'}"
-						class="nav-item"><a class="nav-link active"
+					<li class="nav-item"><a class="nav-link" href="#"
 						aria-current="page">Chart</a></li>
-					<li
-						th:unless="*{displayFilter.displayStyle == 'DISPLAY_STYLE_CHART'}"
-						class="nav-item"><a class="nav-link" aria-current="page"
-						href="#" onclick="changeDisplayFilter('DISPLAY_STYLE_CHART')">Chart</a></li>
-					<li
-						th:if="*{displayFilter.displayStyle == 'DISPLAY_STYLE_BALANCES_TABLE'}"
-						class="nav-item"><a class="nav-link active"
+					<li class="nav-item"><a class="nav-link" href="#"
 						aria-current="page">Table (Balances)</a></li>
-					<li
-						th:unless="*{displayFilter.displayStyle == 'DISPLAY_STYLE_BALANCES_TABLE'}"
-						class="nav-item"><a class="nav-link" aria-current="page"
-						href="#"
-						onclick="changeDisplayFilter('DISPLAY_STYLE_BALANCES_TABLE')">Table
-							(Balances)</a></li>
-					<li class="nav-item"><a class="nav-link" href="#">Timeline</a></li>
 				</ul>
 			</div>
+
+			<!-- ---------------- -->
+			<!-- End year filter. -->
+			<!-- ---------------- -->
+
 			<div class="col-auto">
 				<label for="yearEnd" class="col-form-label">End year</label>
 			</div>
+
 			<div class="col-auto">
 				<form>
-					<select id="displayFilter.yearEnd" onChange="changeDisplayFilterYear(this.value);"
-						class="form-select selectpicker" name="yearEnd"
+					<select class="form-select selectpicker" name="yearEnd"
 						th:field="*{displayFilter.yearEnd}">
 						<option th:each="year : *{displayFilter.yearList}"
 							th:value="${year}" th:text="${year}"></option>
@@ -192,25 +220,28 @@
 			</div>
 		</div>
 
-		<div th:if="*{displayFilter.displayStyle == 'DISPLAY_STYLE_CHART'}">
-			<div class="row">
-				<div class="col">
-					<div id="chart_div" class="chart"></div>
-				</div>
+		<!-- -------------- -->
+		<!-- Row for chart. -->
+		<!-- -------------- -->
+		
+		<div id="rowChart" class="row">
+			<div class="col">
+				<div id="chart_div" class="chart"></div>
 			</div>
 		</div>
 
-		<div
-			th:if="*{displayFilter.displayStyle == 'DISPLAY_STYLE_BALANCES_TABLE'}"
-			style="overflow-x: auto;">
-			<div class="row bg-white">
-				<div class="col m-2">
-					<table id="dashboardTable"
-						class="table table-responsive table-bordered">
-					</table>
-				</div>
+		<!-- -------------- -->
+		<!-- Row for table. -->
+		<!-- -------------- -->
+		
+		<div id="rowTableBalances" class="row bg-white mx-1 py-1" style="overflow-x: auto;">
+			<div class="col m-2">
+				<table id="dashboardTable"
+					class="table table-responsive table-bordered">
+				</table>
 			</div>
 		</div>
+
 	</div>
 </body>
 </html>

@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.impwrme2.model.cashflow.CashflowCategory;
@@ -44,59 +45,32 @@ public class DataDisplayController {
 
 	@GetMapping(value = "/getChartData", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public String getChartData(@AuthenticationPrincipal OidcUser user, final HttpSession session) {
-		return generateJsonChartData(user, session);
+	public String getChartData(@AuthenticationPrincipal OidcUser user, @RequestParam String jsDisplayFilter, final HttpSession session) {
+		System.out.println(jsDisplayFilter);
+
+		UIDisplayFilter displayFilter = new Gson().fromJson(jsDisplayFilter, UIDisplayFilter.class);
+		session.setAttribute("SESSION_DISPLAY_FILTER", displayFilter);
+
+		return generateJsonChartData(user, displayFilter, session);
 	}
 
-	@GetMapping(value = "/getTableData", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/getBalancesTableData", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public String getTableData(@AuthenticationPrincipal OidcUser user, final HttpSession session) {
+	public String getBalancesTableData(@AuthenticationPrincipal OidcUser user, @RequestParam String jsDisplayFilter, final HttpSession session) {
 
-		JsonObject dataTable = new JsonObject();
-
-		JsonArray columns = new JsonArray();
-
-		JsonObject col1 = new JsonObject();
-		col1.addProperty("data", "DATE");
-		col1.addProperty("title", "DATE");
-		columns.add(col1);
-
-		JsonObject col2 = new JsonObject();
-		col2.addProperty("data", "TOTAL");
-		col2.addProperty("title", "TOTAL");
-		columns.add(col2);
-
-		dataTable.add("columns", columns);
+		UIDisplayFilter displayFilter = new Gson().fromJson(jsDisplayFilter, UIDisplayFilter.class);
+		session.setAttribute("SESSION_DISPLAY_FILTER", displayFilter);
 		
-		JsonArray journalEntryRows = new JsonArray();
-		
-		JsonObject journalEntry1 = new JsonObject();
-		journalEntry1.addProperty("DATE", "2024-01");
-		journalEntry1.addProperty("TOTAL", "1200");
-		journalEntryRows.add(journalEntry1);
-
-		JsonObject journalEntry2 = new JsonObject();
-		journalEntry2.addProperty("DATE", "2024-02");
-		journalEntry2.addProperty("TOTAL", "1674");
-		journalEntryRows.add(journalEntry2);
-
-		dataTable.add("journalEntries", journalEntryRows);
-
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		String result = gson.toJson(dataTable);
-
-		return result;
+		return generateJsonTableData(user, displayFilter, session);
 	}
 
-	private String generateJsonChartData(final OidcUser user, final HttpSession session) {
+	private String generateJsonChartData(final OidcUser user, final UIDisplayFilter displayFilter, final HttpSession session) {
 
 		Resource sessionResource = (Resource) session.getAttribute("SESSION_CURRENT_RESOURCE");
 		Scenario scenario = scenarioService.findByIdAndUserId(sessionResource.getScenario().getId(), user.getUserInfo().getSubject()).get();
 
 		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(session, scenario);
 		
-		UIDisplayFilter displayFilter = (UIDisplayFilter) session.getAttribute("SESSION_DISPLAY_FILTER");
-
 		//TODO Remove...
 		displayFilter.setBreakdownAggregate(false);
 		
@@ -225,6 +199,43 @@ public class DataDisplayController {
 		return result;
 	}
 
+	private String generateJsonTableData(final OidcUser user, final UIDisplayFilter displayFilter, final HttpSession session) {
+		JsonObject dataTable = new JsonObject();
+
+		JsonArray columns = new JsonArray();
+
+		JsonObject col1 = new JsonObject();
+		col1.addProperty("data", "DATE");
+		col1.addProperty("title", "DATE");
+		columns.add(col1);
+
+		JsonObject col2 = new JsonObject();
+		col2.addProperty("data", "TOTAL");
+		col2.addProperty("title", "TOTAL");
+		columns.add(col2);
+
+		dataTable.add("columns", columns);
+		
+		JsonArray journalEntryRows = new JsonArray();
+		
+		JsonObject journalEntry1 = new JsonObject();
+		journalEntry1.addProperty("DATE", "2024-01");
+		journalEntry1.addProperty("TOTAL", "1200");
+		journalEntryRows.add(journalEntry1);
+
+		JsonObject journalEntry2 = new JsonObject();
+		journalEntry2.addProperty("DATE", "2024-02");
+		journalEntry2.addProperty("TOTAL", "1674");
+		journalEntryRows.add(journalEntry2);
+
+		dataTable.add("journalEntries", journalEntryRows);
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String result = gson.toJson(dataTable);
+
+		return result;
+	}
+	
 	private JournalEntryResponse getOrCreateJournalEntries(HttpSession session, Scenario scenario) {
 		JournalEntryResponse journalEntryResponse = (JournalEntryResponse) session.getAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");		
 		if (null == journalEntryResponse) {
