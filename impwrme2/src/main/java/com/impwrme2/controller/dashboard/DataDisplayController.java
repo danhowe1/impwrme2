@@ -104,14 +104,14 @@ public class DataDisplayController {
 		if (journalEntryResponse.getJournalEntries().size() > 0) {
 			YearMonth currentYearMonth = journalEntryResponse.getJournalEntries().get(0).getResource().getScenario().getStartYearMonth();
 			while (currentYearMonth.getYear() <= displayFilter.getYearEnd()) {
-				if (!displayFilter.isTimePeriodAnnually() || currentYearMonth.getMonthValue() == 12) {
+				if (null != dateResourceToAmountMap.get(dateTotalKey(currentYearMonth))) {
 					JsonObject row = new JsonObject();
 					JsonArray cells = new JsonArray();
-	
+					
 					JsonObject cellDate = new JsonObject();
 					cellDate.addProperty("v", currentYearMonth.toString());
 					cells.add(cellDate);
-				
+					
 					JsonObject cellTotal = new JsonObject();
 					cellTotal.addProperty("v", dateResourceToAmountMap.get(currentYearMonth.toString()));
 					cells.add(cellTotal);
@@ -137,64 +137,13 @@ public class DataDisplayController {
 			}
 		}
 		
-//		for (Map.Entry<String, Integer> entry : dateResourceToAmountMap.entrySet()) {
-//			JsonObject row = new JsonObject();
-//			JsonArray cells = new JsonArray();
-//			JsonObject cellDate = new JsonObject();
-//			JsonObject cellTotal = new JsonObject();
-//			JsonObject cellCurrentAccount = new JsonObject();
-//			JsonObject cellStyle = new JsonObject();
-//			JsonObject cellTooltip = new JsonObject();
-//
-//			cellDate.addProperty("v", entry.getKey());
-//			cells.add(cellDate);
-//		
-//			cellTotal.addProperty("v", entry.getValue().intValue());
-//			cells.add(cellTotal);
-//
-//			cellCurrentAccount.addProperty("v", entry.getValue().intValue() + 10000);
-//			cells.add(cellCurrentAccount);
-//
-//			cellStyle.addProperty("v", "");					
-//			cells.add(cellStyle);
-//
-//			cellTooltip.addProperty("v", "");					
-//			cells.add(cellTooltip);
-//
-//			row.add("c", cells);
-//			jsonRows.add(row);
-//		}
-		
-//		List<Object[]> rows = new ArrayList<Object[]>();
-//		rows.add(new Object[] { "12 2024", Integer.valueOf(324), null, null });
-//		rows.add(new Object[] { "12 2025", Integer.valueOf(654), "point { size: 12; shape-type: star; fill-color: #a52714; }", "Griffin St sold for $4,500,000" });
-//		rows.add(new Object[] { "12 2026", Integer.valueOf(700), null, null });
-
-//		for (Object[] rowData : rows) {
-//			JsonObject row = new JsonObject();
-//			JsonArray cells = new JsonArray();
-//
-//			for (Object cellData : rowData) {
-//				JsonObject cell = new JsonObject();
-//				if (null == cellData) {
-//					cell.addProperty("v", "");					
-//				} else if (cellData instanceof Integer) {
-//					cell.addProperty("v", ((Integer) cellData).intValue());
-//				} else {
-//					cell.addProperty("v", cellData.toString());
-//				}
-//				cells.add(cell);
-//			}
-//
-//			row.add("c", cells);
-//			jsonRows.add(row);
-//		}
-
 		dataTable.add("rows", jsonRows);
 
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String result = gson.toJson(dataTable);
 
+		System.out.println(result);
+		
 		return result;
 	}
 
@@ -215,25 +164,37 @@ public class DataDisplayController {
 			for (String resourceName : filteredResourceNames) {
 				JsonObject jsonRowData = new JsonObject();
 				YearMonth currentYearMonth = journalEntryResponse.getJournalEntries().get(0).getResource().getScenario().getStartYearMonth();
+				YearMonth scenarioEndYearMonth = journalEntryResponse.getJournalEntries().get(0).getResource().getScenario().calculateEndYearMonth();
 				boolean firstDateInMonth = true;
-				//TODO Following line should include final year but for annual balances final year isn't there.
-				while (currentYearMonth.getYear() < displayFilter.getYearEnd()) {
-					if (!displayFilter.isTimePeriodAnnually() || currentYearMonth.getMonthValue() == 12) {
+				while (currentYearMonth.getYear() <= displayFilter.getYearEnd()) {
+					if (!displayFilter.isTimePeriodAnnually() || currentYearMonth.getMonthValue() == 12 || currentYearMonth.equals(scenarioEndYearMonth)) {
 						
 						if (firstResourceName) {
 
 							if (firstDateInMonth) {
+								// First and only cell is the resource name column header.
 								JsonObject colResourceName = new JsonObject();
 								colResourceName.addProperty("data", "resourceName");
 								colResourceName.addProperty("title", "Resource");
 								columns.add(colResourceName);							
 							}
 
-							// Add this months date column.
+							// Add this months date column header.
 							JsonObject colDate = new JsonObject();
-							colDate.addProperty("data", currentYearMonth.toString());
-							colDate.addProperty("title", currentYearMonth.toString());
-							columns.add(colDate);							
+							if (currentYearMonth.getYear() == scenarioEndYearMonth.getYear()) {
+								if (currentYearMonth.equals(scenarioEndYearMonth)) {
+									// Special processing in the last year. Only add the specific
+									// end month and not the December value.
+									colDate.addProperty("data", scenarioEndYearMonth.toString());
+									colDate.addProperty("title", scenarioEndYearMonth.toString());		
+									columns.add(colDate);							
+								}
+							} else {
+								// Normal EOM date column header.
+								colDate.addProperty("data", currentYearMonth.toString());
+								colDate.addProperty("title", currentYearMonth.toString());
+								columns.add(colDate);							
+							}
 						}
 						
 						if (firstDateInMonth) {
@@ -280,8 +241,12 @@ public class DataDisplayController {
 	}
 	
 	private List<JournalEntry> getFilteredClosingBalances(final List<JournalEntry> journalEntries, final UIDisplayFilter displayFilter) {
+		YearMonth scenarioEndDate = null;
 		List<JournalEntry> filteredJournalEntries = new ArrayList<JournalEntry>();
 		for (JournalEntry journalEntry : journalEntries) {
+			if (null == scenarioEndDate) {
+				scenarioEndDate = journalEntry.getResource().getScenario().calculateEndYearMonth();
+			}
 			if (journalEntry.getDate().getYear() > displayFilter.getYearEnd()) {
 				continue;
 			}
@@ -289,7 +254,11 @@ public class DataDisplayController {
 				continue;
 			}
 			if (displayFilter.isTimePeriodAnnually() && journalEntry.getDate().getMonthValue() != 12) {
-				continue;
+				if (!journalEntry.getDate().equals(scenarioEndDate)) {						
+					continue;
+				} else {
+					System.out.println("HERE");
+				}
 			}
 			if (journalEntry.getCategory().equals(CashflowCategory.JE_BALANCE_CLOSING_LIQUID) &&
 				displayFilter.isAssetTypeLiquid()) {
@@ -315,7 +284,7 @@ public class DataDisplayController {
 	private Map<String, Integer> getClosingBalances (final List<JournalEntry> journalEntries, final UIDisplayFilter displayFilter) {
 		Map<String, Integer> journalEntryDateResourceToAmountMap = new TreeMap<String, Integer>();
 		for (JournalEntry journalEntry : journalEntries) {
-			if (!displayFilter.isTimePeriodAnnually() || journalEntry.getDate().getMonth().getValue() == 12) {
+//			if (!displayFilter.isTimePeriodAnnually() || journalEntry.getDate().getMonth().getValue() == 12) {
 				if (journalEntry.getAmount().intValue() != 0 && !displayFilter.isBreakdownAggregate()) {
 					Integer currentResourceValue = journalEntryDateResourceToAmountMap.get(dateResourceKey(journalEntry));
 					if (null == currentResourceValue) {
@@ -330,7 +299,7 @@ public class DataDisplayController {
 				} else {
 					journalEntryDateResourceToAmountMap.put(dateTotalKey(journalEntry), journalEntry.getAmount() + currentTotalValue);
 				}
-			}
+//			}
 		}
 		return journalEntryDateResourceToAmountMap;
 	}
