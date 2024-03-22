@@ -141,8 +141,6 @@ public class DataDisplayController {
 
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String result = gson.toJson(dataTable);
-
-		System.out.println(result);
 		
 		return result;
 	}
@@ -164,10 +162,9 @@ public class DataDisplayController {
 			for (String resourceName : filteredResourceNames) {
 				JsonObject jsonRowData = new JsonObject();
 				YearMonth currentYearMonth = journalEntryResponse.getJournalEntries().get(0).getResource().getScenario().getStartYearMonth();
-				YearMonth scenarioEndYearMonth = journalEntryResponse.getJournalEntries().get(0).getResource().getScenario().calculateEndYearMonth();
 				boolean firstDateInMonth = true;
 				while (currentYearMonth.getYear() <= displayFilter.getYearEnd()) {
-					if (!displayFilter.isTimePeriodAnnually() || currentYearMonth.getMonthValue() == 12 || currentYearMonth.equals(scenarioEndYearMonth)) {
+					if (null != dateResourceToAmountMap.get(dateTotalKey(currentYearMonth))) {
 						
 						if (firstResourceName) {
 
@@ -181,20 +178,9 @@ public class DataDisplayController {
 
 							// Add this months date column header.
 							JsonObject colDate = new JsonObject();
-							if (currentYearMonth.getYear() == scenarioEndYearMonth.getYear()) {
-								if (currentYearMonth.equals(scenarioEndYearMonth)) {
-									// Special processing in the last year. Only add the specific
-									// end month and not the December value.
-									colDate.addProperty("data", scenarioEndYearMonth.toString());
-									colDate.addProperty("title", scenarioEndYearMonth.toString());		
-									columns.add(colDate);							
-								}
-							} else {
-								// Normal EOM date column header.
-								colDate.addProperty("data", currentYearMonth.toString());
-								colDate.addProperty("title", currentYearMonth.toString());
-								columns.add(colDate);							
-							}
+							colDate.addProperty("data", currentYearMonth.toString());
+							colDate.addProperty("title", currentYearMonth.toString());
+							columns.add(colDate);							
 						}
 						
 						if (firstDateInMonth) {
@@ -256,8 +242,6 @@ public class DataDisplayController {
 			if (displayFilter.isTimePeriodAnnually() && journalEntry.getDate().getMonthValue() != 12) {
 				if (!journalEntry.getDate().equals(scenarioEndDate)) {						
 					continue;
-				} else {
-					System.out.println("HERE");
 				}
 			}
 			if (journalEntry.getCategory().equals(CashflowCategory.JE_BALANCE_CLOSING_LIQUID) &&
