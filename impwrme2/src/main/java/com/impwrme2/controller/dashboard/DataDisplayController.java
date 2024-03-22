@@ -9,6 +9,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -37,11 +39,16 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/app/dashboard/dataDisplay")
 public class DataDisplayController {
 
+	private static final String RESOURCE_NAME_TOTAL_TOKEN = "1";
+	
 	@Autowired
 	private ScenarioService scenarioService;
 
 	@Autowired
 	private JournalEntryService journalEntryService;
+	
+	@Autowired
+	private MessageSource messageSource;
 
 	@GetMapping(value = "/getChartData", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -197,6 +204,7 @@ public class DataDisplayController {
 		List<JournalEntry> filteredClosingBalances = getFilteredClosingBalances(journalEntryResponse.getJournalEntries(), displayFilter);
 		Map<String, Integer> dateResourceToAmountMap = getClosingBalances(filteredClosingBalances, displayFilter);
 		SortedSet<String> filteredResourceNames = getFilteredResourceNames(filteredClosingBalances ,displayFilter);
+		filteredResourceNames.add(RESOURCE_NAME_TOTAL_TOKEN);
 
 		JsonObject dataTable = new JsonObject();
 		JsonArray columns = new JsonArray();
@@ -208,7 +216,8 @@ public class DataDisplayController {
 				JsonObject jsonRowData = new JsonObject();
 				YearMonth currentYearMonth = journalEntryResponse.getJournalEntries().get(0).getResource().getScenario().getStartYearMonth();
 				boolean firstDateInMonth = true;
-				while (currentYearMonth.getYear() <= displayFilter.getYearEnd()) {
+				//TODO Following line should include final year but for annual balances final year isn't there.
+				while (currentYearMonth.getYear() < displayFilter.getYearEnd()) {
 					if (!displayFilter.isTimePeriodAnnually() || currentYearMonth.getMonthValue() == 12) {
 						
 						if (firstResourceName) {
@@ -228,11 +237,19 @@ public class DataDisplayController {
 						}
 						
 						if (firstDateInMonth) {
-							jsonRowData.addProperty("resourceName", resourceName);
+							if (resourceName.equals(RESOURCE_NAME_TOTAL_TOKEN)) {
+								jsonRowData.addProperty("resourceName", messageSource.getMessage("msg.class.dataDisplayController.resourceNameTotal", null, LocaleContextHolder.getLocale()));
+							} else {
+								jsonRowData.addProperty("resourceName", resourceName);
+							}
 						}
 
-						jsonRowData.addProperty(currentYearMonth.toString(), "4000");
-
+						if (resourceName.equals(RESOURCE_NAME_TOTAL_TOKEN)) {
+							jsonRowData.addProperty(currentYearMonth.toString(), dateResourceToAmountMap.get(dateTotalKey(currentYearMonth)));							
+						} else {
+							jsonRowData.addProperty(currentYearMonth.toString(), dateResourceToAmountMap.get(dateResourceKey(currentYearMonth, resourceName)));
+						}
+						
 						firstDateInMonth = false;
 					}
 					currentYearMonth = currentYearMonth.plusMonths(1);
@@ -339,5 +356,13 @@ public class DataDisplayController {
 
 	private String dateTotalKey(final JournalEntry journalEntry) {
 		return String.valueOf(journalEntry.getDate().toString());
+	}
+
+	private String dateResourceKey(final YearMonth yearMonth, final String resourceName) {
+		return String.valueOf(yearMonth.toString() + "-" + resourceName);
+	}
+
+	private String dateTotalKey(final YearMonth yearMonth) {
+		return String.valueOf(yearMonth.toString());
 	}
 }

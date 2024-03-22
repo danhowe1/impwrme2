@@ -124,25 +124,64 @@
 			/* Table (Balances) START. */
 			/* ----------------------- */
 
+			var tableLoaded = false;
+			var oTable = new DataTable('#dashboardTable');
+			
 			function loadBalancesTableData() {
-				var url = baseUrl + 'dataDisplay/getBalancesTableData';
-				$.ajax({
-					url : url,
-					type : "GET",
-					data : "jsDisplayFilter=" + encodeURIComponent(JSON.stringify(displayFilter)),
-					dataType : "json",
-					success : function(data) {
-						var oTable = $('#dashboardTable').DataTable({
-							retrieve : true,
-							autoWidth: false,
-							columns : data.columns,
-							data : data.journalEntries
-						});
-					},
-					error : function(jqXHR) {
-						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
-					}
-				});
+
+				if (tableLoaded) {
+//					$('#dashboardTable').DataTable().ajax.reload(null, false);
+//					oTable.destroy();
+//					$('#dashboardTable').clear().destroy();
+//					oTable.ajax.reload(null, false);
+
+					var url = baseUrl + 'dataDisplay/getBalancesTableData';
+					$.ajax({
+						url : url,
+						type : "GET",
+						data : "jsDisplayFilter=" + encodeURIComponent(JSON.stringify(displayFilter)),
+						dataType : "json",
+						success : function(data) {
+							oTable.destroy();
+							$('#dashboardTable').empty();
+							oTable = $('#dashboardTable').DataTable({
+//								retrieve : true,
+//								destroy : true,
+								autoWidth: false,
+								columns : data.columns,
+								data : data.journalEntries
+							});
+							oTable.draw();
+						},
+						error : function(jqXHR) {
+							alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
+						}
+					});
+				
+				} else {
+					var url = baseUrl + 'dataDisplay/getBalancesTableData';
+					$.ajax({
+						url : url,
+						type : "GET",
+						data : "jsDisplayFilter=" + encodeURIComponent(JSON.stringify(displayFilter)),
+						dataType : "json",
+						success : function(data) {
+							oTable.destroy();
+							$('#dashboardTable').empty();
+							oTable = $('#dashboardTable').DataTable({
+//								destroy : true,
+//								retrieve : true,
+								autoWidth: false,
+								columns : data.columns,
+								data : data.journalEntries
+							});
+						},
+						error : function(jqXHR) {
+							alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
+						}
+					});
+					tableLoaded = true;
+				}
 			}
 
 			/* --------------------- */
