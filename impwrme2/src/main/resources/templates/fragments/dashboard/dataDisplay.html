@@ -65,7 +65,7 @@
 						}
 					},
 					error : function(jqXHR) {
-						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
+						handleAjaxError(jqXHR)
 					}
 				});
 			}
@@ -124,66 +124,51 @@
 			/* Table (Balances) START. */
 			/* ----------------------- */
 
-			var tableLoaded = false;
 			var oTable = new DataTable('#dashboardTable');
 			
 			function loadBalancesTableData() {
 
-				if (tableLoaded) {
-//					$('#dashboardTable').DataTable().ajax.reload(null, false);
-//					oTable.destroy();
-//					$('#dashboardTable').clear().destroy();
-//					oTable.ajax.reload(null, false);
-
-					var url = baseUrl + 'dataDisplay/getBalancesTableData';
-					$.ajax({
-						url : url,
-						type : "GET",
-						data : "jsDisplayFilter=" + encodeURIComponent(JSON.stringify(displayFilter)),
-						dataType : "json",
-						success : function(data) {
-							oTable.destroy();
-							$('#dashboardTable').empty();
-							oTable = $('#dashboardTable').DataTable({
-//								retrieve : true,
-//								destroy : true,
-								autoWidth: false,
-								columns : data.columns,
-								data : data.journalEntries
-							});
-							oTable.draw();
-						},
-						error : function(jqXHR) {
-							alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
-						}
-					});
-				
-				} else {
-					var url = baseUrl + 'dataDisplay/getBalancesTableData';
-					$.ajax({
-						url : url,
-						type : "GET",
-						data : "jsDisplayFilter=" + encodeURIComponent(JSON.stringify(displayFilter)),
-						dataType : "json",
-						success : function(data) {
-							oTable.destroy();
-							$('#dashboardTable').empty();
-							oTable = $('#dashboardTable').DataTable({
-//								destroy : true,
-//								retrieve : true,
-								autoWidth: false,
-								columns : data.columns,
-								data : data.journalEntries
-							});
-						},
-						error : function(jqXHR) {
-							alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
-						}
-					});
-					tableLoaded = true;
-				}
+				var url = baseUrl + 'dataDisplay/getBalancesTableData';
+				$.ajax({
+					url : url,
+					type : "GET",
+					data : "jsDisplayFilter=" + encodeURIComponent(JSON.stringify(displayFilter)),
+					dataType : "json",
+					success : function(data) {
+						oTable.destroy();
+						$('#dashboardTable').empty();
+						oTable = $('#dashboardTable').DataTable({
+							responsive : true,
+							paging : false,
+							searching : false,
+							info : false,
+							ordering : false,
+							columns : data.columns,
+							"columnDefs": [
+						        {
+						            "render": function (data, type, row) {
+						                 return commaSeparateNumber(data);
+						            },
+						            "targets": ['_all']
+						        },
+						    ],
+							data : data.journalEntries
+						});
+					},
+					error : function(jqXHR) {
+						handleAjaxError(jqXHR)
+					}
+				});
 			}
 
+			function commaSeparateNumber(val) {
+			    while (/(\d+)(\d{3})/.test(val.toString())) {
+			        val = val.toString().replace(/(\d+)(\d{3})/, '$1' + ',' + '$2');
+			    }
+
+			    return val;
+			}
+			
 			/* --------------------- */
 			/* Table (Balances) END. */
 			/* --------------------- */
@@ -276,7 +261,7 @@
 		<div id="rowTableBalances" class="row bg-white mx-1 py-1" style="overflow-x: auto;">
 			<div class="col m-2">
 				<table id="dashboardTable"
-					class="table table-responsive table-bordered">
+					class="table table-responsive table-bordered compact">
 				</table>
 			</div>
 		</div>

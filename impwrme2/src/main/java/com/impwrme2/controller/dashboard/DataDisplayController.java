@@ -249,7 +249,7 @@ public class DataDisplayController {
 						} else {
 							jsonRowData.addProperty(currentYearMonth.toString(), dateResourceToAmountMap.get(dateResourceKey(currentYearMonth, resourceName)));
 						}
-						
+								
 						firstDateInMonth = false;
 					}
 					currentYearMonth = currentYearMonth.plusMonths(1);
@@ -258,27 +258,12 @@ public class DataDisplayController {
 				firstResourceName = false;	
 			}
 		}
-		dataTable.add("columns", columns);
-		
-//		JsonArray journalEntryRows = new JsonArray();
-		
-//		JsonObject journalEntry1 = new JsonObject();
-//		journalEntry1.addProperty("resourceName", "2024-01");
-//		journalEntry1.addProperty("TOTAL", "1200");
-//		journalEntryRows.add(journalEntry1);
-//
-//		JsonObject journalEntry2 = new JsonObject();
-//		journalEntry2.addProperty("resourceName", "2024-02");
-//		journalEntry2.addProperty("TOTAL", "1674");
-//		journalEntryRows.add(journalEntry2);
-
+		dataTable.add("columns", columns);		
 		dataTable.add("journalEntries", journalEntryRows);
 
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String result = gson.toJson(dataTable);
 
-		System.out.println(result);
-		
 		return result;
 	}
 	

@@ -25,3 +25,9 @@
 #cashflowTable td:nth-child(1), th:nth-child(1) {
   text-align: left;
 }
+
+#dashboardTable th, td {
+  font-size: 0.8em;
+  text-align: right;
+}
+
