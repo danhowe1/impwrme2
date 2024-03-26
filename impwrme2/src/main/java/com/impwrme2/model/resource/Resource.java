@@ -1,7 +1,6 @@
 package com.impwrme2.model.resource;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -142,6 +141,22 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 		return resourceParam;
 	}
 
+	@SuppressWarnings("unchecked")
+	public Optional<ResourceParamDateValue<?>> getResourceParamDateValue(ResourceParamNameEnum name) {
+		Optional<ResourceParam<?>> resourceParamOpt = getResourceParam(name);
+		if (resourceParamOpt.isEmpty()) {
+			return Optional.empty();
+		}
+
+		Optional<?> rpdvOpt = resourceParamOpt.get().getResourceParamDateValues().stream().findFirst();
+		if (rpdvOpt.isEmpty()) {
+			return Optional.empty();
+		}
+		
+		return (Optional<ResourceParamDateValue<?>>) rpdvOpt;
+	}
+	
+	@SuppressWarnings("unchecked")
 	public Optional<ResourceParamDateValue<?>> getResourceParamDateValue(ResourceParamNameEnum name, YearMonth yearMonth) {
 		Optional<ResourceParam<?>> resourceParamOpt = getResourceParam(name);
 		if (resourceParamOpt.isEmpty()) {
@@ -154,7 +169,6 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 		}
 		
 		return (Optional<ResourceParamDateValue<?>>) rpdvOpt;
-//		return Optional.of(resourceParam.getResourceParamDateValues().stream().filter(c -> c.getYearMonth().equals(yearMonth)).findFirst().orElseThrow(IllegalArgumentException::new));
 	}
 		
 	//-------------------

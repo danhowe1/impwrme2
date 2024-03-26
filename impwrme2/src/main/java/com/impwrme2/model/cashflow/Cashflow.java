@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.resource.Resource;
-import com.impwrme2.utils.YearMonthUtils;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -89,13 +88,27 @@ public class Cashflow implements Comparable<Cashflow>, Serializable {
 	}
 
 	/**
-	 * Returns a CashflowDateRangeValue if the yearMonth is equal to or after the start date and before the end date.
+	 * Returns a CashflowDateRangeValue if the yearMonth is equal to or after the start date and before the end date. 
+	 * If more than one date is found the highest start date is chosen.
 	 * @param yearMonth Date to test against.
 	 * @return The CashflowDateRangeValue adhering to the date criteria.
 	 */
 	public Optional<CashflowDateRangeValue> getCashflowDateRangeValue(YearMonth yearMonth) {
-		Optional<CashflowDateRangeValue> cfdrv = getCashflowDateRangeValues().stream().filter(c -> ((!c.getYearMonthStart().isAfter(yearMonth)) && (null == c.getYearMonthEnd() ? YearMonthUtils.YEAR_MONTH_MAX : c.getYearMonthEnd()).isAfter(yearMonth))).findFirst();
-		return cfdrv;
+		Optional<CashflowDateRangeValue> cfdrvOpt = Optional.empty();
+		for (CashflowDateRangeValue cfdrv : getCashflowDateRangeValues()) {
+			if (!cfdrv.getYearMonthStart().isAfter(yearMonth)) {
+				if (null == cfdrv.getYearMonthEnd() || (!cfdrv.getYearMonthEnd().isBefore(yearMonth))) {
+					if (cfdrvOpt.isEmpty()) {
+						cfdrvOpt = Optional.of(cfdrv);
+					} else {
+						if (cfdrv.getYearMonthStart().isAfter(cfdrvOpt.get().getYearMonthStart())) {
+							cfdrvOpt = Optional.of(cfdrv);							
+						}
+					}
+				}
+			}
+		}		
+		return cfdrvOpt;
 	}
 	
 	//-------------------

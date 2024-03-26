@@ -186,7 +186,7 @@
 				});
 				
 				// Change display style.
-				$("ul[class='nav nav-tabs']").on("click", "li", (function(e) {
+				$("#dataDisplayTabs ul[class='nav nav-tabs']").on("click", "li", (function(e) {
 					var index = $(this).index();
 					if (index == 0 && displayFilter.displayStyle != 'DISPLAY_STYLE_CHART') {
 						displayFilter.displayStyle = 'DISPLAY_STYLE_CHART';
@@ -216,7 +216,7 @@
 			<!-- Nav tabs used for choosing chart, table etc. -->
 			<!-- -------------------------------------------- -->
 
-			<div class="col">
+			<div id="dataDisplayTabs" class="col">
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a class="nav-link" href="#"
 						aria-current="page">Chart</a></li>

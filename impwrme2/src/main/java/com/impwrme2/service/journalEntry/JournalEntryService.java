@@ -23,7 +23,6 @@ import com.impwrme2.model.journalEntry.JournalEntry;
 import com.impwrme2.model.journalEntry.JournalEntryResponse;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceScenario;
-import com.impwrme2.model.resource.ResourceType;
 import com.impwrme2.model.resource.ResourceUnallocated;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
@@ -194,7 +193,7 @@ public class JournalEntryService {
 		}
 
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
-		for (Cashflow cashflow : resourceEngine.getResource().getCashflows()) {
+		for (Cashflow cashflow : resourceEngine.getCashflowsToProcess(currentYearMonth)) {
 			Optional<CashflowDateRangeValue> cfdrvOpt = cashflow.getCashflowDateRangeValue(currentYearMonth);
 			if (cfdrvOpt.isPresent()) {
 				CashflowDateRangeValue cfdrv = cfdrvOpt.get();
