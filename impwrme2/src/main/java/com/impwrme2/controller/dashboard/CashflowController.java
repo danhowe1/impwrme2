@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.impwrme2.controller.BaseController;
+import com.impwrme2.controller.dto.cashflow.CashflowCreateDto;
 import com.impwrme2.controller.dto.cashflow.CashflowDto;
 import com.impwrme2.controller.dto.cashflow.CashflowDtoConverter;
 import com.impwrme2.controller.dto.cashflowDateRangeValue.CashflowDateRangeValueDto;
@@ -112,27 +113,27 @@ public class CashflowController {
 		return "SUCCESS";
 	}
 
-	@PostMapping(value = "/saveCashflow")
+	@PostMapping(value = "/saveCashflowCreate")
 	@ResponseBody
-	public String saveCashflow(@Valid CashflowDto cashflowDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
+	public String saveCashflowCreate(@Valid CashflowCreateDto cashflowCreateDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
 		if (result.hasErrors()) {
 			return BaseController.getErrorMessageFromBindingResult(messageSource, result);
 		}
+		Resource resource = resourceService.findById(cashflowCreateDto.getResourceId()).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + cashflowCreateDto.getResourceId()));
+		Cashflow cashflow = cashflowDtoConverter.dtoToNewEntity(cashflowCreateDto, resource);
+		cashflowService.save(cashflow);
+		session.removeAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");
+		return "SUCCESS";
+	}
 	
-		boolean isNewCashflow = (null == cashflowDto.getId()) ? true : false;
-
-		Cashflow cashflow;
-		if (isNewCashflow) {
-			//TODO Code this...
-			cashflow = null;
-//			Resource resource = resourceService.findById(resourceParamDto.getResourceId()).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + resourceParamDto.getResourceId()));
-//			resourceParam = resourceParamDtoConverter.dtoToNewResourceParam(resourceParamDto, resource);
-//			resource.addResourceParam(resourceParam);
-		} else {
-			cashflow = cashflowService.findById(cashflowDto.getId()).orElseThrow(() -> new IllegalArgumentException("Invalid cashflow id:" + cashflowDto.getId()));
-			cashflowDtoConverter.dtoToExistingEntity(cashflowDto, cashflow);
-		}
-		
+	@PostMapping(value = "/saveCashflowEdit")
+	@ResponseBody
+	public String saveCashflowEdit(@Valid CashflowDto cashflowDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
+		if (result.hasErrors()) {
+			return BaseController.getErrorMessageFromBindingResult(messageSource, result);
+		}	
+		Cashflow cashflow = cashflowService.findById(cashflowDto.getId()).orElseThrow(() -> new IllegalArgumentException("Invalid cashflow id:" + cashflowDto.getId()));
+		cashflowDtoConverter.dtoToExistingEntity(cashflowDto, cashflow);
 		cashflowService.save(cashflow);
 		session.removeAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");
 		return "SUCCESS";
@@ -151,6 +152,7 @@ public class CashflowController {
 		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
 		model.addAttribute("cashflowTableDto", cashflowDtoConverter.cashflowsToCashflowTableDto(resource.getCashflows()));
 		model.addAttribute("cashflowDto", new CashflowDto());
+		model.addAttribute("cashflowCreateDto", new CashflowCreateDto());
 		model.addAttribute("cashflowDateRangeValueDto", new CashflowDateRangeValueDto());
 	}
 

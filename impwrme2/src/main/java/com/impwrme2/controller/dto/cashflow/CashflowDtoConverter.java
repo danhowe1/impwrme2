@@ -13,6 +13,7 @@ import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.cashflow.CashflowFrequency;
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
+import com.impwrme2.model.resource.Resource;
 import com.impwrme2.utils.YearMonthUtils;
 
 @Component
@@ -74,9 +75,11 @@ public class CashflowDtoConverter {
 		cashflow.setCpiAffected(cashflowDto.getCpiAffected());
 	};
 	
-//	public Cashflow dtoToEntity(CashflowDto cashflowDto) {
-//		Cashflow cashflow = new Cashflow(CashflowCategory.getCategory(cashflowDto.getCategory()), cashflowDto.getDetail(), CashflowFrequency.getFrequency(cashflowDto.getFrequency()), cashflowDto.getCpiAffected());
-//		cashflow.setId(cashflowDto.getId());		
-//		return cashflow;
-//	}
+	public Cashflow dtoToNewEntity(CashflowCreateDto cashflowCreateDto, final Resource resource) {
+		Cashflow cashflow = new Cashflow(CashflowCategory.getCategory(cashflowCreateDto.getCategory()), cashflowCreateDto.getDetail(), CashflowFrequency.getFrequency(cashflowCreateDto.getFrequency()), cashflowCreateDto.getCpiAffected());
+		CashflowDateRangeValue cfdrv = new CashflowDateRangeValue(cashflow.getCategory().getType(), YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cashflowCreateDto.getYearMonthStart()), YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cashflowCreateDto.getYearMonthEnd()), cashflowCreateDto.getValue());
+		cashflow.addCashflowDateRangeValue(cfdrv);
+		resource.addCashflow(cashflow);
+		return cashflow;
+	}
 }

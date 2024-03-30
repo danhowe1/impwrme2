@@ -6,12 +6,12 @@
 
 </head>
 <body>
-	<div id="cashflows" th:fragment="cashflows"
-		th:unless="${cashflowTableDto.cashflowDtos.empty}">
+	<div id="cashflows" th:fragment="cashflows">
 
 		<script type="text/javascript" th:inline="javascript">
 			const modalCfdrvHeader = /*[[#{msg.html.dashboard.cashflowDateRangeValueEdit.modal.header}]]*/'novalue';
-			const modalCashflowHeader = /*[[#{msg.html.global.label.edit}]]*/'novalue';
+			const modalCashflowCreateHeader = /*[[#{msg.html.global.label.create}]]*/'novalue';
+			const modalCashflowEditHeader = /*[[#{msg.html.global.label.edit}]]*/'novalue';
 			var resourceDto;
 			var cashflowDtos;
 
@@ -29,11 +29,28 @@
 				});
 			}
 
+			function cashflowCreate(select) {
+				var category = select.value;
+				var categoryMessage = select.selectedOptions[0].text;
+
+				document.getElementById('cashflowCreateDialogError').style.display = "none";
+				document.getElementById('cashflowCreateDialogHeader').innerText = modalCashflowCreateHeader + ' ' + categoryMessage;
+
+				$("#cashflowCreateDialog #resourceId").val(resourceDto.id);
+				$("#cashflowCreateDialog #category").val(category);
+				$("#cashflowCreateDialog #yearMonthStart").val(resourceDto.startYearMonth);
+
+				$('#cashflowCreateDialog').modal('show');
+				setTimeout(function() {
+					$('form[id="formCashflowCreateDialog"] :input:enabled:visible:not([readonly]):first').select();
+				}, 500);
+			}
+
 			function cashflowEdit(cashflowIndex) {
 
 				var cashflow = cashflowDtos[cashflowIndex];
 				document.getElementById('cashflowEditDialogError').style.display = "none";
-				document.getElementById('cashflowEditDialogHeader').innerText = modalCashflowHeader + ' ' + cashflow.categoryMessage;
+				document.getElementById('cashflowEditDialogHeader').innerText = modalCashflowEditHeader + ' ' + cashflow.categoryMessage;
 				$("#cashflowEditDialog #id").val(cashflow.id);
 				$("#cashflowEditDialog #category").val(cashflow.category);
 				$("#cashflowEditDialog #detail").val(cashflow.detail);
@@ -116,7 +133,7 @@
 				var data = $("#formCashflowEditDialog").serialize();
 				var controllerMethod = "";
 				if (submittingBtnId == "cashflowEditSaveBtn") {
-					controllerMethod = "saveCashflow";
+					controllerMethod = "saveCashflowEdit";
 				} else if (submittingBtnId == "cashflowEditDeleteBtn") {
 					controllerMethod = "deleteCashflow";
 				} else {
@@ -138,7 +155,162 @@
 					}
 				});
 			}
+
+			function postCashflowCreate() {
+				var token = $("meta[name='_csrf']").attr("content");
+				var header = $("meta[name='_csrf_header']").attr("content");
+				var data = $("#formCashflowCreateDialog").serialize();
+				var controllerMethod = "saveCashflowCreate";
+
+				return $.ajax({
+					type : 'post',
+					url : baseUrl + 'cashflow/' + controllerMethod,
+					data : data,
+					beforeSend : function(xhr) {
+						xhr.setRequestHeader(header, token);
+					},
+					success : function(response) {
+					},
+					error : function(jqXHR) {
+						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
+					}
+				});
+			}
 		</script>
+
+		<!---------------------------------------->
+		<!-- Modal cashflowCreateDialog START	-->
+		<!---------------------------------------->
+
+		<div id="cashflowCreateDialog" class="modal fade" tabindex="-1">
+			<div class="modal-dialog modal-dialog-centered modal-sm"
+				role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 id="cashflowCreateDialogHeader">XXX</h5>
+					</div>
+					<form id="formCashflowCreateDialog"
+						th:object="${cashflowCreateDto}" class="was-validated">
+						<div class="modal-body">
+							<div class="container">
+
+								<input type="hidden" name="resourceId" id="resourceId" value="" />
+								<input type="hidden" name="category" id="category" value="" />
+
+								<div id="cashflowCreateDialogError" class="alert alert-danger"></div>
+
+								<div class="mb-1 row">
+									<div class="col-sm-5">
+										<label class="col-form-label"
+											th:text="#{msg.html.dashboard.cashflowTable.th.detail}"></label>
+									</div>
+									<div class="col-sm-7">
+										<input id="detail" type="text" class="form-control"
+											th:field="*{detail}" oninput="this.setCustomValidity('')"
+											th:title="#{msg.html.dashboard.cashflowTable.th.detail}">
+										<p th:if="${#fields.hasErrors('detail')}"
+											th:errorclass="error" th:errors="*{detail}"></p>
+									</div>
+								</div>
+
+								<div class="mb-1 row">
+									<div class="col-sm-5">
+										<label class="checkbox-inline"
+											th:text="#{msg.html.dashboard.cashflowTable.th.cpi}"></label>
+									</div>
+									<div class="col-sm-7">
+										<input class="form-check-input d-flex" type="checkbox"
+											id="cpiAffected" th:field="*{cpiAffected}"
+											oninput="this.setCustomValidity('')"
+											th:title="#{msg.html.dashboard.cashflowTable.th.cpi}"
+											th:checked="${cpiAffected}">
+										<p th:if="${#fields.hasErrors('cpiAffected')}"
+											th:errorclass="error" th:errors="*{cpiAffected}"></p>
+									</div>
+								</div>
+
+								<div class="mb-1 row">
+									<div class="col-sm-5">
+										<label class="col-form-label"
+											th:text="#{msg.html.dashboard.cashflowTable.th.frequency}"></label>
+									</div>
+									<div class="col-sm-7">
+										<select class="form-control" id="frequency" name="frequency">
+											<option th:each="opt : *{listOfFrequencies}"
+												th:value="${opt}"
+												th:text="#{'msg.class.cashflowFrequency.' + ${opt}}"
+												th:selected="${opt}==*{frequency}"></option>
+										</select>
+									</div>
+								</div>
+
+
+
+								<div class="mb-1 row">
+									<div class="col-sm-5">
+										<label class="col-form-label"
+											th:text="#{msg.html.dashboard.cashflowDateRangeValueEdit.yearMonthStart.label}"></label>
+									</div>
+									<div class="col-sm-7">
+										<input id="yearMonthStart" type="text" class="form-control"
+											th:field="*{yearMonthStart}" size="7"
+											th:placeholder="#{msg.html.global.yearMonth.placeholder}"
+											oninput="this.setCustomValidity('')" maxLength="7"
+											th:title="#{msg.validation.monthYear}">
+										<p th:if="${#fields.hasErrors('yearMonthStart')}"
+											th:errorclass="error" th:errors="*{yearMonthStart}"></p>
+									</div>
+								</div>
+								<div class="mb-1 row">
+									<div class="col-sm-5">
+										<label class="col-form-label"
+											th:text="#{msg.html.dashboard.cashflowDateRangeValueEdit.yearMonthEnd.label}"></label>
+									</div>
+									<div class="col-sm-7">
+										<input id="yearMonthEnd" type="text" class="form-control"
+											th:field="*{yearMonthEnd}" size="7"
+											pattern="^[0-9]{1,2}.[0-9]{4}"
+											th:placeholder="#{msg.html.global.yearMonth.placeholder}"
+											oninput="this.setCustomValidity('')" maxLength="7"
+											th:title="#{msg.validation.monthYear}">
+										<p th:if="${#fields.hasErrors('yearMonthEnd')}"
+											th:errorclass="error" th:errors="*{yearMonthEnd}"></p>
+									</div>
+								</div>
+								<div class="mb-1 row">
+									<div class="col-sm-5">
+										<label class="col-form-label"
+											th:text="#{msg.html.dashboard.cashflowDateRangeValueEdit.value.label}"></label>
+									</div>
+									<div class="col-sm-7">
+										<input id="value" type="text" class="form-control"
+											th:field="*{value}" size="7" required
+											pattern="^-?[0-9]*[1-9][0-9]*$"
+											oninput="this.setCustomValidity('')"
+											th:title="#{msg.validation.notEmpty}">
+										<p th:if="${#fields.hasErrors('value')}" th:errorclass="error"
+											th:errors="*{value}"></p>
+									</div>
+								</div>
+
+
+
+
+							</div>
+							<div class="modal-footer">
+								<button id="cashflowCreateSaveBtn" class="btn btn-primary"
+									type="submit">Save</button>
+								<a class="btn btn-link" role="button" data-bs-dismiss="modal">Cancel</a>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!------------------------------------>
+		<!-- Modal cashflowCreateDialog END -->
+		<!------------------------------------>
 
 		<!------------------------------------>
 		<!-- Modal cashflowEditDialog START	-->
@@ -156,8 +328,8 @@
 						<div class="modal-body">
 							<div class="container">
 
-								<input type="hidden" name="id" id="id" value="" />
-								<input type="hidden" name="category" id="category" value="" />
+								<input type="hidden" name="id" id="id" value="" /> <input
+									type="hidden" name="category" id="category" value="" />
 
 								<div id="cashflowEditDialogError" class="alert alert-danger"></div>
 
@@ -205,7 +377,7 @@
 										</select>
 									</div>
 								</div>
-								
+
 							</div>
 							<div class="modal-footer">
 								<button id="cashflowEditSaveBtn" class="btn btn-primary"
@@ -310,7 +482,7 @@
 		<!-- Modal rpdvEditDialog END	-->
 		<!-------------------------------->
 
-		<table id="cashflowTable"
+		<table id="cashflowTable" th:unless="${cashflowTableDto.cashflowDtos.empty}"
 			class="table table-primary table-borderless table-striped table-sm caption-top rounded-3 overflow-hidden">
 			<caption th:text="#{msg.html.dashboard.cashflowTable.caption}">XXX</caption>
 			<thead>
@@ -362,10 +534,10 @@
 			</tbody>
 		</table>
 
-		<div class="mb-2">
+		<div class="mb-2" th:unless="${resourceDto.cashflowCategoriesUsersCanCreate.empty}">
 			<select class="form-select" id="cashflowToCreate"
 				name="cashflowToCreate"
-				th:onchange="'window.location.href = \'' + @{/app/dashboard/createCashflow/} + ${resourceDto.id} + '/\' + this.value'">
+				th:attr="onchange=|cashflowCreate(this);|">
 				<option th:text="#{msg.html.dashboard.cashflowTable.select.WhatIf}"
 					hidden="hidden">XXX</option>
 				<option
@@ -426,6 +598,27 @@
 						$('form[id="formCashflowEditDialog"] :input:enabled:visible:not([readonly]):first').select();
 					} else {
 						$('#cashflowEditDialog').modal('hide');
+						loadDisplayData();
+						showCashflows(resourceId);
+					}
+				});
+			});
+
+			document.querySelector('#formCashflowCreateDialog').addEventListener('submit', function(e) {
+				e.preventDefault();
+			});
+
+			$("#formCashflowCreateDialog").submit(function(event) {
+				var resourceId = /*[[${resourceDto.id}]]*/'novalue';
+
+				postCashflowCreate().done(function(response) {
+					if (response != "SUCCESS") {
+						$("div.cashflowCreateDialogError").show();
+						document.getElementById('cashflowCreateDialogError').style.display = "block";
+						document.getElementById('cashflowCreateDialogError').innerText = response;
+						$('form[id="formCashflowCreateDialog"] :input:enabled:visible:not([readonly]):first').select();
+					} else {
+						$('#cashflowCreateDialog').modal('hide');
 						loadDisplayData();
 						showCashflows(resourceId);
 					}
