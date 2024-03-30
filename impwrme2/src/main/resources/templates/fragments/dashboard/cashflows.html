@@ -11,6 +11,7 @@
 
 		<script type="text/javascript" th:inline="javascript">
 			const modalCfdrvHeader = /*[[#{msg.html.dashboard.cashflowDateRangeValueEdit.modal.header}]]*/'novalue';
+			const modalCashflowHeader = /*[[#{msg.html.global.label.edit}]]*/'novalue';
 			var resourceDto;
 			var cashflowDtos;
 
@@ -28,13 +29,29 @@
 				});
 			}
 
+			function cashflowEdit(cashflowIndex) {
+
+				var cashflow = cashflowDtos[cashflowIndex];
+				document.getElementById('cashflowEditDialogError').style.display = "none";
+				document.getElementById('cashflowEditDialogHeader').innerText = modalCashflowHeader + ' ' + cashflow.categoryMessage;
+				$("#cashflowEditDialog #id").val(cashflow.id);
+				$("#cashflowEditDialog #category").val(cashflow.category);
+				$("#cashflowEditDialog #detail").val(cashflow.detail);
+				$("#cashflowEditDialog #cpiAffected").prop("checked", cashflow.cpiAffected);
+				$("#cashflowEditDialog #frequency").val(cashflow.frequency);
+
+				$('#cashflowEditDialog').modal('show');
+				setTimeout(function() {
+					$('form[id="formCashflowEditDialog"] :input:enabled:visible:not([readonly]):first').select();
+				}, 500);
+			}
+
 			function cashflowDateRangeValueEdit(cashflowIndex, cfdrvIndex) {
 
 				var cashflow = cashflowDtos[cashflowIndex];
 				document.getElementById('cfdrvEditDialogError').style.display = "none";
 				document.getElementById('cfdrvCashflowCategory').innerText = modalCfdrvHeader + ' ' + cashflow.categoryMessage + '?';
 				$("#cfdrvEditDialog #cashflowId").val(cashflow.id);
-				$("#cfdrvEditDialog #cashflowType").val(cashflow.type);
 
 				var cfdrv = null;
 				if (null !== cfdrvIndex) {
@@ -92,7 +109,120 @@
 					}
 				});
 			}
+
+			function postCashflowEdit(submittingBtnId) {
+				var token = $("meta[name='_csrf']").attr("content");
+				var header = $("meta[name='_csrf_header']").attr("content");
+				var data = $("#formCashflowEditDialog").serialize();
+				var controllerMethod = "";
+				if (submittingBtnId == "cashflowEditSaveBtn") {
+					controllerMethod = "saveCashflow";
+				} else if (submittingBtnId == "cashflowEditDeleteBtn") {
+					controllerMethod = "deleteCashflow";
+				} else {
+					alert("Unknown submitting button : " + submittingBtnId);
+					return "ERROR";
+				}
+
+				return $.ajax({
+					type : 'post',
+					url : baseUrl + 'cashflow/' + controllerMethod,
+					data : data,
+					beforeSend : function(xhr) {
+						xhr.setRequestHeader(header, token);
+					},
+					success : function(response) {
+					},
+					error : function(jqXHR) {
+						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
+					}
+				});
+			}
 		</script>
+
+		<!------------------------------------>
+		<!-- Modal cashflowEditDialog START	-->
+		<!------------------------------------>
+
+		<div id="cashflowEditDialog" class="modal fade" tabindex="-1">
+			<div class="modal-dialog modal-dialog-centered modal-sm"
+				role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 id="cashflowEditDialogHeader">XXX</h5>
+					</div>
+					<form id="formCashflowEditDialog" th:object="${cashflowDto}"
+						class="was-validated">
+						<div class="modal-body">
+							<div class="container">
+
+								<input type="hidden" name="id" id="id" value="" />
+								<input type="hidden" name="category" id="category" value="" />
+
+								<div id="cashflowEditDialogError" class="alert alert-danger"></div>
+
+								<div class="mb-1 row">
+									<div class="col-sm-4">
+										<label class="col-form-label"
+											th:text="#{msg.html.dashboard.cashflowTable.th.detail}"></label>
+									</div>
+									<div class="col-sm-8">
+										<input id="detail" type="text" class="form-control"
+											th:field="*{detail}" oninput="this.setCustomValidity('')"
+											th:title="#{msg.html.dashboard.cashflowTable.th.detail}">
+										<p th:if="${#fields.hasErrors('detail')}"
+											th:errorclass="error" th:errors="*{detail}"></p>
+									</div>
+								</div>
+
+								<div class="mb-1 row">
+									<div class="col-sm-4">
+										<label class="checkbox-inline"
+											th:text="#{msg.html.dashboard.cashflowTable.th.cpi}"></label>
+									</div>
+									<div class="col-sm-8">
+										<input class="form-check-input d-flex" type="checkbox"
+											id="cpiAffected" th:field="*{cpiAffected}"
+											oninput="this.setCustomValidity('')"
+											th:title="#{msg.html.dashboard.cashflowTable.th.cpi}"
+											th:checked="${cpiAffected}">
+										<p th:if="${#fields.hasErrors('cpiAffected')}"
+											th:errorclass="error" th:errors="*{cpiAffected}"></p>
+									</div>
+								</div>
+
+								<div class="mb-1 row">
+									<div class="col-sm-4">
+										<label class="col-form-label"
+											th:text="#{msg.html.dashboard.cashflowTable.th.frequency}"></label>
+									</div>
+									<div class="col-sm-8">
+										<select class="form-control" id="frequency" name="frequency">
+											<option th:each="opt : *{listOfFrequencies}"
+												th:value="${opt}"
+												th:text="#{'msg.class.cashflowFrequency.' + ${opt}}"
+												th:selected="${opt}==*{frequency}"></option>
+										</select>
+									</div>
+								</div>
+								
+							</div>
+							<div class="modal-footer">
+								<button id="cashflowEditSaveBtn" class="btn btn-primary"
+									type="submit">Save</button>
+								<a class="btn btn-link" role="button" data-bs-dismiss="modal">Cancel</a>
+								<input id="cashflowEditDeleteBtn" class="btn btn-danger"
+									type="submit" th:value="Delete" />
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!---------------------------------->
+		<!-- Modal cashflowEditDialog END -->
+		<!---------------------------------->
 
 		<!------------------------------------>
 		<!-- Modal cfdrvEditDialog START	-->
@@ -113,8 +243,7 @@
 							<div class="container">
 
 								<input type="hidden" name="id" id="id" value="" /> <input
-									type="hidden" name="cashflowId" id="cashflowId" value="" /> <input
-									type="hidden" name="cashflowType" id="cashflowType" value="" />
+									type="hidden" name="cashflowId" id="cashflowId" value="" />
 
 								<div id="cfdrvEditDialogError" class="alert alert-danger"></div>
 
@@ -169,7 +298,7 @@
 								<button id="cfdrvSaveBtn" class="btn btn-primary" type="submit">Save</button>
 								<a class="btn btn-link" role="button" data-bs-dismiss="modal">Cancel</a>
 								<input id="cfdrvDeleteBtn" class="btn btn-danger" type="submit"
-									th:value="Delete"/>
+									th:value="Delete" />
 							</div>
 						</div>
 					</form>
@@ -187,6 +316,7 @@
 			<thead>
 				<tr>
 					<th th:text="#{msg.html.dashboard.cashflowTable.th.category}">XXX</th>
+					<th th:text="#{msg.html.dashboard.cashflowTable.th.detail}">XXX</th>
 					<th th:text="#{msg.html.dashboard.cashflowTable.th.cpi}">XXX</th>
 					<th th:text="#{msg.html.dashboard.cashflowTable.th.frequency}">XXX</th>
 					<th
@@ -198,15 +328,24 @@
 			<tbody>
 				<tr
 					th:each="cashflowDto, cashflowDtoStat : ${cashflowTableDto.cashflowDtos}">
-					<td th:text="${cashflowDto.categoryMessage}">XXX</td>
+					<td th:text="${cashflowDto.categoryMessage}"
+						th:attr="onclick=|cashflowEdit('${cashflowDtoStat.index}');|"
+						style="cursor: pointer;">XXX</td>
+					<td th:text="${cashflowDto.detail}"
+						th:attr="onclick=|cashflowEdit('${cashflowDtoStat.index}');|"
+						style="cursor: pointer;">XXX</td>
 					<td>
-						<div class="form-check d-flex justify-content-center">
+						<div class="form-check d-flex justify-content-center"
+							th:attr="onclick=|cashflowEdit('${cashflowDtoStat.index}');|"
+							style="cursor: pointer;">
 							<input class="form-check-input" type="checkbox"
 								th:checked="${cashflowDto.cpiAffected}" disabled>
 						</div>
 					</td>
 					<td
-						th:text="#{'msg.class.cashflowFrequency.' + ${cashflowDto.frequency}}">XXX</td>
+						th:text="#{'msg.class.cashflowFrequency.' + ${cashflowDto.frequency}}"
+						th:attr="onclick=|cashflowEdit('${cashflowDtoStat.index}');|"
+						style="cursor: pointer;">XXX</td>
 					<td
 						th:each="cfrdvDto, cfrdvDtoStat : ${cashflowDto.cashflowDateRangeValueDtos}">
 						<div th:unless="0 == ${cfrdvDto.value}" th:id="${cfrdvDto.id}"
@@ -227,8 +366,7 @@
 			<select class="form-select" id="cashflowToCreate"
 				name="cashflowToCreate"
 				th:onchange="'window.location.href = \'' + @{/app/dashboard/createCashflow/} + ${resourceDto.id} + '/\' + this.value'">
-				<option
-					th:text="#{msg.html.dashboard.cashflowTable.select.WhatIf}"
+				<option th:text="#{msg.html.dashboard.cashflowTable.select.WhatIf}"
 					hidden="hidden">XXX</option>
 				<option
 					th:each="opt : ${resourceDto.cashflowCategoriesUsersCanCreate}"
@@ -266,6 +404,28 @@
 						$('form[id="formCfdrvEditDialog"] :input:enabled:visible:not([readonly]):first').select();
 					} else {
 						$('#cfdrvEditDialog').modal('hide');
+						loadDisplayData();
+						showCashflows(resourceId);
+					}
+				});
+			});
+
+			document.querySelector('#formCashflowEditDialog').addEventListener('submit', function(e) {
+				e.preventDefault();
+			});
+
+			$("#formCashflowEditDialog").submit(function(event) {
+				var submittingBtnId = $(event.originalEvent.submitter).attr('id');
+				var resourceId = /*[[${resourceDto.id}]]*/'novalue';
+
+				postCashflowEdit(submittingBtnId).done(function(response) {
+					if (response != "SUCCESS") {
+						$("div.cashflowEditDialogError").show();
+						document.getElementById('cashflowEditDialogError').style.display = "block";
+						document.getElementById('cashflowEditDialogError').innerText = response;
+						$('form[id="formCashflowEditDialog"] :input:enabled:visible:not([readonly]):first').select();
+					} else {
+						$('#cashflowEditDialog').modal('hide');
 						loadDisplayData();
 						showCashflows(resourceId);
 					}

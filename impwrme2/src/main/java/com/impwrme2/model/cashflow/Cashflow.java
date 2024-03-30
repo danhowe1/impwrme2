@@ -59,20 +59,20 @@ public class Cashflow implements Comparable<Cashflow>, Serializable {
 	@Column(name = "category")
 	@NotNull(message = "{msg.validation.cashflow.category.notNull}")
 	@Enumerated(EnumType.STRING)
-	private final CashflowCategory category;
+	private CashflowCategory category;
 
 	@Column(name = "detail")
 	@NotNull(message = "{msg.validation.cashflow.detail.notNull}")
-	private final String detail;
+	private String detail;
 
 	@Column(name = "frequency", columnDefinition = "varchar(32)")
 	@NotNull(message = "{msg.validation.cashflow.frequency.notNull}")
 	@Enumerated(EnumType.STRING)
-	private final CashflowFrequency frequency;
+	private CashflowFrequency frequency;
 
 	@Column(name = "cpi_affected", columnDefinition = "boolean")
 	@NotNull(message = "{msg.validation.cashflow.cpiffected.notNull}")
-    private final Boolean cpiAffected;
+    private Boolean cpiAffected;
 
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
 	@JoinColumn(name = "resource_id")
@@ -127,18 +127,34 @@ public class Cashflow implements Comparable<Cashflow>, Serializable {
 		return category;
 	}
 
+	public void setCategory(CashflowCategory category) {
+		this.category = category;
+	}
+	
 	public String getDetail() {
 		return detail;
 	}
 
+	public void setDetail(String detail) {
+		this.detail = detail;
+	}
+	
 	public CashflowFrequency getFrequency() {
 		return frequency;
 	}
 
+	public void setFrequency(CashflowFrequency frequency) {
+		this.frequency = frequency;
+	}
+	
 	public Boolean getCpiAffected() {
 		return cpiAffected;
 	}
 
+	public void setCpiAffected(Boolean cpiAffected) {
+		this.cpiAffected = cpiAffected;
+	}
+	
 	public Resource getResource() {
 		return resource;
 	}

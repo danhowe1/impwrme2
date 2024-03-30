@@ -26,13 +26,6 @@ public class ResourcePersonEngine extends ResourceEngine {
 	public List<Cashflow> getCashflowsToProcess(final YearMonth yearMonth) {
 		final List<Cashflow> cashflowsToProcess = new ArrayList<Cashflow>(getResource().getCashflows());
 		cashflowsToProcess.removeIf(value -> retirementDateReached(yearMonth) && employmentStartDateIsBeforeRetirementAge(value, yearMonth));
-		
-		if (yearMonth.isAfter(YearMonth.of(2039, 11))) {
-			System.out.println(yearMonth.toString());
-			for (Cashflow cf : cashflowsToProcess) {
-				System.out.println(cf.getCategory().getValue());
-			}
-		}		
 		return cashflowsToProcess;
 	}
 	

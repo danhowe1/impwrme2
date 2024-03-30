@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.impwrme2.controller.dto.cashflow.CashflowDto;
 import com.impwrme2.controller.dto.cashflow.CashflowDtoConverter;
 import com.impwrme2.controller.dto.cashflowDateRangeValue.CashflowDateRangeValueDto;
 import com.impwrme2.controller.dto.resource.ResourceDtoConverter;
@@ -103,6 +104,7 @@ public class DashboardController {
 		model.addAttribute("resourceParamTableDto", resourceParamDtoConverter.resourceParamsToResourceParamTableDto(resource.getResourceParams()));
 		model.addAttribute("cashflowTableDto", cashflowDtoConverter.cashflowsToCashflowTableDto(resource.getCashflows()));
 		model.addAttribute("resourceParamDateValueDto", new ResourceParamDateValueDto());
+		model.addAttribute("cashflowDto", new CashflowDto());
 		model.addAttribute("cashflowDateRangeValueDto", new CashflowDateRangeValueDto());
 	}
 

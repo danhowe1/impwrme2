@@ -21,6 +21,12 @@ public class CashflowService {
 		return cashflowRepository.findById(id);
 	}
 
+	@Transactional
+	public Cashflow save(Cashflow cashflow) {
+		Cashflow savedCashflow = cashflowRepository.save(cashflow);
+		return savedCashflow;
+	}
+
 	/**
 	 * See https://vladmihalcea.com/orphanremoval-jpa-hibernate for explanation of
 	 * why this delete appears here and not in the ResourceParamService.

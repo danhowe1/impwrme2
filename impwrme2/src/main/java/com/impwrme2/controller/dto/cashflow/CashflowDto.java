@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.impwrme2.controller.dto.cashflowDateRangeValue.CashflowDateRangeValueDto;
+import com.impwrme2.model.cashflow.CashflowFrequency;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -13,7 +14,10 @@ public class CashflowDto {
 	private Long id;
 	
 	@NotEmpty(message = "{msg.validation.cashflow.category.notEmpty}")
-	private String categoryMessage;
+	private String category;
+
+//	@NotEmpty(message = "{msg.validation.cashflow.category.notEmpty}")
+	private String categoryMessage = "CategoryMessage not set";
 
 	@NotNull(message = "{msg.validation.cashflow.detail.notNull}")
 	private String detail;
@@ -23,9 +27,6 @@ public class CashflowDto {
 
 	@NotNull(message = "{msg.validation.cashflow.cpiffected.notNull}")
     private boolean cpiAffected;
-
-	@NotEmpty(message = "{msg.validation.notEmpty}")
-	private String type;
 
 	private List<CashflowDateRangeValueDto> cashflowDateRangeValueDtos = new ArrayList<CashflowDateRangeValueDto>();
 
@@ -39,6 +40,14 @@ public class CashflowDto {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	public String getCategoryMessage() {
@@ -73,19 +82,15 @@ public class CashflowDto {
 		this.cpiAffected = cpiAffected;
 	}
 
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
 	public List<CashflowDateRangeValueDto> getCashflowDateRangeValueDtos() {
 		return cashflowDateRangeValueDtos;
 	}
 	
 	public void addCashflowDateRangeValueDto(CashflowDateRangeValueDto cfdrvDto) {
 		cashflowDateRangeValueDtos.add(cfdrvDto);	
+	}
+	
+	public List<String> getListOfFrequencies() {
+		return CashflowFrequency.listOfValues();
 	}
 }
