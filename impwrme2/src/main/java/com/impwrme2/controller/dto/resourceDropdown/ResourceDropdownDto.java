@@ -1,6 +1,7 @@
 package com.impwrme2.controller.dto.resourceDropdown;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,9 +39,9 @@ public class ResourceDropdownDto {
 			}
 		}
 		
-//		for (ResourceDropdownTabDto tab : resourceTabMap.values()) {
-//			Collections.sort(tab.getResourceTabItems());			
-//		}
+		for (ResourceDropdownTabDto tab : resourceTabMap.values()) {
+			Collections.sort(tab.getResourceTabItems());			
+		}
 	}
 
 	private String getResourceNavLabel(ResourceType resourceType) {
