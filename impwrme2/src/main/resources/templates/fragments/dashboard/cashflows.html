@@ -500,34 +500,39 @@
 			<tbody>
 				<tr
 					th:each="cashflowDto, cashflowDtoStat : ${cashflowTableDto.cashflowDtos}">
-					<td th:text="${cashflowDto.categoryMessage}"
-						th:attr="onclick=|cashflowEdit('${cashflowDtoStat.index}');|"
+					<td th:text="${cashflowDto.categoryMessage}" data-bs-toggle="tooltip"
+						th:attr="data-bs-title=#{msg.html.dashboard.cashflowTable.td.WhatIf.editCashflow}"
+						th:attrappend="onclick=|cashflowEdit('${cashflowDtoStat.index}');|"
 						style="cursor: pointer;">XXX</td>
-					<td th:text="${cashflowDto.detail}"
-						th:attr="onclick=|cashflowEdit('${cashflowDtoStat.index}');|"
+					<td th:text="${cashflowDto.detail}" data-bs-toggle="tooltip"
+						th:attr="data-bs-title=#{msg.html.dashboard.cashflowTable.td.WhatIf.editCashflow}"
+						th:attrappend="onclick=|cashflowEdit('${cashflowDtoStat.index}');|"
 						style="cursor: pointer;">XXX</td>
 					<td>
-						<div class="form-check d-flex justify-content-center"
-							th:attr="onclick=|cashflowEdit('${cashflowDtoStat.index}');|"
+						<div class="form-check d-flex justify-content-center" data-bs-toggle="tooltip"
+						th:attr="data-bs-title=#{msg.html.dashboard.cashflowTable.td.WhatIf.editCashflow}"
+							th:attrappend="onclick=|cashflowEdit('${cashflowDtoStat.index}');|"
 							style="cursor: pointer;">
 							<input class="form-check-input" type="checkbox"
 								th:checked="${cashflowDto.cpiAffected}" disabled>
 						</div>
 					</td>
 					<td
-						th:text="#{'msg.class.cashflowFrequency.' + ${cashflowDto.frequency}}"
-						th:attr="onclick=|cashflowEdit('${cashflowDtoStat.index}');|"
+						th:text="#{'msg.class.cashflowFrequency.' + ${cashflowDto.frequency}}" data-bs-toggle="tooltip"
+						th:attr="data-bs-title=#{msg.html.dashboard.cashflowTable.td.WhatIf.editCashflow}"
+						th:attrappend="onclick=|cashflowEdit('${cashflowDtoStat.index}');|"
 						style="cursor: pointer;">XXX</td>
 					<td
 						th:each="cfrdvDto, cfrdvDtoStat : ${cashflowDto.cashflowDateRangeValueDtos}">
 						<div th:unless="0 == ${cfrdvDto.value}" th:id="${cfrdvDto.id}"
-							th:text="${#numbers.formatInteger(cfrdvDto.value,1,'COMMA')}"
-							th:attr="onclick=|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', '${cfrdvDtoStat.index}');|"
+							th:text="${#numbers.formatInteger(cfrdvDto.value,1,'COMMA')}" data-bs-toggle="tooltip"
+						th:attr="data-bs-title=#{msg.html.dashboard.cashflowTable.td.WhatIf.editCfdrv}"
+							th:attrappend="onclick=|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', '${cfrdvDtoStat.index}');|"
 							style="cursor: pointer;"></div>
 						<div th:if="0 == ${cfrdvDto.value}" th:text="END">"XXX</div>
 					</td>
 					<td th:text="'?'" data-bs-toggle="tooltip"
-						th:attr="data-bs-title=#{msg.html.dashboard.cashflowTable.td.WhatIf} + ${cashflowDto.categoryMessage + '?'}"
+						th:attr="data-bs-title=#{msg.html.dashboard.cashflowTable.td.WhatIf.new.prefix} + ${cashflowDto.categoryMessage} + ' ' + #{msg.html.dashboard.cashflowTable.td.WhatIf.new.suffix}"
 						th:onclick="|cashflowDateRangeValueEdit('${cashflowDtoStat.index}', null);|"
 						style="cursor: pointer;"></td>
 				</tr>

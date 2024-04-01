@@ -152,7 +152,6 @@
 											th:errors="*{value}"></p>
 									</div>
 								</div>
-								<!-- 								<button class="btn btn-primary" type="submit">SAVE</button> -->
 							</div>
 							<div class="modal-footer">
 								<button id="saveBtn" class="btn btn-primary" type="submit">Save</button>
@@ -189,13 +188,15 @@
 					<td th:text="#{${resourceParamDto.name}}">XXX</td>
 					<td
 						th:each="rpdvDto, rpdvDtoStat : ${resourceParamDto.resourceParamDateValueDtos}"
-						th:id="${rpdvDto.id}" th:text="${rpdvDto.value}"
-						th:attr="onclick=|resourceParamDateValueEdit('#{${resourceParamDto.name}}','${rpdvDto.id}', '${rpdvDto.yearMonth}', '${rpdvDto.value}', '${rpdvDto.userAbleToChangeDate}', '${resourceParamDto.id}', '${resourceParamDto.resourceParamType}');|"
+						th:id="${rpdvDto.id}" th:text="${rpdvDto.value}" data-bs-toggle="tooltip"
+						th:attr="data-bs-title=#{msg.html.dashboard.resourceParamTable.td.WhatIf.editRpdv}"
+						th:attrappend="onclick=|resourceParamDateValueEdit('#{${resourceParamDto.name}}','${rpdvDto.id}', '${rpdvDto.yearMonth}', '${rpdvDto.value}', '${rpdvDto.userAbleToChangeDate}', '${resourceParamDto.id}', '${resourceParamDto.resourceParamType}');|"
 						style="cursor: pointer;"></td>
 					<td th:unless="${resourceParamDto.userAbleToCreateNewDateValue}"></td>
 					<td th:if="${resourceParamDto.userAbleToCreateNewDateValue}"
-						th:text="..."
-						th:attr="onclick=|resourceParamDateValueEdit('#{${resourceParamDto.name}}', null, null, null, 'true', '${resourceParamDto.id}', '${resourceParamDto.resourceParamType}');|"
+						th:text="..." data-bs-toggle="tooltip"
+						th:attr="data-bs-title=#{msg.html.dashboard.resourceParamTable.td.WhatIf.new.prefix} + #{${resourceParamDto.name}} + ' ' + #{msg.html.dashboard.resourceParamTable.td.WhatIf.new.suffix}"
+						th:attrappend="onclick=|resourceParamDateValueEdit('#{${resourceParamDto.name}}', null, null, null, 'true', '${resourceParamDto.id}', '${resourceParamDto.resourceParamType}');|"
 						style="cursor: pointer;"></td>
 				</tr>
 			</tbody>
