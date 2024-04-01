@@ -69,9 +69,10 @@ public class DashboardController {
 	public String dashboard(@AuthenticationPrincipal OidcUser user, Model model, HttpSession session, Locale locale) {
 
 		String userId = user.getUserInfo().getSubject();
-//session.removeAttribute("SESSION_CURRENT_RESOURCE");
-		Resource currentResource = (Resource) session.getAttribute("SESSION_CURRENT_RESOURCE");
-		if (null == currentResource) {
+		Resource currentResource;
+//session.removeAttribute("SESSION_CURRENT_RESOURCE_ID");
+		Long currentResourceId = (Long) session.getAttribute("SESSION_CURRENT_RESOURCE_ID");
+		if (null == currentResourceId) {
 			List<Scenario> scenarios = scenarioService.findByUserId(userId);
 			if (0 == scenarios.size()) {
 				currentResource = populateInitialTestScenario(userId).getSortedResources().first();
@@ -80,6 +81,8 @@ public class DashboardController {
 			} else {
 				return "forward:/app/scenario/list";
 			}
+		} else {
+			currentResource = resourceService.findById(currentResourceId).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + currentResourceId));
 		}
 		 
 		// Display filter.
@@ -100,7 +103,7 @@ public class DashboardController {
 	}
 
 	protected void setUpModelAfterResourceUpdated(Resource resource, Model model, HttpSession session) {
-		session.setAttribute("SESSION_CURRENT_RESOURCE", resource);
+		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resource.getId());
 		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
 		model.addAttribute("resourceParamTableDto", resourceParamDtoConverter.resourceParamsToResourceParamTableDto(resource.getResourceParams()));
 		model.addAttribute("cashflowTableDto", cashflowDtoConverter.cashflowsToCashflowTableDto(resource.getCashflows()));

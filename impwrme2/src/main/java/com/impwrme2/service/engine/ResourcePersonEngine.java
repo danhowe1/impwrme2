@@ -3,9 +3,11 @@ package com.impwrme2.service.engine;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflow.CashflowCategory;
+import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 
@@ -38,9 +40,12 @@ public class ResourcePersonEngine extends ResourceEngine {
 	
 	private boolean employmentStartDateIsBeforeRetirementAge(final Cashflow cashflow, final YearMonth yearMonth) {
 		if (cashflow.getCategory().equals(CashflowCategory.INCOME_EMPLOYMENT)) {
-			YearMonth employmentStartDate = cashflow.getCashflowDateRangeValue(yearMonth).get().getYearMonthStart();
-			if (employmentStartDate.isBefore(retirementDate)) {
-				return true;
+			Optional<CashflowDateRangeValue> empCfdrv = cashflow.getCashflowDateRangeValue(yearMonth);
+			if (empCfdrv.isPresent()) { 
+				YearMonth employmentStartDate = empCfdrv.get().getYearMonthStart();
+				if (employmentStartDate.isBefore(retirementDate)) {
+					return true;
+				}
 			}
 		}
 		return false;

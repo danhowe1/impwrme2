@@ -26,6 +26,7 @@ import com.impwrme2.model.journalEntry.JournalEntryResponse;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.scenario.Scenario;
 import com.impwrme2.service.journalEntry.JournalEntryService;
+import com.impwrme2.service.resource.ResourceService;
 import com.impwrme2.service.scenario.ScenarioService;
 import com.impwrme2.service.ui.UIDisplayFilter;
 import com.nimbusds.jose.shaded.gson.Gson;
@@ -43,6 +44,9 @@ public class DataDisplayController {
 	
 	@Autowired
 	private ScenarioService scenarioService;
+
+	@Autowired
+	private ResourceService resourceService;
 
 	@Autowired
 	private JournalEntryService journalEntryService;
@@ -217,7 +221,8 @@ public class DataDisplayController {
 	private JournalEntryResponse getOrCreateJournalEntries(final OidcUser user, final HttpSession session) {
 		JournalEntryResponse journalEntryResponse = (JournalEntryResponse) session.getAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");		
 		if (null == journalEntryResponse) {
-			Resource sessionResource = (Resource) session.getAttribute("SESSION_CURRENT_RESOURCE");
+			Long resourceId = (Long) session.getAttribute("SESSION_CURRENT_RESOURCE_ID");
+			Resource sessionResource = resourceService.findById(resourceId).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + resourceId));
 			Scenario scenario = scenarioService.findByIdAndUserId(sessionResource.getScenario().getId(), user.getUserInfo().getSubject()).get();
 
 			journalEntryResponse = journalEntryService.run(scenario);
