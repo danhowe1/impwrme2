@@ -198,7 +198,11 @@ public class DataDisplayController {
 						if (resourceName.equals(RESOURCE_NAME_TOTAL_TOKEN)) {
 							jsonRowData.addProperty(currentYearMonth.toString(), dateResourceToAmountMap.get(dateTotalKey(currentYearMonth)));							
 						} else {
-							jsonRowData.addProperty(currentYearMonth.toString(), dateResourceToAmountMap.get(dateResourceKey(currentYearMonth, resourceName)));
+							// If there is no entry we set the amount to zero because the datatables isn't handling it.
+							// This could possibly removed if we could fix that issue.
+							Integer val = dateResourceToAmountMap.get(dateResourceKey(currentYearMonth, resourceName));
+							if (null == val) val = 0;
+							jsonRowData.addProperty(currentYearMonth.toString(), val);
 						}
 								
 						firstDateInMonth = false;
