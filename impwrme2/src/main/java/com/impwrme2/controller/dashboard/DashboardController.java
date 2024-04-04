@@ -163,9 +163,9 @@ public class DashboardController {
 
 		Scenario scenario = new Scenario(scenarioResource, userId);
 		
-		// ------------------
-		// ScenarioHousehold.
-		// ------------------
+		// ----------
+		// Household.
+		// ----------
 		
 		Resource householdResource = new ResourceHousehold("Howe Family");
 		householdResource.setStartYearMonth(YearMonth.of(2024, 1));
