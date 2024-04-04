@@ -179,6 +179,12 @@
 
 			$(document).ready(function() {
 
+				// Change time period.
+				$('#toggle-time-period-annually').change(function() {
+					displayFilter.timePeriodAnnually = $(this).prop('checked');
+					loadDisplayData();
+				})
+					
 				// Change of year end.
 				$("select[name=yearEnd]").on( "change", function() {
 					displayFilter.yearEnd = this.value;
@@ -225,6 +231,14 @@
 				</ul>
 			</div>
 
+			<!-- ------------ -->
+			<!-- Time period. -->
+			<!-- ------------ -->
+
+			<div class="col-auto">
+				<input type="checkbox" data-toggle="toggle" th:data-on="#{msg.class.cashflowFrequency.ANNUALLY}" th:data-off="#{msg.class.cashflowFrequency.MONTHLY}" data-onstyle="secondary" data-offstyle="secondary" id="toggle-time-period-annually" th:field="*{displayFilter.timePeriodAnnually}" name="timePeriodAnnually">
+			</div>
+
 			<!-- ---------------- -->
 			<!-- End year filter. -->
 			<!-- ---------------- -->
@@ -234,13 +248,11 @@
 			</div>
 
 			<div class="col-auto">
-				<form>
-					<select class="form-select selectpicker" name="yearEnd"
-						th:field="*{displayFilter.yearEnd}">
-						<option th:each="year : *{displayFilter.yearList}"
-							th:value="${year}" th:text="${year}"></option>
-					</select>
-				</form>
+				<select class="form-select selectpicker" name="yearEnd"
+					th:field="*{displayFilter.yearEnd}">
+					<option th:each="year : *{displayFilter.yearList}"
+						th:value="${year}" th:text="${year}"></option>
+				</select>
 			</div>
 		</div>
 
