@@ -125,12 +125,14 @@ public class DataDisplayController {
 						cell.addProperty("v", dateResourceToAmountMap.get(currentYearMonth.toString() + "-" + resourceName));
 						cells.add(cell);
 					}
-	
+					
 					JsonObject cellStyle = new JsonObject();
 					cellStyle.addProperty("v", "");					
+//					cellStyle.addProperty("v", "point { size: 12; shape-type: star; fill-color: #a52714; }");
 					cells.add(cellStyle);
 	
 					JsonObject cellTooltip = new JsonObject();
+//					cellTooltip.addProperty("v", "Griffin St sold for $4,500,000");
 					cellTooltip.addProperty("v", "");					
 					cells.add(cellTooltip);
 	

@@ -6,7 +6,8 @@ import org.springframework.stereotype.Component;
 
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecimal;
-import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueInteger;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerNegative;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerPositive;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueYearMonth;
 import com.impwrme2.utils.YearMonthUtils;
 
@@ -22,7 +23,9 @@ public class ResourceParamDateValueDtoConverter {
 		rpdvDto.setResourceParamType(rpdv.getResourceParam().getResourceParamType().getValue());
 		if (rpdv instanceof ResourceParamDateValueBigDecimal) {
 			rpdvDto.setValue(String.valueOf(rpdv.getValue()));
-		} else if (rpdv instanceof ResourceParamDateValueInteger) {
+		} else if (rpdv instanceof ResourceParamDateValueIntegerNegative) {
+			rpdvDto.setValue(String.valueOf(rpdv.getValue()));
+		} else if (rpdv instanceof ResourceParamDateValueIntegerPositive) {
 			rpdvDto.setValue(String.valueOf(rpdv.getValue()));
 		} else if (rpdv instanceof ResourceParamDateValueYearMonth) {
 			rpdvDto.setValue(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth((YearMonth)rpdv.getValue()));

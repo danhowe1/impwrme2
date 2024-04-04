@@ -11,20 +11,20 @@ import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@DiscriminatorValue(ResourceParamType.Values.INTEGER)
-public class ResourceParamDateValueInteger extends ResourceParamDateValue<Integer> {
+@DiscriminatorValue(ResourceParamType.Values.INTEGER_POSITIVE)
+public class ResourceParamDateValueIntegerPositive extends ResourceParamDateValue<Integer> {
 
-	private static final long serialVersionUID = 2227320095159299961L;
+	private static final long serialVersionUID = 5480752038541088828L;
 
-	protected ResourceParamDateValueInteger() {
+	protected ResourceParamDateValueIntegerPositive() {
 		super();
 	}
 	
-	public ResourceParamDateValueInteger(YearMonth yearMonth, boolean userAbleToChangeDate, final Integer value) {
+	public ResourceParamDateValueIntegerPositive(YearMonth yearMonth, boolean userAbleToChangeDate, final Integer value) {
 		super(yearMonth, userAbleToChangeDate, value);
 	}
 
-	public ResourceParamDateValueInteger(YearMonth yearMonth, boolean userAbleToChangeDate, final String value) {
+	public ResourceParamDateValueIntegerPositive(YearMonth yearMonth, boolean userAbleToChangeDate, final String value) {
 		super(yearMonth, userAbleToChangeDate, value);
 	}
 
@@ -39,17 +39,15 @@ public class ResourceParamDateValueInteger extends ResourceParamDateValue<Intege
 
 	@Override
 	public void setValue(Integer value) {
-		this.value = value;		
+		if (value < 0) {
+			this.value = -value;			
+		} else {
+			this.value = value;					
+		}
 	}
 
 	@Override
 	public void setValueFromString(String value) {
 		setValue(Integer.valueOf(value));		
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public void setResourceParamGeneric(ResourceParam<?> resourceParam) {
-//		this.setResourceParam((ResourceParam<Integer>) resourceParam);
-//	}
 }

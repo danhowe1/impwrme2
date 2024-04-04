@@ -61,7 +61,7 @@ public class Scenario implements Serializable {
 	public YearMonth calculateEndYearMonth() {
 		YearMonth endYearMonth = YearMonth.now();
 		for (Resource resource : getResources()) {
-			if (resource instanceof ResourcePerson person) {
+			if (resource instanceof ResourcePerson) {
 				YearMonth birthYearMonth = (YearMonth) resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH, resource.getStartYearMonth()).get().getValue();
 				Integer departureAge = (Integer) resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_DEPARTURE_AGE, resource.getStartYearMonth()).get().getValue();
 				YearMonth endDate = birthYearMonth.plusYears(departureAge);

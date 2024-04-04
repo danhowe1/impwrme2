@@ -34,10 +34,12 @@ import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParamBigDecimal;
-import com.impwrme2.model.resourceParam.ResourceParamInteger;
+import com.impwrme2.model.resourceParam.ResourceParamIntegerNegative;
+import com.impwrme2.model.resourceParam.ResourceParamIntegerPositive;
 import com.impwrme2.model.resourceParam.ResourceParamYearMonth;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecimal;
-import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueInteger;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerNegative;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerPositive;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueYearMonth;
 import com.impwrme2.model.scenario.Scenario;
 import com.impwrme2.service.resource.ResourceService;
@@ -183,16 +185,16 @@ public class DashboardController {
 		ResourceParamDateValueYearMonth birthYearMonthVal = new ResourceParamDateValueYearMonth(YearMonth.of(2024, 1), false, YearMonth.of(1972, 2));
 		birthYearMonth.addResourceParamDateValue(birthYearMonthVal);
 
-		ResourceParamInteger departureAge = new ResourceParamInteger(ResourceParamNameEnum.PERSON_DEPARTURE_AGE);
+		ResourceParamIntegerPositive departureAge = new ResourceParamIntegerPositive(ResourceParamNameEnum.PERSON_DEPARTURE_AGE);
 		amandaResource.addResourceParam(departureAge);
 
-		ResourceParamDateValueInteger deprtureAgeVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(100));
+		ResourceParamDateValueIntegerPositive deprtureAgeVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(100));
 		departureAge.addResourceParamDateValue(deprtureAgeVal);
 
-		ResourceParamInteger retirementAge = new ResourceParamInteger(ResourceParamNameEnum.PERSON_RETIREMENT_AGE);
+		ResourceParamIntegerPositive retirementAge = new ResourceParamIntegerPositive(ResourceParamNameEnum.PERSON_RETIREMENT_AGE);
 		amandaResource.addResourceParam(retirementAge);
 
-		ResourceParamDateValueInteger retirementAgeVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(65));
+		ResourceParamDateValueIntegerPositive retirementAgeVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(65));
 		retirementAge.addResourceParamDateValue(retirementAgeVal);
 		
 		Cashflow amandaEmploymentIncome = new Cashflow(CashflowCategory.INCOME_EMPLOYMENT, CashflowFrequency.MONTHLY, Boolean.TRUE);
@@ -216,16 +218,17 @@ public class DashboardController {
 		Resource creditCard = new ResourceCreditCard("Credit Card");
 		creditCard.setStartYearMonth(YearMonth.of(2024, 1));
 
-		ResourceParamInteger balanceLegalMin = new ResourceParamInteger(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MIN);
+		ResourceParamIntegerNegative balanceLegalMin = new ResourceParamIntegerNegative(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MIN);
+		balanceLegalMin.setUserAbleToCreateNewDateValue(true);
 		creditCard.addResourceParam(balanceLegalMin);
 
-		ResourceParamDateValueInteger balanceLegalMinVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(-15000));
+		ResourceParamDateValueIntegerNegative balanceLegalMinVal = new ResourceParamDateValueIntegerNegative(YearMonth.of(2024, 1), false, Integer.valueOf(-15000));
 		balanceLegalMin.addResourceParamDateValue(balanceLegalMinVal);
 
-		ResourceParamInteger balanceOpeningLiquid = new ResourceParamInteger(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
+		ResourceParamIntegerNegative balanceOpeningLiquid = new ResourceParamIntegerNegative(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
 		creditCard.addResourceParam(balanceOpeningLiquid);
 
-		ResourceParamDateValueInteger balanceOpeningLiquidVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(-12000));
+		ResourceParamDateValueIntegerNegative balanceOpeningLiquidVal = new ResourceParamDateValueIntegerNegative(YearMonth.of(2024, 1), false, Integer.valueOf(-12000));
 		balanceOpeningLiquid.addResourceParamDateValue(balanceOpeningLiquidVal);		
 		
 		scenario.addResource(creditCard);
@@ -237,16 +240,10 @@ public class DashboardController {
 		Resource currentAccount = new ResourceCurrentAccount("Current Account");
 		currentAccount.setStartYearMonth(YearMonth.of(2024, 1));
 
-//		ResourceParamInteger currentAccountBalanceLegalMax = new ResourceParamInteger(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MAX);
-//		currentAccount.addResourceParam(currentAccountBalanceLegalMax);
-//
-//		ResourceParamDateValueInteger currentAccountBalanceLegalMaxVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.MAX_VALUE);
-//		currentAccountBalanceLegalMax.addResourceParamDateValue(currentAccountBalanceLegalMaxVal);
-
-		ResourceParamInteger currentAccountBalanceOpeningLiquid = new ResourceParamInteger(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
+		ResourceParamIntegerPositive currentAccountBalanceOpeningLiquid = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
 		currentAccount.addResourceParam(currentAccountBalanceOpeningLiquid);
 
-		ResourceParamDateValueInteger currentAccountBalanceOpeningLiquidVal = new ResourceParamDateValueInteger(YearMonth.of(2024, 1), false, Integer.valueOf(910000));
+		ResourceParamDateValueIntegerPositive currentAccountBalanceOpeningLiquidVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(910000));
 		currentAccountBalanceOpeningLiquid.addResourceParamDateValue(currentAccountBalanceOpeningLiquidVal);		
 		
 		scenario.addResource(currentAccount);

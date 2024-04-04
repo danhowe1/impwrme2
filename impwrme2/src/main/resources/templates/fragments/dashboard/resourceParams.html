@@ -58,7 +58,10 @@
 				case "BIG_DECIMAL":
 					return /^\s*-?(\d+(\.\d{1,2})?|\.\d{1,2})\s*$/.source;
 					break;
-				case "INTEGER":
+				case "INTEGER_NEGATIVE":
+					return /^-?\d+$/.source;
+					break;
+				case "INTEGER_POSITIVE":
 					return /^\d+$/.source;
 					break;
 				case "YEAR_MONTH":

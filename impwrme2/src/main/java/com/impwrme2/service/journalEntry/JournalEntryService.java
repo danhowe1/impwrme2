@@ -90,8 +90,6 @@ public class JournalEntryService {
 				// Withdrawals could go against.
 				List<JournalEntry> resourceJournalEntries = generateJournalEntriesForExpensesAndIncome(resourceEngine);
 				currentMonthsJournalEntries.addAll(resourceJournalEntries);
-				
-				// TODO Generate engine specific journal entries.
 			}
 
 			// TODO Generate users Withdrawals.
@@ -115,20 +113,20 @@ public class JournalEntryService {
 			// Generate the closing balances (including unallocated if necessary).
 			currentMonthsJournalEntries.addAll(generateJournalEntriesForClosingBalances(resourceEngines));
 			
-//			if (currentYearMonth.isBefore(YearMonth.of(2024, 4))) {
-//				Collections.sort(currentMonthsJournalEntries);
-//				for (JournalEntry journalEntry : currentMonthsJournalEntries) {
-//					System.out.println(journalEntry.toString());
-//					
+			if (currentYearMonth.isBefore(YearMonth.of(2024, 4))) {
+				Collections.sort(currentMonthsJournalEntries);
+				for (JournalEntry journalEntry : currentMonthsJournalEntries) {
+					System.out.println(journalEntry.toString());
+					
 //					if (journalEntry.getResource().getResourceType().equals(ResourceType.CREDIT_CARD) &&
 //						journalEntry.getCategory().equals(CashflowCategory.JE_BALANCE_CLOSING_LIQUID) &&
 //						journalEntry.getAmount() < -15000)  {
 //						System.out.println("HERE!");
 //					}
-//						
-//				}
-//				System.out.println(potManager.toString());
-//			}
+						
+				}
+				System.out.println(potManager.toString());
+			}
 			
 			// TODO Temporarily put a sanity check here to make sure we're not creating or destroying money.
 			

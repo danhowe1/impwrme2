@@ -7,22 +7,22 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 @Entity
-@DiscriminatorValue(ResourceParamType.Values.INTEGER)
-public class ResourceParamInteger extends ResourceParam<Integer> {
+@DiscriminatorValue(ResourceParamType.Values.INTEGER_POSITIVE)
+public class ResourceParamIntegerPositive extends ResourceParam<Integer> {
 
-	private static final long serialVersionUID = 1946945926952691494L;
+	private static final long serialVersionUID = -9044214743327896634L;
 
-	protected ResourceParamInteger() {
+	protected ResourceParamIntegerPositive() {
 		super();
 	}
 	
-	public ResourceParamInteger(final ResourceParamNameEnum paramName) {
+	public ResourceParamIntegerPositive(final ResourceParamNameEnum paramName) {
 		super(paramName);
 	}
 
 	@Override
 	public ResourceParamType getResourceParamType() {
-		return ResourceParamType.INTEGER;
+		return ResourceParamType.INTEGER_POSITIVE;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -5,8 +5,8 @@ import java.util.stream.Stream;
 public enum ResourceParamType {
 
 	BIG_DECIMAL(Values.BIG_DECIMAL),
-//	BOOLEAN_TRUE(Values.BOOLEAN_TRUE),
-	INTEGER(Values.INTEGER),
+	INTEGER_NEGATIVE(Values.INTEGER_NEGATIVE),
+	INTEGER_POSITIVE(Values.INTEGER_POSITIVE),
 	STRING(Values.STRING),
 	YEAR_MONTH(Values.YEAR_MONTH);
 	
@@ -18,8 +18,8 @@ public enum ResourceParamType {
 
 	public static class Values {
 		public static final String BIG_DECIMAL = "BIG_DECIMAL";
-//		public static final String BOOLEAN_TRUE = "BOOLEAN_TRUE";
-		public static final String INTEGER = "INTEGER";
+		public static final String INTEGER_NEGATIVE = "INTEGER_NEGATIVE";
+		public static final String INTEGER_POSITIVE = "INTEGER_POSITIVE";
 		public static final String STRING = "STRING";
 		public static final String YEAR_MONTH = "YEAR_MONTH";
 	}

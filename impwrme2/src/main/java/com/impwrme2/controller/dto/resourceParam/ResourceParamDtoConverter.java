@@ -11,7 +11,8 @@ import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValue
 import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecimal;
-import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueInteger;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerNegative;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerPositive;
 import com.impwrme2.utils.YearMonthUtils;
 
 @Component
@@ -71,8 +72,10 @@ public class ResourceParamDtoConverter {
 		switch (rpdvDto.getResourceParamType()) {
 		case "BIG_DECIMAL":
 			return new ResourceParamDateValueBigDecimal(yearMonth, rpdvDto.isUserAbleToChangeDate(), rpdvDto.getValue());
-		case "INTEGER":
-			return new ResourceParamDateValueInteger(yearMonth, rpdvDto.isUserAbleToChangeDate(), rpdvDto.getValue());
+		case "INTEGER_NEGATIVE":
+			return new ResourceParamDateValueIntegerNegative(yearMonth, rpdvDto.isUserAbleToChangeDate(), rpdvDto.getValue());
+		case "INTEGER_POSITIVE":
+			return new ResourceParamDateValueIntegerPositive(yearMonth, rpdvDto.isUserAbleToChangeDate(), rpdvDto.getValue());
 		default:
 			throw new IllegalStateException("Unknown resource tpye " + rpdvDto.getResourceParamType() + ".");
 		}
