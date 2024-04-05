@@ -22,6 +22,8 @@ public class ResourceDto {
 
 	public List<String> cashflowCategoriesUsersCanCreate = new ArrayList<String>();
 
+	public List<String> resourceParamNamesUsersCanCreate = new ArrayList<String>();
+
 	//-------------------
 	// Getters & setters.
 	//-------------------
@@ -64,5 +66,13 @@ public class ResourceDto {
 
 	public List<String> getCashflowCategoriesUsersCanCreate() {
 		return cashflowCategoriesUsersCanCreate;
+	}
+
+	public void addResourceParamNameUsersCanCreate(String resourceParamNameUsersCanCreate) {
+		this.resourceParamNamesUsersCanCreate.add(resourceParamNameUsersCanCreate);
+	}
+
+	public List<String> getResourceParamNamesUsersCanCreate() {
+		return resourceParamNamesUsersCanCreate;
 	}
 }

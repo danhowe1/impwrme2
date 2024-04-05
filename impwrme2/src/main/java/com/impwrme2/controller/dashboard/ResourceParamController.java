@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.impwrme2.controller.BaseController;
 import com.impwrme2.controller.dto.resource.ResourceDtoConverter;
+import com.impwrme2.controller.dto.resourceParam.ResourceParamCreateDto;
 import com.impwrme2.controller.dto.resourceParam.ResourceParamDtoConverter;
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDto;
 import com.impwrme2.model.resource.Resource;
@@ -61,6 +62,19 @@ public class ResourceParamController {
 		return "fragments/dashboard/resourceParams :: resourceParams";
 	}
 
+	@PostMapping(value = "/saveResourceParamCreate")
+	@ResponseBody
+	public String saveCashflowCreate(@Valid ResourceParamCreateDto resourceParamCreateDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
+		if (result.hasErrors()) {
+			return BaseController.getErrorMessageFromBindingResult(messageSource, result);
+		}
+		Resource resource = resourceService.findById(resourceParamCreateDto.getResourceId()).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + resourceParamCreateDto.getResourceId()));
+		ResourceParam<?> resourceParam = resourceParamDtoConverter.dtoToNewEntity(resourceParamCreateDto, resource);
+		resourceParamService.save(resourceParam);
+		session.removeAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");
+		return "SUCCESS";
+	}
+
 	@PostMapping(value = "/saveResourceParamDateValue")
 	@ResponseBody
 	public String saveResourceParamDateValue(@Valid ResourceParamDateValueDto rpdvDto, BindingResult result, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
@@ -83,7 +97,14 @@ public class ResourceParamController {
 			return messageSource.getMessage("msg.validation.resourceParamDateValue.deleteNotAllowed", null, LocaleContextHolder.getLocale());
 		}
 		ResourceParamDateValue<?> rpdv = resourceParamDateValueService.findById(rpdvDto.getId()).get();
-		resourceParamService.deleteResourceParamDateValue(rpdv);
+		ResourceParam<?> resourceParam = rpdv.getResourceParam();
+		if (resourceParam.getResourceParamDateValues().size() == 1) {
+			// We're deleting the only remaining date/value so delete the resource param.
+			resourceService.deleteResourceParam(resourceParam);
+		} else {
+			// Just delete the date/value.
+			resourceParamService.deleteResourceParamDateValue(rpdv);			
+		}
 		session.removeAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");
 		return "SUCCESS";
 	}
@@ -92,6 +113,7 @@ public class ResourceParamController {
 		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
 		model.addAttribute("resourceParamTableDto", resourceParamDtoConverter.resourceParamsToResourceParamTableDto(resource.getResourceParams()));
 		model.addAttribute("resourceParamDateValueDto", new ResourceParamDateValueDto());
+		model.addAttribute("resourceParamCreateDto", new ResourceParamCreateDto());
 	}
 
 	/**

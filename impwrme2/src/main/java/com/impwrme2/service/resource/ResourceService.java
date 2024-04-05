@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.resource.Resource;
+import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.repository.resource.ResourceRepository;
 
 @Service
@@ -25,6 +26,19 @@ public class ResourceService {
 	public Resource save(Resource resource) {
 		Resource savedResource = resourceRepository.save(resource);
 		return savedResource;
+	}
+
+	/**
+	 * See https://vladmihalcea.com/orphanremoval-jpa-hibernate for explanation of
+	 * why this delete appears here and not in the ResourceService.
+	 * @param resource The resource to be deleted.
+	 */
+	@Transactional
+	public void deleteResourceParam(ResourceParam<?> resourceParam) {
+		Resource resource = resourceParam.getResource();
+		resource.removeResourceParam(resourceParam);
+		@SuppressWarnings("unused")
+		Resource savedResource = resourceRepository.save(resource);
 	}
 
 	/**

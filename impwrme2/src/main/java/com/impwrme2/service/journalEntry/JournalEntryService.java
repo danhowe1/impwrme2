@@ -78,11 +78,10 @@ public class JournalEntryService {
 					currentMonthsJournalEntries.add(generateJournalEntryFixedAmountOpeningBalance(resourceEngine));
 				} else {
 					// Contribute months opening balance to the pot.
-					Integer balanceLiquidOpeningAmount = potManager.getLiquidPot(resourceEngine);
+					Integer balanceLiquidOpeningAmount = potManager.getResourceLiquidPotAmount(resourceEngine);
 					potManager.addToPotBalance(balanceLiquidOpeningAmount);
-					potManager.subtractFromLiquidPot(resourceEngine, potManager.getLiquidPot(resourceEngine));
+					potManager.subtractFromResourceLiquidAmount(resourceEngine, potManager.getResourceLiquidPotAmount(resourceEngine));
 				}
-
 				
 				// Generate the monthly journal entries for each Expense and Income. We don't process the
 				// Deposits yet because we don't know if there'll be enough in the pot to do so. We don't
@@ -95,14 +94,21 @@ public class JournalEntryService {
 			// TODO Generate users Withdrawals.
 			
 			// TODO Generate users Deposits if there's enough in the pot to do so.
-			
+
+			// Order in reverse for the following withdrawals.
+			Collections.sort(resourceEngines, Collections.reverseOrder()); 
+
 			// If the pot is negative make auto withdrawals from the resources in reverse order of importance, based on the preferred balances.
 			currentMonthsJournalEntries.addAll(generateJournalEntriesForAutoWithdrawalsOnPreferredLimits(resourceEngines));
 						
-			// TODO If the pot is still negative make auto withdrawals from the resources in reverse order of importance, based on the legal min and max values.
+			// If the pot is still negative make auto withdrawals from the resources in reverse order of importance, based on the legal min and max values.
+			currentMonthsJournalEntries.addAll(generateJournalEntriesForAutoWithdrawalsOnLegalLimits(resourceEngines));
 			
 			// If the pot is still negative take the money from the debt resources (e.g. credit cards).
 			generateNegativePotDistributionToDebtResources(resourceEngines);
+			
+			// Return to preferred order so the pot distributes to the highest priorities first.
+			Collections.sort(resourceEngines);
 			
 			// TODO If there's money in the pot, redistribute to the resources based on the preferred balances.
 			
@@ -165,7 +171,7 @@ public class JournalEntryService {
 			liquidAmount = (Integer) rpdvOpt.get().getValue();
 			if (liquidAmount.intValue() > 0) {
 				// If there are savings in the account then we assume that these have been explicitly deposited by the user.
-				potManager.addToLiquidDepositsAmount(resourceEngine, liquidAmount);
+				potManager.addToResourceLiquidDepositsAmount(resourceEngine, liquidAmount);
 			} else if (liquidAmount.intValue() < 0) {
 				// If this is debt then just put the amount straight into the pot. We assume the user wants to pay this off asap.
 				potManager.addToPotBalance(liquidAmount);
@@ -180,8 +186,8 @@ public class JournalEntryService {
 		if (rpdvOpt.isPresent()) {
 			fixedAmount = (Integer) rpdvOpt.get().getValue();
 		}
-		potManager.addToFixedAmount(resourceEngine, fixedAmount);
-		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, potManager.getAssetValue(resourceEngine, currentYearMonth), CashflowCategory.JE_BALANCE_OPENING_ASSET_VALUE);
+		potManager.addToResourceFixedAmount(resourceEngine, fixedAmount);
+		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, potManager.getResourceAssetValue(resourceEngine, currentYearMonth), CashflowCategory.JE_BALANCE_OPENING_ASSET_VALUE);
 	}
 	
 	private List<JournalEntry> generateJournalEntriesForExpensesAndIncome(IResourceEngine resourceEngine) {
@@ -205,18 +211,30 @@ public class JournalEntryService {
 	}
 
 	private List<JournalEntry> generateJournalEntriesForAutoWithdrawalsOnPreferredLimits(final List<IResourceEngine> resourceEngines) {
+		return generateJournalEntriesForAutoWithdrawalsOnLegalOrPreferredLimits(resourceEngines, "Preferred");
+	}
+
+	private List<JournalEntry> generateJournalEntriesForAutoWithdrawalsOnLegalLimits(final List<IResourceEngine> resourceEngines) {
+		return generateJournalEntriesForAutoWithdrawalsOnLegalOrPreferredLimits(resourceEngines, "Legal");
+	}
+
+	private List<JournalEntry> generateJournalEntriesForAutoWithdrawalsOnLegalOrPreferredLimits(final List<IResourceEngine> resourceEngines, String legalOrPreferred) {
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
 		if (potManager.getPotBalance() < 0) {
-			Collections.reverse(resourceEngines);
 			for (IResourceEngine resourceEngine : resourceEngines) {
-				Integer withdrawalAmount = potManager.getLiquidDeposits(resourceEngine);
-				Integer balancePreferredMin = resourceEngine.getBalanceLiquidPreferredMin(currentYearMonth);
-				withdrawalAmount = withdrawalAmount - balancePreferredMin;
+				Integer withdrawalAmount = potManager.getResourceLiquidDepositsAmount(resourceEngine);
+				
+				Integer balanceMin;
+				if (legalOrPreferred.equals("Preferred")) {
+					balanceMin = resourceEngine.getBalanceLiquidPreferredMin(currentYearMonth);
+				} else {
+					balanceMin = resourceEngine.getBalanceLiquidLegalMin(currentYearMonth);
+				}
+				withdrawalAmount = withdrawalAmount - balanceMin;
 				withdrawalAmount = Math.min(withdrawalAmount, potManager.getPotBalance() * -1);
 				if (withdrawalAmount != 0) {
 					journalEntries.add(createAutoWithdrawal(resourceEngine, withdrawalAmount));
 				}
-				// TODO The next line used to be < 1 to double check this...
 				if (potManager.getPotBalance() == 0) {
 					break;
 				}
@@ -224,7 +242,7 @@ public class JournalEntryService {
 		}
 		return journalEntries;
 	}
-	
+
 	private void generateNegativePotDistributionToDebtResources(final List<IResourceEngine> resourceEngines) {
 		if (potManager.getPotBalance() < 0) {
 			Collections.reverse(resourceEngines);
@@ -232,7 +250,7 @@ public class JournalEntryService {
 				Integer amount = resourceEngine.getBalanceLiquidLegalMin(currentYearMonth);
 				amount = Math.max(amount, potManager.getPotBalance());
 				potManager.addToPotBalance(amount * -1);
-				potManager.subtractFromLiquidPot(resourceEngine, amount * -1);
+				potManager.subtractFromResourceLiquidAmount(resourceEngine, amount * -1);
 				if (potManager.getPotBalance() == 0) {
 					break;
 				}
@@ -243,9 +261,9 @@ public class JournalEntryService {
 	private List<JournalEntry> generateJournalEntriesForClosingBalances(final List<IResourceEngine> resourceEngines) {
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
 		for (IResourceEngine resourceEngine : resourceEngines) {
-			Integer balanceLiquid = potManager.getLiquidBalance(resourceEngine, currentYearMonth);
+			Integer balanceLiquid = potManager.getResourceLiquidBalance(resourceEngine, currentYearMonth);
 			journalEntries.add(journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, balanceLiquid, CashflowCategory.JE_BALANCE_CLOSING_LIQUID));	
-			Integer assetValue = potManager.getAssetValue(resourceEngine, currentYearMonth);
+			Integer assetValue = potManager.getResourceAssetValue(resourceEngine, currentYearMonth);
 			journalEntries.add(journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, assetValue, CashflowCategory.JE_BALANCE_CLOSING_ASSET_VALUE));	
 		}
 		if (potManager.getPotBalance() != 0) {
@@ -271,7 +289,7 @@ public class JournalEntryService {
 
 	private JournalEntry createAutoWithdrawal(final IResourceEngine resourceEngine, final Integer amount) {
 		potManager.addToPotBalance(amount);
-		potManager.subtractFromLiquidDeposits(resourceEngine, amount);
+		potManager.subtractFromResourceLiquidDepositsAmount(resourceEngine, amount);
 		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, amount, CashflowCategory.JE_AUTO_WITHDRAWAL);	
 	}
 

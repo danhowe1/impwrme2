@@ -9,7 +9,7 @@ import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 
-public class ResourceEngine implements IResourceEngine, Comparable<ResourceEngine> {
+public class ResourceEngine implements IResourceEngine {
 
 	protected final Resource resource;
 	private Integer balanceLiquidLegalMax = 0;
@@ -60,7 +60,7 @@ public class ResourceEngine implements IResourceEngine, Comparable<ResourceEngin
 	}
 
 	@Override
-	public int compareTo(ResourceEngine o) {
+	public int compareTo(IResourceEngine o) {
 		return this.getResource().compareTo(o.getResource());
 	}
 

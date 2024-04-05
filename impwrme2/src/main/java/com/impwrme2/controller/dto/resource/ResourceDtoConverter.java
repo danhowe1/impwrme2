@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.resource.Resource;
+import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.utils.YearMonthUtils;
 
 @Component
@@ -17,6 +18,9 @@ public class ResourceDtoConverter {
 		resourceDto.setResourceType(resource.getResourceType().getValue());
 		for (CashflowCategory cat : resource.getCashflowCategoriesUsersCanCreate()) {
 			resourceDto.addCashflowCategoryUsersCanCreate(cat.getValue());
+		}
+		for (ResourceParam<?> resourceParam : resource.getResourceParamsUsersCanCreate()) {
+			resourceDto.addResourceParamNameUsersCanCreate(resourceParam.getName().name() + "|" + resourceParam.getResourceParamType().getValue());
 		}
 		return resourceDto;
 	}

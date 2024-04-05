@@ -69,7 +69,6 @@ public class ResourceDropdownDto {
 			resourceTabMap.put(resourceNavLabel, tab);
 		}
 		tab.addResourceTabItem(new ResourceDropdownTabItemDto(resource));
-//		Collections.sort(tab.getResourceTabItems());
 	}
 
 	// -------------------

@@ -116,6 +116,11 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 	}
 
 	@Override
+	public List<ResourceParam<?>> getResourceParamsUsersCanCreate() {
+		return Collections.emptyList();
+	}
+
+	@Override
 	public int compareTo(Resource o) {
 		
 		int compareResourceType = this.getResourceType().compareTo(o.getResourceType());

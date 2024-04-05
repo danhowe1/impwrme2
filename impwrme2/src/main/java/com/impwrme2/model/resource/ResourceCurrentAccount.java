@@ -1,5 +1,13 @@
 package com.impwrme2.model.resource;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
+import com.impwrme2.model.resourceParam.ResourceParam;
+import com.impwrme2.model.resourceParam.ResourceParamIntegerPositive;
+
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
@@ -23,5 +31,15 @@ public class ResourceCurrentAccount extends Resource {
 	@Override
 	public ResourceType getResourceType() {
 		return ResourceType.CURRENT_ACCOUNT;
+	}
+
+	@Override
+	public List<ResourceParam<?>> getResourceParamsUsersCanCreate() {
+		ResourceParamIntegerPositive balanceLiquidPreferredMin = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MIN);
+		List<ResourceParam<?>> resourceParams = new ArrayList<>(Arrays.asList(balanceLiquidPreferredMin));
+		for (ResourceParam<?> existingResourceParam : getResourceParams()) {
+			resourceParams.removeIf(resourceParam -> resourceParam.getName().equals(existingResourceParam.getName()));
+		}
+		return resourceParams;
 	}
 }

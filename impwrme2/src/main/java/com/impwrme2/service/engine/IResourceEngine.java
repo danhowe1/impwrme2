@@ -6,7 +6,7 @@ import java.util.List;
 import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.resource.Resource;
 
-public interface IResourceEngine {
+public interface IResourceEngine extends Comparable<IResourceEngine> {
 
 	public Resource getResource();
 	public Integer getBalanceLiquidLegalMax(final YearMonth yearMonth);

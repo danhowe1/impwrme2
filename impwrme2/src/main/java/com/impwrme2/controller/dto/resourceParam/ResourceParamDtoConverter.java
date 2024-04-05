@@ -1,5 +1,6 @@
 package com.impwrme2.controller.dto.resourceParam;
 
+import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -8,12 +9,19 @@ import org.springframework.stereotype.Component;
 
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDto;
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDtoConverter;
+import com.impwrme2.model.resource.Resource;
+import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParam;
+import com.impwrme2.model.resourceParam.ResourceParamBigDecimal;
+import com.impwrme2.model.resourceParam.ResourceParamIntegerNegative;
+import com.impwrme2.model.resourceParam.ResourceParamIntegerPositive;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecimal;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerNegative;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerPositive;
 import com.impwrme2.utils.YearMonthUtils;
+
+import jakarta.validation.Valid;
 
 @Component
 public class ResourceParamDtoConverter {
@@ -78,6 +86,36 @@ public class ResourceParamDtoConverter {
 			return new ResourceParamDateValueIntegerPositive(yearMonth, rpdvDto.isUserAbleToChangeDate(), rpdvDto.getValue());
 		default:
 			throw new IllegalStateException("Unknown resource tpye " + rpdvDto.getResourceParamType() + ".");
+		}
+	}
+
+	public ResourceParam<?> dtoToNewEntity(@Valid ResourceParamCreateDto resourceParamCreateDto, Resource resource) {
+		ResourceParam<?> resourceParam = getResourceParam(resourceParamCreateDto);
+		resourceParam.setUserAbleToCreateNewDateValue(true);
+		resource.addResourceParam(resourceParam);				
+		return resourceParam;
+	}
+
+	private ResourceParam<?> getResourceParam(ResourceParamCreateDto resourceParamCreateDto) {
+		YearMonth yearMonth = YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(resourceParamCreateDto.getYearMonth());
+		switch (resourceParamCreateDto.getResourceParamType()) {
+		case "BIG_DECIMAL":
+			ResourceParamDateValueBigDecimal rpdvBD = new ResourceParamDateValueBigDecimal(yearMonth, true, new BigDecimal(resourceParamCreateDto.getValue()));
+			ResourceParamBigDecimal resourceParamBD = new ResourceParamBigDecimal(ResourceParamNameEnum.getParamNameFromValue(resourceParamCreateDto.getName()));
+			resourceParamBD.addResourceParamDateValue(rpdvBD);
+			return resourceParamBD;
+		case "INTEGER_NEGATIVE":
+			ResourceParamDateValueIntegerNegative rpdvIN = new ResourceParamDateValueIntegerNegative(yearMonth, true, Integer.valueOf(resourceParamCreateDto.getValue()));
+			ResourceParamIntegerNegative resourceParamIN = new ResourceParamIntegerNegative(ResourceParamNameEnum.getParamNameFromValue(resourceParamCreateDto.getName()));
+			resourceParamIN.addResourceParamDateValue(rpdvIN);
+			return resourceParamIN;
+		case "INTEGER_POSITIVE":
+			ResourceParamDateValueIntegerPositive rpdvIP = new ResourceParamDateValueIntegerPositive(yearMonth, true, Integer.valueOf(resourceParamCreateDto.getValue()));
+			ResourceParamIntegerPositive resourceParamIP = new ResourceParamIntegerPositive(ResourceParamNameEnum.getParamNameFromValue(resourceParamCreateDto.getName()));
+			resourceParamIP.addResourceParamDateValue(rpdvIP);
+			return resourceParamIP;
+		default:
+			throw new IllegalStateException("Unknown resource param type " + resourceParamCreateDto.getResourceParamType() + ".");
 		}
 	}
 }

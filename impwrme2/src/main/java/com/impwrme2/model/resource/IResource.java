@@ -3,6 +3,7 @@ package com.impwrme2.model.resource;
 import java.util.List;
 
 import com.impwrme2.model.cashflow.CashflowCategory;
+import com.impwrme2.model.resourceParam.ResourceParam;
 
 public interface IResource {
 
@@ -10,4 +11,5 @@ public interface IResource {
 	public ResourceScenario getResourceScenario();
 	public String getPrioritisationWithinResourceType();
 	public List<CashflowCategory> getCashflowCategoriesUsersCanCreate();
+	public List<ResourceParam<?>> getResourceParamsUsersCanCreate();
 }

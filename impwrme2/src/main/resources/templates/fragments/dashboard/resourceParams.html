@@ -11,6 +11,8 @@
 
 		<script type="text/javascript" th:inline="javascript">
 			const modalRpdvHeader = /*[[#{msg.html.dashboard.resourceParamDateValueEdit.modal.header}]]*/'novalue';
+			const modalResourceParamCreateHeader = /*[[#{msg.html.global.label.create}]]*/'novalue';
+			var resourceDto;
 
 			function showResourceParams(resourceId) {
 				var url = baseUrl + 'resourceParam/showResourceParams/' + resourceId;
@@ -26,27 +28,47 @@
 				});
 			}
 
+			function resourceParamCreate(select) {
+				const nameAndType = select.value.split("|");
+				var paramName = nameAndType[0];
+				var resourceParamType = nameAndType[1];
+				var paramNameMessage = select.selectedOptions[0].text;
+
+				document.getElementById('resourceParamCreateDialogError').style.display = "none";
+				document.getElementById('resourceParamCreateDialogHeader').innerText = modalResourceParamCreateHeader + ' ' + paramNameMessage;
+				document.getElementById('value').setAttribute("pattern", getRegExFromResourceParamType(resourceParamType));
+
+				$("#resourceParamCreateDialog #resourceId").val(resourceDto.id);
+				$("#resourceParamCreateDialog #resourceParamType").val(resourceParamType);
+				$("#resourceParamCreateDialog #name").val(paramName);
+
+				$('#resourceParamCreateDialog').modal('show');
+				setTimeout(function() {
+					$('form[id="resourceParamCreateDialog"] :input:enabled:visible:not([readonly]):first').select();
+				}, 500);
+			}
+
 			function resourceParamDateValueEdit(paramName, id, yearMonth, value, userAbleToChangeDate, resourceParamId, resourceParamType) {
 				if (id === null || id === 'null') {
 					id = "";
 				}
 				document.getElementById('rpdvEditDialogError').style.display = "none";
 				document.getElementById('paramName').innerText = modalRpdvHeader + ' ' + paramName + '?';
-				document.getElementById('value').setAttribute("pattern", getRegExFromResourceParamType(resourceParamType));
+				document.getElementById('rpdvEditDialogValue').setAttribute("pattern", getRegExFromResourceParamType(resourceParamType));
 				if (userAbleToChangeDate !== 'true') {
-					document.getElementById('userAbleToChangeDate').removeAttribute("checked");
-					document.getElementById('yearMonth').readOnly = true;
+					document.getElementById('rpdvEditDialogUserAbleToChangeDate').removeAttribute("checked");
+					document.getElementById('rpdvEditDialogYearMonth').readOnly = true;
 					document.getElementById('deleteBtn').style.visibility = "hidden";
 				} else {
-					document.getElementById('userAbleToChangeDate').setAttribute("checked", "checked");
-					document.getElementById('yearMonth').readOnly = false;
+					document.getElementById('rpdvEditDialogUserAbleToChangeDate').setAttribute("checked", "checked");
+					document.getElementById('rpdvEditDialogYearMonth').readOnly = false;
 					document.getElementById('deleteBtn').style.visibility = "visible";
 				}
-				$(".modal-body #id").val(id);
-				$(".modal-body #yearMonth").val(yearMonth);
-				$(".modal-body #value").val(value);
-				$(".modal-body #resourceParamId").val(resourceParamId);
-				$(".modal-body #resourceParamType").val(resourceParamType);
+				$("#rpdvEditDialogId").val(id);
+				$("#rpdvEditDialogYearMonth").val(yearMonth);
+				$("#rpdvEditDialogValue").val(value);
+				$("#rpdvEditDialogResourceParamId").val(resourceParamId);
+				$("#rpdvEditDialogResourceParamType").val(resourceParamType);
 				$('#rpdvEditDialog').modal('show');
 				setTimeout(function() {
 					$('form[id="formRpdvEditDialog"] :input:enabled:visible:not([readonly]):first').select();
@@ -99,35 +121,51 @@
 					}
 				});
 			}
+			
+			function postResourceParamCreate() {
+				var token = $("meta[name='_csrf']").attr("content");
+				var header = $("meta[name='_csrf_header']").attr("content");
+				var data = $("#formResourceParamCreateDialog").serialize();
+				var controllerMethod = "saveResourceParamCreate";
+
+				return $.ajax({
+					type : 'post',
+					url : baseUrl + 'resourceParam/' + controllerMethod,
+					data : data,
+					beforeSend : function(xhr) {
+						xhr.setRequestHeader(header, token);
+					},
+					success : function(response) {
+					},
+					error : function(jqXHR) {
+						alert('Error: ' + jqXHR.status + 'Message: ' + jqXHR.responseText);
+					}
+				});
+			}
 		</script>
 
-		<!-------------------------------->
-		<!-- Modal rpdvEditDialog START	-->
-		<!-------------------------------->
+		<!-------------------------------------------->
+		<!-- Modal resourceParamCreateDialog START	-->
+		<!-------------------------------------------->
 
-		<div id="rpdvEditDialog" class="modal fade" tabindex="-1">
+		<div id="resourceParamCreateDialog" class="modal fade" tabindex="-1">
 			<div class="modal-dialog modal-dialog-centered modal-sm"
 				role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5
-							th:text="#{msg.html.dashboard.resourceParamDateValueEdit.modal.header}"
-							id="paramName">XXX</h5>
+						<h5 id="resourceParamCreateDialogHeader">XXX</h5>
 					</div>
-					<form id="formRpdvEditDialog"
-						th:object="${resourceParamDateValueDto}" method="post"
+					<form id="formResourceParamCreateDialog"
+						th:object="${resourceParamCreateDto}" method="post"
 						class="was-validated">
 						<div class="modal-body">
 							<div class="container">
 
-								<input type="hidden" name="id" id="id" value="" /> <input
-									type="checkbox" name="userAbleToChangeDate"
-									id="userAbleToChangeDate" style="display: none" /> <input
-									type="hidden" name="resourceParamId" id="resourceParamId"
-									value="" /> <input type="hidden" name="resourceParamType"
-									id="resourceParamType" value="" />
+								<input type="hidden" name="resourceId" id="resourceId" value="" />
+								<input type="hidden" name="resourceParamType" id="resourceParamType" value="" />
+								<input type="hidden" name="name" id="name" value="" />
 
-								<div id="rpdvEditDialogError" class="alert alert-danger"></div>
+								<div id="resourceParamCreateDialogError" class="alert alert-danger"></div>
 
 								<div class="mb-1 row">
 									<div class="col-sm-6">
@@ -158,12 +196,85 @@
 											th:errors="*{value}"></p>
 									</div>
 								</div>
+
+							</div>
+							<div class="modal-footer">
+								<button id="saveBtn" class="btn btn-primary" type="submit">Save</button>
+								<a class="btn btn-link" role="button" data-bs-dismiss="modal">Cancel</a>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-------------------------------------------->
+		<!-- Modal resourceParamCreateDialog END	-->
+		<!-------------------------------------------->
+
+		<!-------------------------------->
+		<!-- Modal rpdvEditDialog START	-->
+		<!-------------------------------->
+
+		<div id="rpdvEditDialog" class="modal fade" tabindex="-1">
+			<div class="modal-dialog modal-dialog-centered modal-sm"
+				role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5
+							th:text="#{msg.html.dashboard.resourceParamDateValueEdit.modal.header}"
+							id="paramName">XXX</h5>
+					</div>
+					<form id="formRpdvEditDialog"
+						th:object="${resourceParamDateValueDto}" method="post"
+						class="was-validated">
+						<div class="modal-body">
+							<div class="container">
+
+								<input type="hidden" th:field="*{id}" id="rpdvEditDialogId" value="" /> <input
+									type="checkbox" th:field="*{userAbleToChangeDate}"
+									id="rpdvEditDialogUserAbleToChangeDate" style="display: none" /> <input
+									type="hidden" th:field="*{resourceParamId}" id="rpdvEditDialogResourceParamId"
+									value="" /> <input type="hidden" th:field="*{resourceParamType}"
+									id="rpdvEditDialogResourceParamType" value="" />
+
+								<div id="rpdvEditDialogError" class="alert alert-danger"></div>
+
+								<div class="mb-1 row">
+									<div class="col-sm-6">
+										<label class="col-form-label"
+											th:text="#{msg.html.dashboard.resourceParamDateValueEdit.yearMonth.label}"></label>
+									</div>
+									<div class="col-sm-6">
+										<input id="rpdvEditDialogYearMonth" type="text" class="form-control"
+											th:field="*{yearMonth}" size="7" required
+											th:placeholder="#{msg.html.global.yearMonth.placeholder}"
+											oninput="this.setCustomValidity('')" maxLength="7"
+											th:title="#{msg.validation.monthYear}">
+										<p th:if="${#fields.hasErrors('yearMonth')}"
+											th:errorclass="error" th:errors="*{yearMonth}"></p>
+									</div>
+								</div>
+								<div class="mb-1 row">
+									<div class="col-sm-6">
+										<label class="col-form-label"
+											th:text="#{msg.html.dashboard.resourceParamDateValueEdit.value.label}"></label>
+									</div>
+									<div class="col-sm-6">
+										<input id="rpdvEditDialogValue" type="text" class="form-control"
+											th:field="*{value}" size="7" required
+											oninput="this.setCustomValidity('')"
+											th:title="#{msg.validation.notEmpty}">
+										<p th:if="${#fields.hasErrors('value')}" th:errorclass="error"
+											th:errors="*{value}"></p>
+									</div>
+								</div>
 							</div>
 							<div class="modal-footer">
 								<button id="saveBtn" class="btn btn-primary" type="submit">Save</button>
 								<a class="btn btn-link" role="button" data-bs-dismiss="modal">Cancel</a>
 								<input id="deleteBtn" class="btn btn-danger" type="submit"
-									th:value="Delete"/>
+									th:value="Delete" />
 							</div>
 						</div>
 					</form>
@@ -194,7 +305,8 @@
 					<td th:text="#{${resourceParamDto.name}}">XXX</td>
 					<td
 						th:each="rpdvDto, rpdvDtoStat : ${resourceParamDto.resourceParamDateValueDtos}"
-						th:id="${rpdvDto.id}" th:text="${rpdvDto.value}" data-bs-toggle="tooltip"
+						th:id="${rpdvDto.id}" th:text="${rpdvDto.value}"
+						data-bs-toggle="tooltip"
 						th:attr="data-bs-title=#{msg.html.dashboard.resourceParamTable.td.WhatIf.editRpdv}"
 						th:attrappend="onclick=|resourceParamDateValueEdit('#{${resourceParamDto.name}}','${rpdvDto.id}', '${rpdvDto.yearMonth}', '${rpdvDto.value}', '${rpdvDto.userAbleToChangeDate}', '${resourceParamDto.id}', '${resourceParamDto.resourceParamType}');|"
 						style="cursor: pointer;"></td>
@@ -208,7 +320,26 @@
 			</tbody>
 		</table>
 
+		<div class="mb-2"
+			th:unless="${resourceDto.resourceParamNamesUsersCanCreate.empty}">
+			<select class="form-select" id="paramNameToCreate"
+				name="paramNameToCreate"
+				th:attr="onchange=|resourceParamCreate(this);|">
+				<option th:text="#{msg.html.dashboard.cashflowTable.select.WhatIf}"
+					hidden="hidden">XXX</option>
+				<option
+					th:each="opt : ${resourceDto.resourceParamNamesUsersCanCreate}"
+					th:value="${opt}"
+					th:text="#{'msg.html.resourceParams.name.' + ${#strings.substringBefore(opt,'|')}}"></option>
+			</select>
+		</div>
+
 		<script type="text/javascript" th:inline="javascript">
+			$(document).ready(function() {
+				// Once this fragment has loaded, populate the JS variables declared above.
+				resourceDto = /*[[${resourceDto}]]*/'novalue';
+			});
+
 			document.querySelector('#formRpdvEditDialog').addEventListener('submit', function(e) {
 				e.preventDefault();
 			});
@@ -225,6 +356,27 @@
 						$('form[id="formRpdvEditDialog"] :input:enabled:visible:not([readonly]):first').select();
 					} else {
 						$('#rpdvEditDialog').modal('hide');
+						loadDisplayData();
+						showResourceParams(resourceId);
+					}
+				});
+			});
+			
+			document.querySelector('#formResourceParamCreateDialog').addEventListener('submit', function(e) {
+				e.preventDefault();
+			});
+
+			$("#formResourceParamCreateDialog").submit(function(event) {
+				var resourceId = /*[[${resourceDto.id}]]*/'novalue';
+
+				postResourceParamCreate().done(function(response) {
+					if (response != "SUCCESS") {
+						$("div.resourceParamCreateDialogError").show();
+						document.getElementById('resourceParamCreateDialogError').style.display = "block";
+						document.getElementById('resourceParamCreateDialogError').innerText = response;
+						$('form[id="formResourceParamCreateDialog"] :input:enabled:visible:not([readonly]):first').select();
+					} else {
+						$('#resourceParamCreateDialog').modal('hide');
 						loadDisplayData();
 						showResourceParams(resourceId);
 					}

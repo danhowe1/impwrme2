@@ -20,6 +20,7 @@ import com.impwrme2.controller.dto.cashflow.CashflowDtoConverter;
 import com.impwrme2.controller.dto.cashflowDateRangeValue.CashflowDateRangeValueDto;
 import com.impwrme2.controller.dto.resource.ResourceDtoConverter;
 import com.impwrme2.controller.dto.resourceDropdown.ResourceDropdownDto;
+import com.impwrme2.controller.dto.resourceParam.ResourceParamCreateDto;
 import com.impwrme2.controller.dto.resourceParam.ResourceParamDtoConverter;
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDto;
 import com.impwrme2.model.cashflow.Cashflow;
@@ -108,8 +109,9 @@ public class DashboardController {
 		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resource.getId());
 		model.addAttribute("resourceDto", resourceDtoConverter.entityToDto(resource));
 		model.addAttribute("resourceParamTableDto", resourceParamDtoConverter.resourceParamsToResourceParamTableDto(resource.getResourceParams()));
-		model.addAttribute("cashflowTableDto", cashflowDtoConverter.cashflowsToCashflowTableDto(resource.getCashflows()));
 		model.addAttribute("resourceParamDateValueDto", new ResourceParamDateValueDto());
+		model.addAttribute("resourceParamCreateDto", new ResourceParamCreateDto());
+		model.addAttribute("cashflowTableDto", cashflowDtoConverter.cashflowsToCashflowTableDto(resource.getCashflows()));
 		model.addAttribute("cashflowDto", new CashflowDto());
 		model.addAttribute("cashflowCreateDto", new CashflowCreateDto());
 		model.addAttribute("cashflowDateRangeValueDto", new CashflowDateRangeValueDto());

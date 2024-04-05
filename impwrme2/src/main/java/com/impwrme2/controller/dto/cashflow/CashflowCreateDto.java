@@ -9,8 +9,6 @@ import jakarta.validation.constraints.NotNull;
 
 public class CashflowCreateDto {
 
-	private Long id;
-	
 	@NotEmpty(message = "{msg.validation.cashflow.category.notEmpty}")
 	private String category;
 
@@ -36,14 +34,6 @@ public class CashflowCreateDto {
 	//-------------------
 	// Getters & setters.
 	//-------------------
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
 
 	public String getCategory() {
 		return category;

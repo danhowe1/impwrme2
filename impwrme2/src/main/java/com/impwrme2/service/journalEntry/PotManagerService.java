@@ -32,39 +32,39 @@ public class PotManagerService {
 		return potBalance;
 	}
 	
-	public Integer getLiquidPot(final IResourceEngine resourceEngine) {
+	public Integer getResourceLiquidPotAmount(final IResourceEngine resourceEngine) {
 		return getResourceMonthlyBalances(resourceEngine).getLiquidPotAmount();
 	}
 	
-//	public void addToLiquidPot(final IResourceEngine resourceEngine, final Integer amount) {
+//	public void addToResourceLiquidAmount(final IResourceEngine resourceEngine, final Integer amount) {
 //		getResourceMonthlyBalances(resourceEngine, currentYearMonth).addToLiquidPotAmount(amount);
 //	}
 
-	public void subtractFromLiquidPot(final IResourceEngine resourceEngine, final Integer amount) {
+	public void subtractFromResourceLiquidAmount(final IResourceEngine resourceEngine, final Integer amount) {
 		getResourceMonthlyBalances(resourceEngine).subtractFromLiquidPotAmount(amount);
 	}
 
-	public Integer getLiquidDeposits(final IResourceEngine resourceEngine) {
+	public Integer getResourceLiquidDepositsAmount(final IResourceEngine resourceEngine) {
 		return getResourceMonthlyBalances(resourceEngine).getLiquidDepositsAmount();
 	}
 	
-	public void subtractFromLiquidDeposits(final IResourceEngine resourceEngine, final Integer amount) {
+	public void subtractFromResourceLiquidDepositsAmount(final IResourceEngine resourceEngine, final Integer amount) {
 		getResourceMonthlyBalances(resourceEngine).subtractFromLiquidDepositsAmount(amount);
 	}
 
-	public void addToLiquidDepositsAmount(final IResourceEngine resourceEngine, final Integer amount) {
+	public void addToResourceLiquidDepositsAmount(final IResourceEngine resourceEngine, final Integer amount) {
 		getResourceMonthlyBalances(resourceEngine).addToLiquidDepositsAmount(amount);
 	}
 
-	public Integer getLiquidBalance(final IResourceEngine resourceEngine, final YearMonth yearMonth) {
+	public Integer getResourceLiquidBalance(final IResourceEngine resourceEngine, final YearMonth yearMonth) {
 		return getResourceMonthlyBalances(resourceEngine).getLiquidBalance();
 	}
 	
-	public Integer getAssetValue(final IResourceEngine resourceEngine, final YearMonth yearMonth) {
+	public Integer getResourceAssetValue(final IResourceEngine resourceEngine, final YearMonth yearMonth) {
 		return getResourceMonthlyBalances(resourceEngine).getAssetValue();
 	}
 	
-	public void addToFixedAmount(final IResourceEngine resourceEngine, final Integer amount) {
+	public void addToResourceFixedAmount(final IResourceEngine resourceEngine, final Integer amount) {
 		getResourceMonthlyBalances(resourceEngine).addToFixedAmount(amount);
 	}
 
@@ -83,7 +83,6 @@ public class PotManagerService {
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-//		sb.append(String.format("%1$-" + 20 + "s", currentYearMonth.toString() + " Pot Balances"));
 		sb.append(String.format("%1$" + 25 + "s", "liquidPotAmount"));
 		sb.append(String.format("%1$" + 25 + "s", "liquidDepositsAmount"));
 		sb.append(String.format("%1$" + 26 + "s", "fixedAmount\n"));
