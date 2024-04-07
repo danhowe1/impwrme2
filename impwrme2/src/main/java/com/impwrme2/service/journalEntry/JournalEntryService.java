@@ -74,13 +74,12 @@ public class JournalEntryService {
 				
 				if (currentYearMonth.equals(resourceEngine.getResource().getStartYearMonth())) {
 					// Generate opening balances if required.
-					currentMonthsJournalEntries.add(generateJournalEntryLiquidAmountOpeningBalance(resourceEngine));
-					currentMonthsJournalEntries.add(generateJournalEntryFixedAmountOpeningBalance(resourceEngine));
+					currentMonthsJournalEntries.addAll(generateJournalEntryLiquidOpeningBalances(resourceEngine));
 				} else {
 					// Contribute months opening balance to the pot.
 					Integer balanceLiquidOpeningAmount = potManager.getResourceLiquidPotAmount(resourceEngine);
 					potManager.addToPotBalance(balanceLiquidOpeningAmount);
-					potManager.subtractFromResourceLiquidAmount(resourceEngine, potManager.getResourceLiquidPotAmount(resourceEngine));
+					potManager.subtractFromResourceLiquidPotAmount(resourceEngine, potManager.getResourceLiquidPotAmount(resourceEngine));
 				}
 				
 				// Generate the monthly journal entries for each Expense and Income. We don't process the
@@ -91,6 +90,10 @@ public class JournalEntryService {
 				currentMonthsJournalEntries.addAll(resourceJournalEntries);
 			}
 
+			if (currentYearMonth.equals(YearMonth.of(2024, 1))) {
+				System.out.println(potManager.toString());
+			}
+			
 			// TODO Generate users Withdrawals.
 			
 			// TODO Generate users Deposits if there's enough in the pot to do so.
@@ -164,31 +167,57 @@ public class JournalEntryService {
 		return engines;
 	}
 
-	private JournalEntry generateJournalEntryLiquidAmountOpeningBalance(IResourceEngine resourceEngine) {
-		Optional<ResourceParamDateValue<?>> rpdvOpt = resourceEngine.getResource().getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_LIQUID, resourceEngine.getResource().getStartYearMonth());
-		Integer liquidAmount = Integer.valueOf(0);
-		if (rpdvOpt.isPresent()) {
-			liquidAmount = (Integer) rpdvOpt.get().getValue();
-			if (liquidAmount.intValue() > 0) {
-				// If there are savings in the account then we assume that these have been explicitly deposited by the user.
-				potManager.addToResourceLiquidDepositsAmount(resourceEngine, liquidAmount);
-			} else if (liquidAmount.intValue() < 0) {
-				// If this is debt then just put the amount straight into the pot. We assume the user wants to pay this off asap.
-				potManager.addToPotBalance(liquidAmount);
-			}
+	private List<JournalEntry> generateJournalEntryLiquidOpeningBalances(IResourceEngine resourceEngine) {
+		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
+		Integer balanceOpeningLiquid = Integer.valueOf(0);
+		Integer balanceOpeningFixed = Integer.valueOf(0);
+
+		Optional<ResourceParamDateValue<?>> balanceOpeningLiquidOpt = resourceEngine.getResource().getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_LIQUID, resourceEngine.getResource().getStartYearMonth());
+		if (balanceOpeningLiquidOpt.isPresent()) balanceOpeningLiquid = (Integer) balanceOpeningLiquidOpt.get().getValue();
+
+		Optional<ResourceParamDateValue<?>> balanceOpeningFixedOpt = resourceEngine.getResource().getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_FIXED, resourceEngine.getResource().getStartYearMonth());
+		if (balanceOpeningFixedOpt.isPresent()) balanceOpeningFixed = (Integer) balanceOpeningFixedOpt.get().getValue();
+
+		journalEntries.add(journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, balanceOpeningLiquid, CashflowCategory.JE_BALANCE_OPENING_LIQUID));
+		journalEntries.add(journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, balanceOpeningLiquid + balanceOpeningFixed, CashflowCategory.JE_BALANCE_OPENING_ASSET_VALUE));
+		
+		if (balanceOpeningLiquid.intValue() > 0) {
+			// If there are savings in the account then we assume that these have been explicitly deposited by the user.
+			potManager.addToResourceLiquidDepositsAmount(resourceEngine, balanceOpeningLiquid);
+		} else if (balanceOpeningLiquid.intValue() < 0) {
+			// If this is debt then just put the amount straight into the pot. We assume the user wants to pay this off asap.
+			potManager.addToPotBalance(balanceOpeningLiquid);
 		}
-		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, liquidAmount, CashflowCategory.JE_BALANCE_OPENING_LIQUID);
+		potManager.addToResourceFixedAmount(resourceEngine, balanceOpeningFixed);
+		
+		return journalEntries;
 	}
-	
-	private JournalEntry generateJournalEntryFixedAmountOpeningBalance(IResourceEngine resourceEngine) {
-		Optional<ResourceParamDateValue<?>> rpdvOpt = resourceEngine.getResource().getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_FIXED, resourceEngine.getResource().getStartYearMonth());
-		Integer fixedAmount = Integer.valueOf(0);
-		if (rpdvOpt.isPresent()) {
-			fixedAmount = (Integer) rpdvOpt.get().getValue();
-		}
-		potManager.addToResourceFixedAmount(resourceEngine, fixedAmount);
-		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, potManager.getResourceAssetValue(resourceEngine, currentYearMonth), CashflowCategory.JE_BALANCE_OPENING_ASSET_VALUE);
-	}
+
+//	private JournalEntry generateJournalEntryLiquidAmountOpeningBalance(IResourceEngine resourceEngine) {
+//		Optional<ResourceParamDateValue<?>> rpdvOpt = resourceEngine.getResource().getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_LIQUID, resourceEngine.getResource().getStartYearMonth());
+//		Integer liquidAmount = Integer.valueOf(0);
+//		if (rpdvOpt.isPresent()) {
+//			liquidAmount = (Integer) rpdvOpt.get().getValue();
+//			if (liquidAmount.intValue() > 0) {
+//				// If there are savings in the account then we assume that these have been explicitly deposited by the user.
+//				potManager.addToResourceLiquidDepositsAmount(resourceEngine, liquidAmount);
+//			} else if (liquidAmount.intValue() < 0) {
+//				// If this is debt then just put the amount straight into the pot. We assume the user wants to pay this off asap.
+//				potManager.addToPotBalance(liquidAmount);
+//			}
+//		}
+//		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, liquidAmount, CashflowCategory.JE_BALANCE_OPENING_LIQUID);
+//	}
+//	
+//	private JournalEntry generateJournalEntryFixedAmountOpeningBalance(IResourceEngine resourceEngine) {
+//		Optional<ResourceParamDateValue<?>> rpdvOpt = resourceEngine.getResource().getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_FIXED, resourceEngine.getResource().getStartYearMonth());
+//		Integer fixedAmount = Integer.valueOf(0);
+//		if (rpdvOpt.isPresent()) {
+//			fixedAmount = (Integer) rpdvOpt.get().getValue();
+//		}
+//		potManager.addToResourceFixedAmount(resourceEngine, fixedAmount);
+//		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, potManager.getResourceAssetValue(resourceEngine, currentYearMonth), CashflowCategory.JE_BALANCE_OPENING_ASSET_VALUE);
+//	}
 	
 	private List<JournalEntry> generateJournalEntriesForExpensesAndIncome(IResourceEngine resourceEngine) {
 		
@@ -232,6 +261,7 @@ public class JournalEntryService {
 				}
 				withdrawalAmount = withdrawalAmount - balanceMin;
 				withdrawalAmount = Math.min(withdrawalAmount, potManager.getPotBalance() * -1);
+				withdrawalAmount = Math.min(withdrawalAmount, potManager.getResourceLiquidDepositsAmount(resourceEngine));
 				if (withdrawalAmount != 0) {
 					journalEntries.add(createAutoWithdrawal(resourceEngine, withdrawalAmount));
 				}
@@ -250,7 +280,7 @@ public class JournalEntryService {
 				Integer amount = resourceEngine.getBalanceLiquidLegalMin(currentYearMonth);
 				amount = Math.max(amount, potManager.getPotBalance());
 				potManager.addToPotBalance(amount * -1);
-				potManager.subtractFromResourceLiquidAmount(resourceEngine, amount * -1);
+				potManager.subtractFromResourceLiquidPotAmount(resourceEngine, amount * -1);
 				if (potManager.getPotBalance() == 0) {
 					break;
 				}

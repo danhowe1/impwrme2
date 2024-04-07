@@ -36,11 +36,11 @@ public class PotManagerService {
 		return getResourceMonthlyBalances(resourceEngine).getLiquidPotAmount();
 	}
 	
-//	public void addToResourceLiquidAmount(final IResourceEngine resourceEngine, final Integer amount) {
-//		getResourceMonthlyBalances(resourceEngine, currentYearMonth).addToLiquidPotAmount(amount);
+//	public void addToResourceLiquidPotAmount(final IResourceEngine resourceEngine, final Integer amount) {
+//		getResourceMonthlyBalances(resourceEngine).addToLiquidPotAmount(amount);
 //	}
 
-	public void subtractFromResourceLiquidAmount(final IResourceEngine resourceEngine, final Integer amount) {
+	public void subtractFromResourceLiquidPotAmount(final IResourceEngine resourceEngine, final Integer amount) {
 		getResourceMonthlyBalances(resourceEngine).subtractFromLiquidPotAmount(amount);
 	}
 
@@ -83,7 +83,7 @@ public class PotManagerService {
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append(String.format("%1$" + 25 + "s", "liquidPotAmount"));
+		sb.append(String.format("%1$" + 45 + "s", "liquidPotAmount"));
 		sb.append(String.format("%1$" + 25 + "s", "liquidDepositsAmount"));
 		sb.append(String.format("%1$" + 26 + "s", "fixedAmount\n"));
 		for (ResourcePotAmounts monthlyAmounts : resourceMonthlyAmountsMap.values()) {
