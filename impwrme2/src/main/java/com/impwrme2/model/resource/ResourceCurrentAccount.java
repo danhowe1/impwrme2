@@ -36,7 +36,8 @@ public class ResourceCurrentAccount extends Resource {
 	@Override
 	public List<ResourceParam<?>> getResourceParamsUsersCanCreate() {
 		ResourceParamIntegerPositive balanceLiquidPreferredMin = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MIN);
-		List<ResourceParam<?>> resourceParams = new ArrayList<>(Arrays.asList(balanceLiquidPreferredMin));
+		ResourceParamIntegerPositive balanceLiquidPreferredMax = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MAX);
+		List<ResourceParam<?>> resourceParams = new ArrayList<>(Arrays.asList(balanceLiquidPreferredMin, balanceLiquidPreferredMax));
 		for (ResourceParam<?> existingResourceParam : getResourceParams()) {
 			resourceParams.removeIf(resourceParam -> resourceParam.getName().equals(existingResourceParam.getName()));
 		}

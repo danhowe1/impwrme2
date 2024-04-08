@@ -6,6 +6,7 @@ public enum ResourceParamNameEnum {
 
 	BALANCE_LIQUID_LEGAL_MAX(Values.BALANCE_LIQUID_LEGAL_MAX, "msg.class.resourceParamNameEnum.balanceLiquidLegalMax"),
 	BALANCE_LIQUID_LEGAL_MIN(Values.BALANCE_LIQUID_LEGAL_MIN, "msg.class.resourceParamNameEnum.balanceLiquidLegalMin"),
+	BALANCE_LIQUID_PREFERRED_MAX(Values.BALANCE_LIQUID_PREFERRED_MAX, "msg.class.resourceParamNameEnum.balanceLiquidPreferredMax"),
 	BALANCE_LIQUID_PREFERRED_MIN(Values.BALANCE_LIQUID_PREFERRED_MIN, "msg.class.resourceParamNameEnum.balanceLiquidPreferredMin"),
 	BALANCE_OPENING_LIQUID(Values.BALANCE_OPENING_LIQUID, "msg.class.resourceParamNameEnum.balanceOpeningLiquid"),
 	BALANCE_OPENING_FIXED(Values.BALANCE_OPENING_FIXED, "msg.class.resourceParamNameEnum.balanceOpeningFixed"),
@@ -27,6 +28,7 @@ public enum ResourceParamNameEnum {
 	public static class Values {
 		public static final String BALANCE_LIQUID_LEGAL_MAX = "BALANCE_LIQUID_LEGAL_MAX";
 		public static final String BALANCE_LIQUID_LEGAL_MIN = "BALANCE_LIQUID_LEGAL_MIN";
+		public static final String BALANCE_LIQUID_PREFERRED_MAX = "BALANCE_LIQUID_PREFERRED_MAX";
 		public static final String BALANCE_LIQUID_PREFERRED_MIN = "BALANCE_LIQUID_PREFERRED_MIN";
 		public static final String BALANCE_OPENING_LIQUID = "BALANCE_OPENING_LIQUID";
 		public static final String BALANCE_OPENING_FIXED = "BALANCE_OPENING_FIXED";

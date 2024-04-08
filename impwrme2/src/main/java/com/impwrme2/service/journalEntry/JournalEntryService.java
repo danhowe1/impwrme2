@@ -113,9 +113,17 @@ public class JournalEntryService {
 			// Return to preferred order so the pot distributes to the highest priorities first.
 			Collections.sort(resourceEngines);
 			
-			// TODO If there's money in the pot, redistribute to the resources based on the preferred balances.
+			// If there's money in the pot, redistribute to the resources based on the legal min balances.
+			generatePotDistributionBasedOnLegalMinBalances(resourceEngines);
 			
-			// TODO If there's still money in the pot, redistribute to the resources based on the legal min and max values.
+			// If there's still money in the pot, redistribute to the resources based on the preferred min balances.
+			generatePotDistributionBasedOnPreferredMinBalances(resourceEngines);
+			
+			// If there's still money in the pot, redistribute to the resources based on the preferred max balances.
+			generatePotDistributionBasedOnPreferredMaxBalances(resourceEngines);
+			
+			// If there's still money in the pot, redistribute to the resources based on the legal max balances.
+			generatePotDistributionBasedOnLegalMaxBalances(resourceEngines);
 			
 			// TODO Generate the intra account transfers. Do we still want these?
 			
@@ -193,32 +201,6 @@ public class JournalEntryService {
 		return journalEntries;
 	}
 
-//	private JournalEntry generateJournalEntryLiquidAmountOpeningBalance(IResourceEngine resourceEngine) {
-//		Optional<ResourceParamDateValue<?>> rpdvOpt = resourceEngine.getResource().getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_LIQUID, resourceEngine.getResource().getStartYearMonth());
-//		Integer liquidAmount = Integer.valueOf(0);
-//		if (rpdvOpt.isPresent()) {
-//			liquidAmount = (Integer) rpdvOpt.get().getValue();
-//			if (liquidAmount.intValue() > 0) {
-//				// If there are savings in the account then we assume that these have been explicitly deposited by the user.
-//				potManager.addToResourceLiquidDepositsAmount(resourceEngine, liquidAmount);
-//			} else if (liquidAmount.intValue() < 0) {
-//				// If this is debt then just put the amount straight into the pot. We assume the user wants to pay this off asap.
-//				potManager.addToPotBalance(liquidAmount);
-//			}
-//		}
-//		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, liquidAmount, CashflowCategory.JE_BALANCE_OPENING_LIQUID);
-//	}
-//	
-//	private JournalEntry generateJournalEntryFixedAmountOpeningBalance(IResourceEngine resourceEngine) {
-//		Optional<ResourceParamDateValue<?>> rpdvOpt = resourceEngine.getResource().getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_FIXED, resourceEngine.getResource().getStartYearMonth());
-//		Integer fixedAmount = Integer.valueOf(0);
-//		if (rpdvOpt.isPresent()) {
-//			fixedAmount = (Integer) rpdvOpt.get().getValue();
-//		}
-//		potManager.addToResourceFixedAmount(resourceEngine, fixedAmount);
-//		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, potManager.getResourceAssetValue(resourceEngine, currentYearMonth), CashflowCategory.JE_BALANCE_OPENING_ASSET_VALUE);
-//	}
-	
 	private List<JournalEntry> generateJournalEntriesForExpensesAndIncome(IResourceEngine resourceEngine) {
 		
 		if (currentYearMonth.isBefore(resourceEngine.getResource().getStartYearMonth())) {
@@ -275,7 +257,6 @@ public class JournalEntryService {
 
 	private void generateNegativePotDistributionToDebtResources(final List<IResourceEngine> resourceEngines) {
 		if (potManager.getPotBalance() < 0) {
-			Collections.reverse(resourceEngines);
 			for (IResourceEngine resourceEngine : resourceEngines) {
 				Integer amount = resourceEngine.getBalanceLiquidLegalMin(currentYearMonth);
 				amount = Math.max(amount, potManager.getPotBalance());
@@ -288,6 +269,46 @@ public class JournalEntryService {
 		}
 	}
 	
+	private void generatePotDistributionBasedOnLegalMinBalances(final List<IResourceEngine> resourceEngines) {
+		generatePotDistributionBasedOnLegalOrPreferredBalances(resourceEngines, "Legal Min");		
+	}
+
+	private void generatePotDistributionBasedOnPreferredMinBalances(final List<IResourceEngine> resourceEngines) {
+		generatePotDistributionBasedOnLegalOrPreferredBalances(resourceEngines, "Preferred Min");
+	}
+
+	private void generatePotDistributionBasedOnPreferredMaxBalances(final List<IResourceEngine> resourceEngines) {
+		generatePotDistributionBasedOnLegalOrPreferredBalances(resourceEngines, "Preferred Max");
+	}
+
+	private void generatePotDistributionBasedOnLegalMaxBalances(final List<IResourceEngine> resourceEngines) {
+		generatePotDistributionBasedOnLegalOrPreferredBalances(resourceEngines, "Legal Max");		
+	}
+
+	private void generatePotDistributionBasedOnLegalOrPreferredBalances(final List<IResourceEngine> resourceEngines, String legalOrPreferred) {
+		if (potManager.getPotBalance() > 0) {
+			for (IResourceEngine resourceEngine : resourceEngines) {
+				Integer balanceToAttain = null;
+				if (legalOrPreferred.equals("Legal Min")) {
+					balanceToAttain = Math.min(resourceEngine.getBalanceLiquidLegalMin(currentYearMonth), potManager.getPotBalance());
+				} else if (legalOrPreferred.equals("Preferred Min")) {
+					balanceToAttain = Math.min(resourceEngine.getBalanceLiquidPreferredMin(currentYearMonth), potManager.getPotBalance());
+				} else if (legalOrPreferred.equals("Preferred Max")) {
+					balanceToAttain = Math.min(resourceEngine.getBalanceLiquidPreferredMax(currentYearMonth), potManager.getPotBalance());
+				} else if (legalOrPreferred.equals("Legal Max")) {
+					balanceToAttain = Math.min(resourceEngine.getBalanceLiquidLegalMax(currentYearMonth), potManager.getPotBalance());
+				}
+				Integer existingBalance = potManager.getResourceLiquidBalance(resourceEngine, currentYearMonth);
+				Integer amountToDistribute = balanceToAttain - existingBalance;
+				potManager.subtractFromPotBalance(amountToDistribute);
+				potManager.addToResourceLiquidPotAmount(resourceEngine, amountToDistribute);
+				if (potManager.getPotBalance() == 0) {
+					break;
+				}
+			}
+		}
+	}
+
 	private List<JournalEntry> generateJournalEntriesForClosingBalances(final List<IResourceEngine> resourceEngines) {
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
 		for (IResourceEngine resourceEngine : resourceEngines) {

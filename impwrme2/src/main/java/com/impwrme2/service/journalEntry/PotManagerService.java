@@ -28,6 +28,10 @@ public class PotManagerService {
 		potBalance = potBalance + amount;
 	}
 	
+	public void subtractFromPotBalance(Integer amount) {
+		potBalance = potBalance - amount;
+	}
+	
 	public Integer getPotBalance() {
 		return potBalance;
 	}
@@ -36,9 +40,9 @@ public class PotManagerService {
 		return getResourceMonthlyBalances(resourceEngine).getLiquidPotAmount();
 	}
 	
-//	public void addToResourceLiquidPotAmount(final IResourceEngine resourceEngine, final Integer amount) {
-//		getResourceMonthlyBalances(resourceEngine).addToLiquidPotAmount(amount);
-//	}
+	public void addToResourceLiquidPotAmount(final IResourceEngine resourceEngine, final Integer amount) {
+		getResourceMonthlyBalances(resourceEngine).addToLiquidPotAmount(amount);
+	}
 
 	public void subtractFromResourceLiquidPotAmount(final IResourceEngine resourceEngine, final Integer amount) {
 		getResourceMonthlyBalances(resourceEngine).subtractFromLiquidPotAmount(amount);
