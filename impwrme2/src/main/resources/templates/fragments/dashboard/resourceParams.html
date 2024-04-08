@@ -330,7 +330,7 @@
 				<option
 					th:each="opt : ${resourceDto.resourceParamNamesUsersCanCreate}"
 					th:value="${opt}"
-					th:text="#{'msg.html.resourceParams.name.' + ${#strings.substringBefore(opt,'|')}}"></option>
+					th:text="#{'msg.html.resourceParams.name.' + ${#strings.substringBefore(opt,'|')} + '.' + ${resourceDto.resourceType}}"></option>
 			</select>
 		</div>
 
