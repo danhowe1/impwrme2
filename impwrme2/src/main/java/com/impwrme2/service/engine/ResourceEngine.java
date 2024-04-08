@@ -12,8 +12,10 @@ import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 public class ResourceEngine implements IResourceEngine {
 
 	protected final Resource resource;
-	private Integer balanceLiquidLegalMax = 0;
-	private Integer balanceLiquidLegalMin = 0;
+	private Integer balanceLiquidLegalMax = null;
+	private Integer balanceLiquidLegalMin = null;
+	private Integer balanceLiquidPreferredMax = null;
+	private Integer balanceLiquidPreferredMin = null;
 	
 	/**
 	 * No-args constructor required for Spring instantiation.
@@ -24,6 +26,24 @@ public class ResourceEngine implements IResourceEngine {
 
 	public ResourceEngine(final Resource resource) {
 		this.resource = resource;
+		
+		// Set the initial balances because the get methods for these may not get called in month 1 and therefore never be set.
+		Optional<ResourceParamDateValue<?>> balanceLiquidLegalMaxOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MAX, resource.getStartYearMonth());
+		if (balanceLiquidLegalMaxOpt.isPresent()) {
+			balanceLiquidLegalMax = (Integer) balanceLiquidLegalMaxOpt.get().getValue();
+		}
+		Optional<ResourceParamDateValue<?>> balanceLiquidLegalMinOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MIN, resource.getStartYearMonth());
+		if (balanceLiquidLegalMinOpt.isPresent()) {
+			balanceLiquidLegalMin = (Integer) balanceLiquidLegalMinOpt.get().getValue();
+		}
+		Optional<ResourceParamDateValue<?>> balanceLiquidPreferredMaxOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MAX, resource.getStartYearMonth());
+		if (balanceLiquidPreferredMaxOpt.isPresent()) {
+			balanceLiquidPreferredMax = (Integer) balanceLiquidPreferredMaxOpt.get().getValue();
+		}
+		Optional<ResourceParamDateValue<?>> balanceLiquidPreferredMinOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MIN, resource.getStartYearMonth());
+		if (balanceLiquidPreferredMinOpt.isPresent()) {
+			balanceLiquidPreferredMin = (Integer) balanceLiquidPreferredMinOpt.get().getValue();
+		}
 	}
 
 	@Override
@@ -51,12 +71,20 @@ public class ResourceEngine implements IResourceEngine {
 
 	@Override
 	public Integer getBalanceLiquidPreferredMax(YearMonth yearMonth) {
-		return getBalanceLiquidLegalMax(yearMonth);
+		Optional<ResourceParamDateValue<?>> rpdvOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MAX, yearMonth);
+		if (rpdvOpt.isPresent()) {
+			balanceLiquidPreferredMax = (Integer) rpdvOpt.get().getValue();
+		}
+		return balanceLiquidPreferredMax;
 	}
 
 	@Override
 	public Integer getBalanceLiquidPreferredMin(YearMonth yearMonth) {
-		return 0;
+		Optional<ResourceParamDateValue<?>> rpdvOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MIN, yearMonth);
+		if (rpdvOpt.isPresent()) {
+			balanceLiquidPreferredMin = (Integer) rpdvOpt.get().getValue();
+		}
+		return balanceLiquidPreferredMin;
 	}
 
 	@Override

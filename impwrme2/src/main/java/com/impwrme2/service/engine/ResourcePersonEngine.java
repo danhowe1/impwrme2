@@ -25,6 +25,26 @@ public class ResourcePersonEngine extends ResourceEngine {
 	}
 
 	@Override
+	public Integer getBalanceLiquidLegalMax(YearMonth yearMonth) {
+		return Integer.valueOf(0);
+	}
+
+	@Override
+	public Integer getBalanceLiquidLegalMin(YearMonth yearMonth) {
+		return Integer.valueOf(0);
+	}
+
+	@Override
+	public Integer getBalanceLiquidPreferredMax(YearMonth yearMonth) {
+		return Integer.valueOf(0);
+	}
+
+	@Override
+	public Integer getBalanceLiquidPreferredMin(YearMonth yearMonth) {
+		return Integer.valueOf(0);
+	}
+
+	@Override
 	public List<Cashflow> getCashflowsToProcess(final YearMonth yearMonth) {
 		final List<Cashflow> cashflowsToProcess = new ArrayList<Cashflow>(getResource().getCashflows());
 		cashflowsToProcess.removeIf(value -> retirementDateReached(yearMonth) && employmentStartDateIsBeforeRetirementAge(value, yearMonth));

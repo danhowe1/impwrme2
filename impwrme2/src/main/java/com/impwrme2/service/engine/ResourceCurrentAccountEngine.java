@@ -12,6 +12,37 @@ public class ResourceCurrentAccountEngine extends ResourceEngine {
 
 	@Override
 	public Integer getBalanceLiquidLegalMax(YearMonth yearMonth) {
-		return Integer.MAX_VALUE;
+		Integer val = super.getBalanceLiquidLegalMax(yearMonth);
+		if (null == val) {
+			return Integer.MAX_VALUE;
+		}
+		return val;
+	}
+
+	@Override
+	public Integer getBalanceLiquidLegalMin(YearMonth yearMonth) {
+		Integer val = super.getBalanceLiquidLegalMin(yearMonth);
+		if (null == val) {
+			return Integer.valueOf(0);
+		}
+		return val;
+	}
+
+	@Override
+	public Integer getBalanceLiquidPreferredMax(YearMonth yearMonth) {
+		Integer val = super.getBalanceLiquidPreferredMax(yearMonth);
+		if (null == val) {
+			return Integer.MAX_VALUE;
+		}
+		return val;
+	}
+
+	@Override
+	public Integer getBalanceLiquidPreferredMin(YearMonth yearMonth) {
+		Integer val = super.getBalanceLiquidPreferredMin(yearMonth);
+		if (null == val) {
+			return Integer.valueOf(0);
+		}
+		return val;
 	}
 }

@@ -235,20 +235,35 @@ public class DashboardController {
 		
 		scenario.addResource(creditCard);
 		
-		// ----------------
-		// Current account.
-		// ----------------
+		// ------------------
+		// Current account 1.
+		// ------------------
 		
-		Resource currentAccount = new ResourceCurrentAccount("Current Account");
-		currentAccount.setStartYearMonth(YearMonth.of(2024, 1));
+		Resource currentAccount1 = new ResourceCurrentAccount("Current Account 1");
+		currentAccount1.setStartYearMonth(YearMonth.of(2024, 1));
 
-		ResourceParamIntegerPositive currentAccountBalanceOpeningLiquid = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
-		currentAccount.addResourceParam(currentAccountBalanceOpeningLiquid);
+		ResourceParamIntegerPositive currentAccount1BalanceOpeningLiquid = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
+		currentAccount1.addResourceParam(currentAccount1BalanceOpeningLiquid);
 
-		ResourceParamDateValueIntegerPositive currentAccountBalanceOpeningLiquidVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(910000));
-		currentAccountBalanceOpeningLiquid.addResourceParamDateValue(currentAccountBalanceOpeningLiquidVal);		
+		ResourceParamDateValueIntegerPositive currentAccount1BalanceOpeningLiquidVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(30000));
+		currentAccount1BalanceOpeningLiquid.addResourceParamDateValue(currentAccount1BalanceOpeningLiquidVal);		
 		
-		scenario.addResource(currentAccount);
+		scenario.addResource(currentAccount1);
+		
+		// ------------------
+		// Current account 2.
+		// ------------------
+		
+		Resource currentAccount2 = new ResourceCurrentAccount("Current Account 2");
+		currentAccount2.setStartYearMonth(YearMonth.of(2024, 1));
+
+		ResourceParamIntegerPositive currentAccount2BalanceOpeningLiquid = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
+		currentAccount2.addResourceParam(currentAccount2BalanceOpeningLiquid);
+
+		ResourceParamDateValueIntegerPositive currentAccount2BalanceOpeningLiquidVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(20000));
+		currentAccount2BalanceOpeningLiquid.addResourceParamDateValue(currentAccount2BalanceOpeningLiquidVal);		
+		
+		scenario.addResource(currentAccount2);
 		
 		return scenario;
 	}
