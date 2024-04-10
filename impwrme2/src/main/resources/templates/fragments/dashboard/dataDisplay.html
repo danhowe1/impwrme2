@@ -93,16 +93,16 @@
 					width : '100%',
 					height : '300',
 					chartArea : {
-						width : '80%',
+						width : '90%',
 						height : '70%'
 					},
 					legend : {
-						position : 'right',
+						position : 'top',
 						textStyle : {
 							fontSize : 11
 						}
 					},
-					title : "Liquid funds",
+//					title : "Liquid funds",
 					titleFontSize : 24
 				};
 				var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
@@ -179,6 +179,12 @@
 
 			$(document).ready(function() {
 
+				// Change asset type.
+				$('#toggle-asset-type-liquid').change(function() {
+					displayFilter.assetTypeLiquid = $(this).prop('checked');
+					loadDisplayData();
+				})
+					
 				// Change time period.
 				$('#toggle-time-period-annually').change(function() {
 					displayFilter.timePeriodAnnually = $(this).prop('checked');
@@ -229,6 +235,14 @@
 					<li class="nav-item"><a class="nav-link" href="#"
 						aria-current="page">Table (Balances)</a></li>
 				</ul>
+			</div>
+
+			<!-- ----------- -->
+			<!-- Asset type. -->
+			<!-- ----------- -->
+
+			<div class="col-auto">
+				<input type="checkbox" data-toggle="toggle" th:data-on="#{msg.html.dataDisplay.displayFilter.assetTypeLiquid}" th:data-off="#{msg.html.dataDisplay.displayFilter.assetTypeAll}" data-onstyle="secondary" data-offstyle="secondary" id="toggle-asset-type-liquid" th:field="*{displayFilter.assetTypeLiquid}" name="assetTypeLiquid">
 			</div>
 
 			<!-- ------------ -->
