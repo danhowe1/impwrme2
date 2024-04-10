@@ -146,34 +146,22 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 		return resourceParam;
 	}
 
-	@SuppressWarnings("unchecked")
-	public Optional<ResourceParamDateValue<?>> getResourceParamDateValue(ResourceParamNameEnum name) {
-		Optional<ResourceParam<?>> resourceParamOpt = getResourceParam(name);
-		if (resourceParamOpt.isEmpty()) {
-			return Optional.empty();
-		}
-
-		Optional<?> rpdvOpt = resourceParamOpt.get().getResourceParamDateValues().stream().findFirst();
-		if (rpdvOpt.isEmpty()) {
-			return Optional.empty();
-		}
-		
-		return (Optional<ResourceParamDateValue<?>>) rpdvOpt;
-	}
-	
-	@SuppressWarnings("unchecked")
 	public Optional<ResourceParamDateValue<?>> getResourceParamDateValue(ResourceParamNameEnum name, YearMonth yearMonth) {
 		Optional<ResourceParam<?>> resourceParamOpt = getResourceParam(name);
 		if (resourceParamOpt.isEmpty()) {
 			return Optional.empty();
 		}
-				
-		Optional<?> rpdvOpt = resourceParamOpt.get().getResourceParamDateValues().stream().filter(c -> c.getYearMonth().equals(yearMonth)).findFirst();
-		if (rpdvOpt.isEmpty()) {
-			return Optional.empty();
-		}
 		
-		return (Optional<ResourceParamDateValue<?>>) rpdvOpt;
+		ResourceParamDateValue<?> oldestRpdv = null;
+		for (ResourceParamDateValue<?> rpdv : resourceParamOpt.get().getResourceParamDateValues()) {			
+			if (null == oldestRpdv && !rpdv.getYearMonth().isAfter(yearMonth)) {
+				oldestRpdv = rpdv;
+			} else if (!rpdv.getYearMonth().isAfter(yearMonth) && rpdv.getYearMonth().isAfter(oldestRpdv.getYearMonth())) {
+				oldestRpdv = rpdv;
+			}
+		}
+
+		return Optional.ofNullable(oldestRpdv);
 	}
 		
 	//-------------------

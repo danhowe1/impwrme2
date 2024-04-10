@@ -7,15 +7,16 @@ import java.util.Optional;
 import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
+import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 
-public class ResourceEngine implements IResourceEngine {
+public abstract class ResourceEngine implements IResourceEngine {
 
 	protected final Resource resource;
-	private Integer balanceLiquidLegalMax = null;
-	private Integer balanceLiquidLegalMin = null;
-	private Integer balanceLiquidPreferredMax = null;
-	private Integer balanceLiquidPreferredMin = null;
+	private Optional<Integer> balanceLiquidLegalMaxConstant = Optional.empty();
+	private Optional<Integer> balanceLiquidLegalMinConstant = Optional.empty();
+	private Optional<Integer> balanceLiquidPreferredMaxConstant = Optional.empty();
+	private Optional<Integer> balanceLiquidPreferredMinConstant = Optional.empty();
 	
 	/**
 	 * No-args constructor required for Spring instantiation.
@@ -28,22 +29,67 @@ public class ResourceEngine implements IResourceEngine {
 		this.resource = resource;
 		
 		// Set the initial balances because the get methods for these may not get called in month 1 and therefore never be set.
-		Optional<ResourceParamDateValue<?>> balanceLiquidLegalMaxOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MAX, resource.getStartYearMonth());
-		if (balanceLiquidLegalMaxOpt.isPresent()) {
-			balanceLiquidLegalMax = (Integer) balanceLiquidLegalMaxOpt.get().getValue();
+		
+		Optional<ResourceParam<?>> rpLegalMaxOpt = resource.getResourceParam(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MAX);
+		if (rpLegalMaxOpt.isEmpty()) {
+			// No resource param found so use the default one.
+			balanceLiquidLegalMaxConstant =  Optional.of(getBalanceLiquidLegalMaxIfNotSpecified());			
+		} else {
+			List<?> resourceParamDateValues = rpLegalMaxOpt.get().getResourceParamDateValues();
+			if (1 == resourceParamDateValues.size()) {
+				ResourceParamDateValue<?> rpdv = rpLegalMaxOpt.get().getResourceParamDateValues().get(0);
+				if (rpdv.getYearMonth().equals(resource.getStartYearMonth())) {
+					// Only 1 date/value pair exists and it starts from the resource start date so won't change.
+					balanceLiquidLegalMaxConstant = Optional.of((Integer)rpdv.getValue());
+				}
+			}
 		}
-		Optional<ResourceParamDateValue<?>> balanceLiquidLegalMinOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MIN, resource.getStartYearMonth());
-		if (balanceLiquidLegalMinOpt.isPresent()) {
-			balanceLiquidLegalMin = (Integer) balanceLiquidLegalMinOpt.get().getValue();
+
+		Optional<ResourceParam<?>> rpLegalMinOpt = resource.getResourceParam(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MIN);
+		if (rpLegalMinOpt.isEmpty()) {
+			// No resource param found so use the default one.
+			balanceLiquidLegalMinConstant =  Optional.of(getBalanceLiquidLegalMinIfNotSpecified());			
+		} else {
+			List<?> resourceParamDateValues = rpLegalMinOpt.get().getResourceParamDateValues();
+			if (1 == resourceParamDateValues.size()) {
+				ResourceParamDateValue<?> rpdv = rpLegalMinOpt.get().getResourceParamDateValues().get(0);
+				if (rpdv.getYearMonth().equals(resource.getStartYearMonth())) {
+					// Only 1 date/value pair exists and it starts from the resource start date so won't change.
+					balanceLiquidLegalMinConstant = Optional.of((Integer)rpdv.getValue());
+				}
+			}
 		}
-		Optional<ResourceParamDateValue<?>> balanceLiquidPreferredMaxOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MAX, resource.getStartYearMonth());
-		if (balanceLiquidPreferredMaxOpt.isPresent()) {
-			balanceLiquidPreferredMax = (Integer) balanceLiquidPreferredMaxOpt.get().getValue();
+
+		Optional<ResourceParam<?>> rpPreferredMaxOpt = resource.getResourceParam(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MAX);
+		if (rpPreferredMaxOpt.isEmpty()) {
+			// No resource param found so use the default one.
+			balanceLiquidPreferredMaxConstant =  Optional.of(getBalanceLiquidPreferredMaxIfNotSpecified());			
+		} else {
+			List<?> resourceParamDateValues = rpPreferredMaxOpt.get().getResourceParamDateValues();
+			if (1 == resourceParamDateValues.size()) {
+				ResourceParamDateValue<?> rpdv = rpPreferredMaxOpt.get().getResourceParamDateValues().get(0);
+				if (rpdv.getYearMonth().equals(resource.getStartYearMonth())) {
+					// Only 1 date/value pair exists and it starts from the resource start date so won't change.
+					balanceLiquidPreferredMaxConstant = Optional.of((Integer)rpdv.getValue());
+				}
+			}
 		}
-		Optional<ResourceParamDateValue<?>> balanceLiquidPreferredMinOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MIN, resource.getStartYearMonth());
-		if (balanceLiquidPreferredMinOpt.isPresent()) {
-			balanceLiquidPreferredMin = (Integer) balanceLiquidPreferredMinOpt.get().getValue();
+
+		Optional<ResourceParam<?>> rpPreferredMinOpt = resource.getResourceParam(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MIN);
+		if (rpPreferredMinOpt.isEmpty()) {
+			// No resource param found so use the default one.
+			balanceLiquidPreferredMinConstant =  Optional.of(getBalanceLiquidPreferredMinIfNotSpecified());			
+		} else {
+			List<?> resourceParamDateValues = rpPreferredMinOpt.get().getResourceParamDateValues();
+			if (1 == resourceParamDateValues.size()) {
+				ResourceParamDateValue<?> rpdv = rpPreferredMinOpt.get().getResourceParamDateValues().get(0);
+				if (rpdv.getYearMonth().equals(resource.getStartYearMonth())) {
+					// Only 1 date/value pair exists and it starts from the resource start date so won't change.
+					balanceLiquidPreferredMinConstant = Optional.of((Integer)rpdv.getValue());
+				}
+			}
 		}
+		
 	}
 
 	@Override
@@ -52,39 +98,51 @@ public class ResourceEngine implements IResourceEngine {
 	}
 
 	@Override
-	public Integer getBalanceLiquidLegalMax(YearMonth yearMonth) {
+	public final Integer getBalanceLiquidLegalMax(YearMonth yearMonth) {
+		if (balanceLiquidLegalMaxConstant.isPresent()) {
+			return balanceLiquidLegalMaxConstant.get();
+		}
 		Optional<ResourceParamDateValue<?>> rpdvOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MAX, yearMonth);
 		if (rpdvOpt.isPresent()) {
-			balanceLiquidLegalMax = (Integer) rpdvOpt.get().getValue();
+			return (Integer) rpdvOpt.get().getValue();
 		}
-		return balanceLiquidLegalMax;
+		return getBalanceLiquidLegalMaxIfNotSpecified();
 	}
 
 	@Override
-	public Integer getBalanceLiquidLegalMin(YearMonth yearMonth) {
+	public final Integer getBalanceLiquidLegalMin(YearMonth yearMonth) {
+		if (balanceLiquidLegalMinConstant.isPresent()) {
+			return balanceLiquidLegalMinConstant.get();
+		}
 		Optional<ResourceParamDateValue<?>> rpdvOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MIN, yearMonth);
 		if (rpdvOpt.isPresent()) {
-			balanceLiquidLegalMin = (Integer) rpdvOpt.get().getValue();
+			return (Integer) rpdvOpt.get().getValue();
 		}
-		return balanceLiquidLegalMin;
+		return getBalanceLiquidLegalMinIfNotSpecified();
 	}
 
 	@Override
-	public Integer getBalanceLiquidPreferredMax(YearMonth yearMonth) {
+	public final Integer getBalanceLiquidPreferredMax(YearMonth yearMonth) {
+		if (balanceLiquidPreferredMaxConstant.isPresent()) {
+			return balanceLiquidPreferredMaxConstant.get();
+		}
 		Optional<ResourceParamDateValue<?>> rpdvOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MAX, yearMonth);
 		if (rpdvOpt.isPresent()) {
-			balanceLiquidPreferredMax = (Integer) rpdvOpt.get().getValue();
+			return (Integer) rpdvOpt.get().getValue();
 		}
-		return balanceLiquidPreferredMax;
+		return getBalanceLiquidPreferredMaxIfNotSpecified();
 	}
 
 	@Override
-	public Integer getBalanceLiquidPreferredMin(YearMonth yearMonth) {
+	public final Integer getBalanceLiquidPreferredMin(YearMonth yearMonth) {
+		if (balanceLiquidPreferredMinConstant.isPresent()) {
+			return balanceLiquidPreferredMinConstant.get();
+		}
 		Optional<ResourceParamDateValue<?>> rpdvOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MIN, yearMonth);
 		if (rpdvOpt.isPresent()) {
-			balanceLiquidPreferredMin = (Integer) rpdvOpt.get().getValue();
+			return (Integer) rpdvOpt.get().getValue();
 		}
-		return balanceLiquidPreferredMin;
+		return getBalanceLiquidPreferredMinIfNotSpecified();
 	}
 
 	@Override

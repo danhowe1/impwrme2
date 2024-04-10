@@ -19,28 +19,28 @@ public class ResourcePersonEngine extends ResourceEngine {
 	
 	public ResourcePersonEngine(ResourcePerson resource) {
 		super(resource);
-		birthYearMonth = (YearMonth)  resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH).get().getValue();
-		retirementAge = (Integer)  resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_RETIREMENT_AGE).get().getValue();
+		birthYearMonth = (YearMonth)  resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH, resource.getStartYearMonth()).get().getValue();
+		retirementAge = (Integer)  resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_RETIREMENT_AGE, resource.getStartYearMonth()).get().getValue();
 		retirementDate = birthYearMonth.plusYears(retirementAge);
 	}
 
 	@Override
-	public Integer getBalanceLiquidLegalMax(YearMonth yearMonth) {
+	public Integer getBalanceLiquidLegalMaxIfNotSpecified() {
 		return Integer.valueOf(0);
 	}
 
 	@Override
-	public Integer getBalanceLiquidLegalMin(YearMonth yearMonth) {
+	public Integer getBalanceLiquidLegalMinIfNotSpecified() {
 		return Integer.valueOf(0);
 	}
 
 	@Override
-	public Integer getBalanceLiquidPreferredMax(YearMonth yearMonth) {
+	public Integer getBalanceLiquidPreferredMaxIfNotSpecified() {
 		return Integer.valueOf(0);
 	}
 
 	@Override
-	public Integer getBalanceLiquidPreferredMin(YearMonth yearMonth) {
+	public Integer getBalanceLiquidPreferredMinIfNotSpecified() {
 		return Integer.valueOf(0);
 	}
 

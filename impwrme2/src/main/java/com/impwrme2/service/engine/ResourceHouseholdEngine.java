@@ -1,7 +1,5 @@
 package com.impwrme2.service.engine;
 
-import java.time.YearMonth;
-
 import com.impwrme2.model.resource.ResourceHousehold;
 
 public class ResourceHouseholdEngine extends ResourceEngine {
@@ -11,22 +9,22 @@ public class ResourceHouseholdEngine extends ResourceEngine {
 	}
 
 	@Override
-	public Integer getBalanceLiquidLegalMax(YearMonth yearMonth) {
+	public Integer getBalanceLiquidLegalMaxIfNotSpecified() {
 		return Integer.valueOf(0);
 	}
 
 	@Override
-	public Integer getBalanceLiquidLegalMin(YearMonth yearMonth) {
+	public Integer getBalanceLiquidLegalMinIfNotSpecified() {
 		return Integer.valueOf(0);
 	}
 
 	@Override
-	public Integer getBalanceLiquidPreferredMax(YearMonth yearMonth) {
+	public Integer getBalanceLiquidPreferredMaxIfNotSpecified() {
 		return Integer.valueOf(0);
 	}
 
 	@Override
-	public Integer getBalanceLiquidPreferredMin(YearMonth yearMonth) {
+	public Integer getBalanceLiquidPreferredMinIfNotSpecified() {
 		return Integer.valueOf(0);
 	}
 }

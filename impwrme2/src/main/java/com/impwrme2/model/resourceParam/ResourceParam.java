@@ -98,11 +98,6 @@ public abstract class ResourceParam<T> implements Comparable<ResourceParam<?>>, 
 		return Optional.ofNullable(idOfAnotherRpdvWithSameDate);
 	}
 	
-	public ResourceParamDateValue<?> getResourceParamDateValue() {
-		return getResourceParamDateValues().stream().filter(c -> c.getYearMonth().equals(resource.getStartYearMonth())).findFirst()
-				.orElseThrow(IllegalArgumentException::new);
-	}
-
 	//-------------------
 	// Getters & setters.
 	//-------------------
