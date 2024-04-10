@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.model.resourceParam.ResourceParamIntegerPositive;
@@ -42,5 +43,10 @@ public class ResourceCurrentAccount extends Resource {
 			resourceParams.removeIf(resourceParam -> resourceParam.getName().equals(existingResourceParam.getName()));
 		}
 		return resourceParams;
+	}
+
+	@Override
+	public List<CashflowCategory> getCashflowCategoriesUsersCanCreate() {
+		return List.of(CashflowCategory.DEPOSIT_BALANCE, CashflowCategory.WITHDRAWAL_BALANCE);
 	}
 }
