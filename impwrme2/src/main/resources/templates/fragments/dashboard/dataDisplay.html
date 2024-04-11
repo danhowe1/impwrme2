@@ -161,6 +161,7 @@
 						            "render": function (data, type, row) {
 						                 return commaSeparateNumber(data);
 						            },
+						            "className": "dt-nowrap",
 						            "targets": ['_all']
 						        },
 						    ],
@@ -202,10 +203,16 @@
 							ordering : false,
 							columns : data.columns,
 							"columnDefs": [
+								{
+									// First two columns align left.
+									"targets": [0, 1], 
+									"className": "dt-left"
+								},
 						        {
 						            "render": function (data, type, row) {
 						                 return commaSeparateNumber(data);
 						            },
+						            "className": "dt-nowrap",
 						            "targets": ['_all']
 						        },
 						    ],

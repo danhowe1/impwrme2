@@ -2,6 +2,7 @@ package com.impwrme2.controller.dashboard;
 
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -26,6 +27,7 @@ import com.impwrme2.model.journalEntry.JournalEntry;
 import com.impwrme2.model.journalEntry.JournalEntryResponse;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.scenario.Scenario;
+import com.impwrme2.service.journalEntry.JournalEntryComparatorCategory;
 import com.impwrme2.service.journalEntry.JournalEntryService;
 import com.impwrme2.service.resource.ResourceService;
 import com.impwrme2.service.scenario.ScenarioService;
@@ -240,6 +242,7 @@ public class DataDisplayController {
 		Map<String, Integer> dateTransactionsToAmountMap = populateDateTransactionsToAmountMap(filteredTransactions, displayFilter);
 
 		List<String> rowKeys = new ArrayList<String>();
+		Collections.sort(filteredTransactions, new JournalEntryComparatorCategory());
 		for (JournalEntry journalEntry : filteredTransactions) {
 			String rowKey = transactionRowKey(journalEntry);
 			if (!rowKeys.contains(rowKey)) {
@@ -252,18 +255,24 @@ public class DataDisplayController {
 		JsonArray journalEntryRows = new JsonArray();
 
 		if (journalEntryResponse.getJournalEntries().size() > 0) {
-			boolean firstResourceName = true;
+			boolean startOfRow = true;
 			for (String rowKey : rowKeys) {
 				JsonObject jsonRowData = new JsonObject();
 				YearMonth currentYearMonth = journalEntryResponse.getJournalEntries().get(0).getResource().getScenario().getStartYearMonth();
-				boolean firstDateInMonth = true;
+				boolean firstPassThrough = true;
 				while (currentYearMonth.getYear() <= displayFilter.getYearEnd()) {
 					if (!displayFilter.isTimePeriodAnnually() || currentYearMonth.getMonthValue() == 12) {
 						
-						if (firstResourceName) {
+						if (startOfRow) {
 
-							if (firstDateInMonth) {
-								// First and only cell is the resource name column header.
+							if (firstPassThrough) {
+								// First cell is the category column header.
+								JsonObject colCategory = new JsonObject();
+								colCategory.addProperty("data", "category");
+								colCategory.addProperty("title", "Category");
+								columns.add(colCategory);							
+
+								// Next cell is the category column header.
 								JsonObject colResourceName = new JsonObject();
 								colResourceName.addProperty("data", "resourceName");
 								colResourceName.addProperty("title", "Resource");
@@ -277,8 +286,9 @@ public class DataDisplayController {
 							columns.add(colDate);							
 						}
 						
-						if (firstDateInMonth) {
-							jsonRowData.addProperty("resourceName", rowKey);
+						if (firstPassThrough) {
+							jsonRowData.addProperty("category", categoryFromRowKey(rowKey));
+							jsonRowData.addProperty("resourceName", resourceNameFromRowKey(rowKey));
 						}
 
 						// If there is no entry we set the amount to zero because the datatables isn't handling it.
@@ -287,12 +297,12 @@ public class DataDisplayController {
 						if (null == val) val = 0;
 						jsonRowData.addProperty(currentYearMonth.toString(), val);
 								
-						firstDateInMonth = false;
+						firstPassThrough = false;
 					}
 					currentYearMonth = currentYearMonth.plusMonths(1);
 				}
 				journalEntryRows.add(jsonRowData);
-				firstResourceName = false;	
+				startOfRow = false;	
 			}
 		}
 		dataTable.add("columns", columns);		
@@ -301,7 +311,6 @@ public class DataDisplayController {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String result = gson.toJson(dataTable);
 
-		System.out.println(result);
 		return result;
 	}
 	
@@ -420,6 +429,15 @@ public class DataDisplayController {
 		return category + "|" + resource + "|";		
 	}
 	
+	private String categoryFromRowKey(String rowKey) {
+		String[] split = rowKey.split("\\|");
+		return messageSource.getMessage(split[0], null, LocaleContextHolder.getLocale());
+	}
+
+	private String resourceNameFromRowKey(String rowKey) {
+		String[] split = rowKey.split("\\|");
+		return split[1];
+	}
 	
 	private String dateTransactionKey(final JournalEntry journalEntry, final UIDisplayFilter displayFilter) {
 		String datePart;
@@ -436,12 +454,7 @@ public class DataDisplayController {
 	private String dateTransactionKey(final YearMonth yearMonth, final String transactionKeyWithoutDate) {
 		return transactionKeyWithoutDate + yearMonth.toString();
 	}
-	
-	private String transactionKeyWithoutDate(String transactionKey) {
-		String[] split = transactionKey.split("\\|");
-		return split[0] + "|" + split[1] + "|";
-	}
-	
+		
 	private String dateResourceKey(final JournalEntry journalEntry) {
 		return String.valueOf(journalEntry.getDate().toString() + "-" + journalEntry.getResource().getName());
 	}
