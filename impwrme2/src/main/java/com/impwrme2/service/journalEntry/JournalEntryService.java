@@ -153,7 +153,8 @@ public class JournalEntryService {
 			totalJournalEntries.addAll(currentMonthsJournalEntries);
 			currentYearMonth = currentYearMonth.plusMonths(1);
 		}
-		
+
+		Collections.sort(totalJournalEntries);
 		return totalJournalEntries;
 	}
 

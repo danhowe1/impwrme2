@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.impwrme2.model.cashflow.CashflowCategory;
+import com.impwrme2.model.cashflow.CashflowType;
 import com.impwrme2.model.journalEntry.JournalEntry;
 import com.impwrme2.model.journalEntry.JournalEntryResponse;
 import com.impwrme2.model.resource.Resource;
@@ -68,6 +69,14 @@ public class DataDisplayController {
 		UIDisplayFilter displayFilter = new Gson().fromJson(jsDisplayFilter, UIDisplayFilter.class);
 		session.setAttribute("SESSION_DISPLAY_FILTER", displayFilter);
 		return generateJsonTableData(user, displayFilter, session);
+	}
+
+	@GetMapping(value = "/getTransactionsTableData", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public String getTransactionsTableData(@AuthenticationPrincipal OidcUser user, @RequestParam String jsDisplayFilter, final HttpSession session) {
+		UIDisplayFilter displayFilter = new Gson().fromJson(jsDisplayFilter, UIDisplayFilter.class);
+		session.setAttribute("SESSION_DISPLAY_FILTER", displayFilter);
+		return generateJsonTransactionsTableData(user, displayFilter, session);
 	}
 
 	private JsonArray chartColumns(SortedSet<String> filteredResourceNames) {
@@ -224,6 +233,78 @@ public class DataDisplayController {
 		return result;
 	}
 	
+	private String generateJsonTransactionsTableData(final OidcUser user, final UIDisplayFilter displayFilter, final HttpSession session) {
+
+		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(user, session);
+		List<JournalEntry> filteredTransactions = getFilteredTransactions(journalEntryResponse.getJournalEntries(), displayFilter);
+		Map<String, Integer> dateTransactionsToAmountMap = populateDateTransactionsToAmountMap(filteredTransactions, displayFilter);
+
+		List<String> rowKeys = new ArrayList<String>();
+		for (JournalEntry journalEntry : filteredTransactions) {
+			String rowKey = transactionRowKey(journalEntry);
+			if (!rowKeys.contains(rowKey)) {
+				rowKeys.add(rowKey);
+			}
+		}
+
+		JsonObject dataTable = new JsonObject();
+		JsonArray columns = new JsonArray();
+		JsonArray journalEntryRows = new JsonArray();
+
+		if (journalEntryResponse.getJournalEntries().size() > 0) {
+			boolean firstResourceName = true;
+			for (String rowKey : rowKeys) {
+				JsonObject jsonRowData = new JsonObject();
+				YearMonth currentYearMonth = journalEntryResponse.getJournalEntries().get(0).getResource().getScenario().getStartYearMonth();
+				boolean firstDateInMonth = true;
+				while (currentYearMonth.getYear() <= displayFilter.getYearEnd()) {
+					if (!displayFilter.isTimePeriodAnnually() || currentYearMonth.getMonthValue() == 12) {
+						
+						if (firstResourceName) {
+
+							if (firstDateInMonth) {
+								// First and only cell is the resource name column header.
+								JsonObject colResourceName = new JsonObject();
+								colResourceName.addProperty("data", "resourceName");
+								colResourceName.addProperty("title", "Resource");
+								columns.add(colResourceName);							
+							}
+
+							// Add this months date column header.
+							JsonObject colDate = new JsonObject();
+							colDate.addProperty("data", currentYearMonth.toString());
+							colDate.addProperty("title", currentYearMonth.toString());
+							columns.add(colDate);							
+						}
+						
+						if (firstDateInMonth) {
+							jsonRowData.addProperty("resourceName", rowKey);
+						}
+
+						// If there is no entry we set the amount to zero because the datatables isn't handling it.
+						// This could possibly removed if we could fix that issue.
+						Integer val = dateTransactionsToAmountMap.get(dateTransactionKey(currentYearMonth, rowKey));
+						if (null == val) val = 0;
+						jsonRowData.addProperty(currentYearMonth.toString(), val);
+								
+						firstDateInMonth = false;
+					}
+					currentYearMonth = currentYearMonth.plusMonths(1);
+				}
+				journalEntryRows.add(jsonRowData);
+				firstResourceName = false;	
+			}
+		}
+		dataTable.add("columns", columns);		
+		dataTable.add("journalEntries", journalEntryRows);
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String result = gson.toJson(dataTable);
+
+		System.out.println(result);
+		return result;
+	}
+	
 	private JournalEntryResponse getOrCreateJournalEntries(final OidcUser user, final HttpSession session) {
 		JournalEntryResponse journalEntryResponse = (JournalEntryResponse) session.getAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");		
 		if (null == journalEntryResponse) {
@@ -266,6 +347,30 @@ public class DataDisplayController {
 		return filteredJournalEntries;
 	}
 
+	private List<JournalEntry> getFilteredTransactions(final List<JournalEntry> journalEntries, final UIDisplayFilter displayFilter) {
+		YearMonth scenarioEndDate = null;
+		List<JournalEntry> filteredJournalEntries = new ArrayList<JournalEntry>();
+		for (JournalEntry journalEntry : journalEntries) {
+			if (null == scenarioEndDate) {
+				scenarioEndDate = journalEntry.getResource().getScenario().calculateEndYearMonth();
+			}
+			if (journalEntry.getDate().getYear() > displayFilter.getYearEnd()) {
+				continue;
+			}
+			if (journalEntry.getAmount().intValue() == 0) {
+				continue;
+			}
+			
+			if (journalEntry.getCategory().getType().equals(CashflowType.EXPENSE) || 
+				journalEntry.getCategory().getType().equals(CashflowType.INCOME) ||
+				journalEntry.getCategory().getType().equals(CashflowType.DEPOSIT) ||
+				journalEntry.getCategory().getType().equals(CashflowType.WITHDRAWAL)) {
+				filteredJournalEntries.add(journalEntry);				
+			}			
+		}
+		return filteredJournalEntries;
+	}
+
 	private SortedSet<String> getFilteredResourceNames(final List<JournalEntry> journalEntries, final UIDisplayFilter displayFilter) {
 		SortedSet<String> resourceNames = new TreeSet<String>();
 		if (!displayFilter.isBreakdownAggregate()) {
@@ -299,16 +404,54 @@ public class DataDisplayController {
 		return journalEntryDateResourceToAmountMap;
 	}
 	
+	private Map<String, Integer> populateDateTransactionsToAmountMap(List<JournalEntry> journalEntries, UIDisplayFilter displayFilter) {
+		Map<String, Integer> dateTransactionsToAmountMap = new TreeMap<String, Integer>();
+		for (JournalEntry journalEntry : journalEntries) {
+			Integer existingAmount = dateTransactionsToAmountMap.get(dateTransactionKey(journalEntry, displayFilter));
+			if (null == existingAmount) existingAmount = 0;
+			dateTransactionsToAmountMap.put(dateTransactionKey(journalEntry, displayFilter), journalEntry.getAmount() + existingAmount);
+		}
+		return dateTransactionsToAmountMap;
+	}
+
+	private String transactionRowKey(final JournalEntry journalEntry) {
+		String category = journalEntry.getCategory().getMessageCode();
+		String resource = journalEntry.getResource().getName();
+		return category + "|" + resource + "|";		
+	}
+	
+	
+	private String dateTransactionKey(final JournalEntry journalEntry, final UIDisplayFilter displayFilter) {
+		String datePart;
+		String category = journalEntry.getCategory().getMessageCode();
+		String resource = journalEntry.getResource().getName();
+		if (displayFilter.isTimePeriodAnnually()) {
+			datePart = String.valueOf(journalEntry.getDate().getYear()) + "-12";
+		} else {
+			datePart = journalEntry.getDate().toString();
+		}
+		return category + "|" + resource + "|" + datePart;
+	}
+
+	private String dateTransactionKey(final YearMonth yearMonth, final String transactionKeyWithoutDate) {
+		return transactionKeyWithoutDate + yearMonth.toString();
+	}
+	
+	private String transactionKeyWithoutDate(String transactionKey) {
+		String[] split = transactionKey.split("\\|");
+		return split[0] + "|" + split[1] + "|";
+	}
+	
 	private String dateResourceKey(final JournalEntry journalEntry) {
 		return String.valueOf(journalEntry.getDate().toString() + "-" + journalEntry.getResource().getName());
 	}
 
-	private String dateTotalKey(final JournalEntry journalEntry) {
-		return String.valueOf(journalEntry.getDate().toString());
-	}
-
 	private String dateResourceKey(final YearMonth yearMonth, final String resourceName) {
 		return String.valueOf(yearMonth.toString() + "-" + resourceName);
+	}
+
+	private String dateTotalKey(final JournalEntry journalEntry) {
+		return String.valueOf(journalEntry.getDate().toString());
 	}
 
 	private String dateTotalKey(final YearMonth yearMonth) {

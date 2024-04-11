@@ -7,6 +7,7 @@ public class UIDisplayFilter {
 
 	public static final String DISPLAY_STYLE_CHART="DISPLAY_STYLE_CHART";
 	public static final String DISPLAY_STYLE_BALANCES_TABLE="DISPLAY_STYLE_BALANCES_TABLE";
+	public static final String DISPLAY_STYLE_TRANSACTIONS_TABLE="DISPLAY_STYLE_TRANSACTIONS_TABLE";
 	public static final String ASSET_TYPE_ALL="ASSET_TYPE_ALL";
 	public static final String ASSET_TYPE_LIQUID="ASSET_TYPE_LIQUID";
 	public static final String BREAKDOWN_AGGREGATE="BREAKDOWN_AGGREGATE";

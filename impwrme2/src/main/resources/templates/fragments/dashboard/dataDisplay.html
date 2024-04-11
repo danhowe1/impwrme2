@@ -19,15 +19,27 @@
 				if (displayFilter.displayStyle == 'DISPLAY_STYLE_CHART') {
 					document.getElementById('rowChart').style.display = "block";
 					document.getElementById('rowTableBalances').style.display = "none";
+					document.getElementById('rowTableTransactions').style.display = "none";
 					$($("ul[class='nav nav-tabs'] li a")[0]).addClass("active");
 					$($("ul[class='nav nav-tabs'] li a")[1]).removeClass("active");
+					$($("ul[class='nav nav-tabs'] li a")[2]).removeClass("active");
 					loadChartData();
 				} else if (displayFilter.displayStyle == 'DISPLAY_STYLE_BALANCES_TABLE') {
 					document.getElementById('rowChart').style.display = "none";
 					document.getElementById('rowTableBalances').style.display = "block";
+					document.getElementById('rowTableTransactions').style.display = "none";
 					$($("ul[class='nav nav-tabs'] li a")[0]).removeClass("active");
 					$($("ul[class='nav nav-tabs'] li a")[1]).addClass("active");
+					$($("ul[class='nav nav-tabs'] li a")[2]).removeClass("active");
 					loadBalancesTableData();
+				} else if (displayFilter.displayStyle == 'DISPLAY_STYLE_TRANSACTIONS_TABLE') {
+					document.getElementById('rowChart').style.display = "none";
+					document.getElementById('rowTableBalances').style.display = "none";
+					document.getElementById('rowTableTransactions').style.display = "block";
+					$($("ul[class='nav nav-tabs'] li a")[0]).removeClass("active");
+					$($("ul[class='nav nav-tabs'] li a")[1]).removeClass("active");
+					$($("ul[class='nav nav-tabs'] li a")[2]).addClass("active");
+					loadTransactionsTableData();
 				} 
 			}
 
@@ -161,6 +173,55 @@
 				});
 			}
 
+			/* --------------------- */
+			/* Table (Balances) END. */
+			/* --------------------- */
+			
+			/* --------------------------- */
+			/* Table (Transactions) START. */
+			/* --------------------------- */
+
+			var oTransactionsTable = new DataTable('#dashboardTransactionsTable');
+			
+			function loadTransactionsTableData() {
+
+				var url = baseUrl + 'dataDisplay/getTransactionsTableData';
+				$.ajax({
+					url : url,
+					type : "GET",
+					data : "jsDisplayFilter=" + encodeURIComponent(JSON.stringify(displayFilter)),
+					dataType : "json",
+					success : function(data) {
+						oTransactionsTable.destroy();
+						$('#dashboardTransactionsTable').empty();
+						oTransactionsTable = $('#dashboardTransactionsTable').DataTable({
+							responsive : true,
+							paging : false,
+							searching : false,
+							info : false,
+							ordering : false,
+							columns : data.columns,
+							"columnDefs": [
+						        {
+						            "render": function (data, type, row) {
+						                 return commaSeparateNumber(data);
+						            },
+						            "targets": ['_all']
+						        },
+						    ],
+							data : data.journalEntries
+						});
+					},
+					error : function(jqXHR) {
+						handleAjaxError(jqXHR)
+					}
+				});
+			}
+
+			/* --------------------- */
+			/* Table (Balances) END. */
+			/* --------------------- */
+			
 			function commaSeparateNumber(val) {
 			    while (/(\d+)(\d{3})/.test(val.toString())) {
 			        val = val.toString().replace(/(\d+)(\d{3})/, '$1' + ',' + '$2');
@@ -168,10 +229,6 @@
 
 			    return val;
 			}
-			
-			/* --------------------- */
-			/* Table (Balances) END. */
-			/* --------------------- */
 			
 			/* -------------------------------- */
 			/* Document loaded functions START. */
@@ -204,6 +261,8 @@
 						displayFilter.displayStyle = 'DISPLAY_STYLE_CHART';
 					} else if (index == 1 && displayFilter.displayStyle != 'DISPLAY_STYLE_BALANCES_TABLE') {
 						displayFilter.displayStyle = 'DISPLAY_STYLE_BALANCES_TABLE';
+					} else if (index == 2 && displayFilter.displayStyle != 'DISPLAY_STYLE_TRANSACTIONS_TABLE') {
+						displayFilter.displayStyle = 'DISPLAY_STYLE_TRANSACTIONS_TABLE';
 					}
 					loadDisplayData();
 				}));
@@ -234,6 +293,8 @@
 						aria-current="page">Chart</a></li>
 					<li class="nav-item"><a class="nav-link" href="#"
 						aria-current="page">Table (Balances)</a></li>
+					<li class="nav-item"><a class="nav-link" href="#"
+						aria-current="page">Table (Transactions)</a></li>
 				</ul>
 			</div>
 
@@ -280,13 +341,25 @@
 			</div>
 		</div>
 
-		<!-- -------------- -->
-		<!-- Row for table. -->
-		<!-- -------------- -->
+		<!-- ----------------------- -->
+		<!-- Row for balances table. -->
+		<!-- ----------------------- -->
 		
 		<div id="rowTableBalances" class="row bg-white mx-1 py-1" style="overflow-x: auto;">
 			<div class="col m-2">
 				<table id="dashboardTable"
+					class="table table-responsive table-bordered compact">
+				</table>
+			</div>
+		</div>
+
+		<!-- --------------------------- -->
+		<!-- Row for transactions table. -->
+		<!-- --------------------------- -->
+		
+		<div id="rowTableTransactions" class="row bg-white mx-1 py-1" style="overflow-x: auto;">
+			<div class="col m-2">
+				<table id="dashboardTransactionsTable"
 					class="table table-responsive table-bordered compact">
 				</table>
 			</div>
