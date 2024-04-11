@@ -293,7 +293,7 @@ public class DataDisplayController {
 
 						// If there is no entry we set the amount to zero because the datatables isn't handling it.
 						// This could possibly removed if we could fix that issue.
-						Integer val = dateTransactionsToAmountMap.get(dateTransactionKey(currentYearMonth, rowKey));
+						Integer val = dateTransactionsToAmountMap.get(transactionCellKey(currentYearMonth, rowKey));
 						if (null == val) val = 0;
 						jsonRowData.addProperty(currentYearMonth.toString(), val);
 								
@@ -416,9 +416,9 @@ public class DataDisplayController {
 	private Map<String, Integer> populateDateTransactionsToAmountMap(List<JournalEntry> journalEntries, UIDisplayFilter displayFilter) {
 		Map<String, Integer> dateTransactionsToAmountMap = new TreeMap<String, Integer>();
 		for (JournalEntry journalEntry : journalEntries) {
-			Integer existingAmount = dateTransactionsToAmountMap.get(dateTransactionKey(journalEntry, displayFilter));
+			Integer existingAmount = dateTransactionsToAmountMap.get(transactionCellKey(journalEntry, displayFilter));
 			if (null == existingAmount) existingAmount = 0;
-			dateTransactionsToAmountMap.put(dateTransactionKey(journalEntry, displayFilter), journalEntry.getAmount() + existingAmount);
+			dateTransactionsToAmountMap.put(transactionCellKey(journalEntry, displayFilter), journalEntry.getAmount() + existingAmount);
 		}
 		return dateTransactionsToAmountMap;
 	}
@@ -439,7 +439,7 @@ public class DataDisplayController {
 		return split[1];
 	}
 	
-	private String dateTransactionKey(final JournalEntry journalEntry, final UIDisplayFilter displayFilter) {
+	private String transactionCellKey(final JournalEntry journalEntry, final UIDisplayFilter displayFilter) {
 		String datePart;
 		String category = journalEntry.getCategory().getMessageCode();
 		String resource = journalEntry.getResource().getName();
@@ -451,7 +451,7 @@ public class DataDisplayController {
 		return category + "|" + resource + "|" + datePart;
 	}
 
-	private String dateTransactionKey(final YearMonth yearMonth, final String transactionKeyWithoutDate) {
+	private String transactionCellKey(final YearMonth yearMonth, final String transactionKeyWithoutDate) {
 		return transactionKeyWithoutDate + yearMonth.toString();
 	}
 		
