@@ -16,6 +16,7 @@ import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParam;
+import com.impwrme2.model.resourceParam.enums.ResourceParamStringValueEnum;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 import com.impwrme2.model.scenario.Scenario;
 
@@ -117,6 +118,11 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 
 	@Override
 	public List<ResourceParam<?>> getResourceParamsUsersCanCreate() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public List<ResourceParamStringValueEnum> getListOfAllowedValues(ResourceParamNameEnum resourceParamName) {
 		return Collections.emptyList();
 	}
 

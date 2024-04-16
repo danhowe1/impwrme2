@@ -42,12 +42,6 @@ public abstract class ResourceParamDateValue<T> implements Comparable<ResourcePa
 		this.setValue(value);
 	}
 	
-	public ResourceParamDateValue(final YearMonth yearMonth, boolean userAbleToChangeDate, final String value) {
-		this.yearMonth = yearMonth;
-		this.userAbleToChangeDate = userAbleToChangeDate;
-		this.setValueFromString(value);
-	}
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "resource_param_date_value_id")

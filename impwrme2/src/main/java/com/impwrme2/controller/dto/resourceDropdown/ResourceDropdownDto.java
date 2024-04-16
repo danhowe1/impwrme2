@@ -20,6 +20,7 @@ public class ResourceDropdownDto {
 
 	private final static String RESOURCE_NAV_LABEL_SCENARIO = "resourceNavLabelScenario";
 	private final static String RESOURCE_NAV_LABEL_FAMILY = "resourceNavLabelFamily";
+	private final static String RESOURCE_NAV_LABEL_PROPERTY = "resourceNavLabelProperty";
 	private final static String RESOURCE_NAV_LABEL_LOANS = "resourceNavLabelLoans";
 	private final static String RESOURCE_NAV_LABEL_SAVINGS = "resourceNavLabelSavings";
 
@@ -55,6 +56,8 @@ public class ResourceDropdownDto {
 			return RESOURCE_NAV_LABEL_FAMILY;
 		case PERSON:
 			return RESOURCE_NAV_LABEL_FAMILY;
+		case PROPERTY_EXISTING:
+			return RESOURCE_NAV_LABEL_PROPERTY;
 		case SCENARIO:
 			return RESOURCE_NAV_LABEL_SCENARIO;
 		default:

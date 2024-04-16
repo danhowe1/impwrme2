@@ -5,20 +5,25 @@ import java.time.YearMonth;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDto;
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDtoConverter;
+import com.impwrme2.controller.dto.resourceParamDateValue.ValueMessagePairDto;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.model.resourceParam.ResourceParamBigDecimal;
 import com.impwrme2.model.resourceParam.ResourceParamIntegerNegative;
 import com.impwrme2.model.resourceParam.ResourceParamIntegerPositive;
+import com.impwrme2.model.resourceParam.enums.ResourceParamStringValueEnum;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecimal;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerNegative;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerPositive;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueString;
 import com.impwrme2.utils.YearMonthUtils;
 
 import jakarta.validation.Valid;
@@ -29,13 +34,20 @@ public class ResourceParamDtoConverter {
 	@Autowired
 	private ResourceParamDateValueDtoConverter rpdvDtoConverter;
 	
+	@Autowired
+	MessageSource messageSource;
+	
 	public ResourceParamDto entityToDto(ResourceParam<?> resourceParam) {
 		String resourceTypeStr = resourceParam.getResource().getResourceType().getValue();
 		ResourceParamDto resourceParamDto = new ResourceParamDto();
-		resourceParamDto.setId(resourceParam.getId());
-		resourceParamDto.setName("msg.html.resourceParams.name." + resourceParam.getName().getValue() + "." + resourceTypeStr);
+		resourceParamDto.setId(resourceParam.getId());		
+		resourceParamDto.setName(messageSource.getMessage("msg.html.resourceParams.name." + resourceParam.getName().getValue() + "." + resourceTypeStr, null, LocaleContextHolder.getLocale()));
 		resourceParamDto.setUserAbleToCreateNewDateValue(resourceParam.isUserAbleToCreateNewDateValue());
 		resourceParamDto.setResourceParamType(resourceParam.getResourceParamType().getValue());
+		for (ResourceParamStringValueEnum rpsv : resourceParam.getResource().getListOfAllowedValues(resourceParam.getName())) {
+			resourceParamDto.addValueMessagePair(valueMessagePairDto(rpsv));
+		}
+
 		return resourceParamDto;
 	}
 	
@@ -79,11 +91,13 @@ public class ResourceParamDtoConverter {
 		YearMonth yearMonth = YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(rpdvDto.getYearMonth());
 		switch (rpdvDto.getResourceParamType()) {
 		case "BIG_DECIMAL":
-			return new ResourceParamDateValueBigDecimal(yearMonth, rpdvDto.isUserAbleToChangeDate(), rpdvDto.getValue());
+			return new ResourceParamDateValueBigDecimal(yearMonth, rpdvDto.isUserAbleToChangeDate(), new BigDecimal(rpdvDto.getValue()));
 		case "INTEGER_NEGATIVE":
-			return new ResourceParamDateValueIntegerNegative(yearMonth, rpdvDto.isUserAbleToChangeDate(), rpdvDto.getValue());
+			return new ResourceParamDateValueIntegerNegative(yearMonth, rpdvDto.isUserAbleToChangeDate(), Integer.valueOf(rpdvDto.getValue()));
 		case "INTEGER_POSITIVE":
-			return new ResourceParamDateValueIntegerPositive(yearMonth, rpdvDto.isUserAbleToChangeDate(), rpdvDto.getValue());
+			return new ResourceParamDateValueIntegerPositive(yearMonth, rpdvDto.isUserAbleToChangeDate(), Integer.valueOf(rpdvDto.getValue()));
+		case "STRING":
+			return new ResourceParamDateValueString(yearMonth, rpdvDto.isUserAbleToChangeDate(), rpdvDto.getValue());
 		default:
 			throw new IllegalStateException("Unknown resource tpye " + rpdvDto.getResourceParamType() + ".");
 		}
@@ -117,5 +131,11 @@ public class ResourceParamDtoConverter {
 		default:
 			throw new IllegalStateException("Unknown resource param type " + resourceParamCreateDto.getResourceParamType() + ".");
 		}
+	}
+	
+	private ValueMessagePairDto valueMessagePairDto(final ResourceParamStringValueEnum rpsv) {
+		String message = messageSource.getMessage(rpsv.getMessageCode(), null, LocaleContextHolder.getLocale());
+		ValueMessagePairDto valueMessagePairDto = new ValueMessagePairDto(rpsv.getValue(), message);
+		return valueMessagePairDto;
 	}
 }

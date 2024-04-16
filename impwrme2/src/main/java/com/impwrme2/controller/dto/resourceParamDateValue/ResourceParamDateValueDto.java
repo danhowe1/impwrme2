@@ -18,6 +18,9 @@ public class ResourceParamDateValueDto {
 	@NotEmpty(message = "{msg.validation.resourceParamDateValue.value.notEmpty}")
     private String value = "";
 
+	// This is used for displaying drop down strings in correct language.
+	private String valueMessage;
+	
 	@NotNull(message = "{msg.validation.resourceParamDateValue.userAbleToChangeDate.notNull}")
 	private boolean userAbleToChangeDate = false;
 
@@ -55,6 +58,17 @@ public class ResourceParamDateValueDto {
 		this.value = value;
 	}
 
+	public String getValueMessage() {
+		if (null == valueMessage) {
+			return getValue();
+		}
+		return valueMessage;
+	}
+	
+	public void setValueMessage(String valueMessage) {
+		this.valueMessage = valueMessage;
+	}
+	
 	public boolean isUserAbleToChangeDate() {
 		return userAbleToChangeDate;
 	}

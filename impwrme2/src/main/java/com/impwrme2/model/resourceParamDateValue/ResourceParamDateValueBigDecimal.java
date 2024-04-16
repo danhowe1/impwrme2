@@ -25,10 +25,6 @@ public class ResourceParamDateValueBigDecimal extends ResourceParamDateValue<Big
 		super(yearMonth, userAbleToChangeDate, value);
 	}
 
-	public ResourceParamDateValueBigDecimal(YearMonth yearMonth, boolean userAbleToChangeDate, final String value) {
-		super(yearMonth, userAbleToChangeDate, value);
-	}
-
 	@Convert(converter = BigDecimalStringAttributeConverter.class)
 	private BigDecimal value;
 

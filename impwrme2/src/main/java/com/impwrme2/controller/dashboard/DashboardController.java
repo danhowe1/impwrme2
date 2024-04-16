@@ -32,15 +32,18 @@ import com.impwrme2.model.resource.ResourceCreditCard;
 import com.impwrme2.model.resource.ResourceCurrentAccount;
 import com.impwrme2.model.resource.ResourceHousehold;
 import com.impwrme2.model.resource.ResourcePerson;
+import com.impwrme2.model.resource.ResourcePropertyExisting;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParamBigDecimal;
 import com.impwrme2.model.resourceParam.ResourceParamIntegerNegative;
 import com.impwrme2.model.resourceParam.ResourceParamIntegerPositive;
+import com.impwrme2.model.resourceParam.ResourceParamString;
 import com.impwrme2.model.resourceParam.ResourceParamYearMonth;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecimal;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerNegative;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerPositive;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueString;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueYearMonth;
 import com.impwrme2.model.scenario.Scenario;
 import com.impwrme2.service.resource.ResourceService;
@@ -264,7 +267,23 @@ public class DashboardController {
 		currentAccount2BalanceOpeningLiquid.addResourceParamDateValue(currentAccount2BalanceOpeningLiquidVal);		
 		
 		scenario.addResource(currentAccount2);
+
+		// ---------------
+		// Griffin Street.
+		// ---------------
 		
+		Resource griffinSt = new ResourcePropertyExisting("Griffin Street");
+		griffinSt.setStartYearMonth(YearMonth.of(2024, 1));
+
+		// Griffin Street PROPERTY_STATUS.
+		ResourceParamString griffinStStatus = new ResourceParamString(ResourceParamNameEnum.PROPERTY_STATUS);
+		griffinStStatus.setUserAbleToCreateNewDateValue(true);
+		griffinSt.addResourceParam(griffinStStatus);
+		ResourceParamDateValueString griffinStStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourcePropertyExisting.PROPERTY_STATUS_LIVING_IN);
+		griffinStStatus.addResourceParamDateValue(griffinStStatusVal);		
+
+		scenario.addResource(griffinSt);
+
 		return scenario;
 	}
 }

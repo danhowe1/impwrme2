@@ -25,10 +25,6 @@ public class ResourceParamDateValueYearMonth extends ResourceParamDateValue<Year
 		super(yearMonth, userAbleToChangeDate, value);
 	}
 
-	public ResourceParamDateValueYearMonth(YearMonth yearMonth, boolean userAbleToChangeDate, final String value) {
-		super(yearMonth, userAbleToChangeDate, value);
-	}
-
 	@Convert(converter = YearMonthStringAttributeConverter.class)
 	private YearMonth value;
 

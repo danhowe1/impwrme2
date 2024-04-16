@@ -24,10 +24,6 @@ public class ResourceParamDateValueIntegerNegative extends ResourceParamDateValu
 		super(yearMonth, userAbleToChangeDate, value);
 	}
 
-	public ResourceParamDateValueIntegerNegative(YearMonth yearMonth, boolean userAbleToChangeDate, final String value) {
-		super(yearMonth, userAbleToChangeDate, value);
-	}
-
 	@Convert(converter = IntegerStringAttributeConverter.class)
 	private Integer value;
 

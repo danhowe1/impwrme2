@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDto;
+import com.impwrme2.controller.dto.resourceParamDateValue.ValueMessagePairDto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -22,6 +23,8 @@ public class ResourceParamDto {
 	private String resourceParamType;
 	
 	private List<ResourceParamDateValueDto> resourceParamDateValueDtos = new ArrayList<ResourceParamDateValueDto>();
+	
+	private List<ValueMessagePairDto> listOfValueMessagePairs = new ArrayList<ValueMessagePairDto>();
 	
 	//-------------------
 	// Getters & setters.
@@ -65,5 +68,13 @@ public class ResourceParamDto {
 	
 	public void addResourceParamDateValueDto(ResourceParamDateValueDto rpdvDto) {
 		resourceParamDateValueDtos.add(rpdvDto);	
+	}
+
+	public List<ValueMessagePairDto> getListOfValueMessagePairs() {
+		return listOfValueMessagePairs;
+	}
+
+	public void addValueMessagePair(final ValueMessagePairDto valueMessagePairDto) {
+		this.listOfValueMessagePairs.add(valueMessagePairDto);
 	}
 }
