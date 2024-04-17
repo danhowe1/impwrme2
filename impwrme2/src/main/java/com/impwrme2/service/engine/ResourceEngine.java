@@ -151,7 +151,7 @@ public abstract class ResourceEngine implements IResourceEngine {
 	}
 
 	@Override
-	public List<Cashflow> getCashflowsToProcess(YearMonth yearMonth) {
+	public List<Cashflow> getCashflowsToProcess(final YearMonth yearMonth) {
 		return getResource().getCashflows();
 	}
 }

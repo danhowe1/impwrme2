@@ -1,8 +1,12 @@
 package com.impwrme2.model.resource;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
+import com.impwrme2.model.resourceParam.ResourceParam;
+import com.impwrme2.model.resourceParam.ResourceParamIntegerPositive;
 import com.impwrme2.model.resourceParam.enums.ResourceParamStringValueEnum;
 
 import jakarta.persistence.DiscriminatorValue;
@@ -35,10 +39,20 @@ public class ResourcePropertyExisting extends Resource {
 	}
 	
 	@Override
+	public List<ResourceParam<?>> getResourceParamsUsersCanCreate() {
+		ResourceParamIntegerPositive housingMarketGrowthRate = new ResourceParamIntegerPositive(ResourceParamNameEnum.PROPERTY_HOUSING_MARKET_GROWTH_RATE);
+		List<ResourceParam<?>> resourceParams = new ArrayList<>(Arrays.asList(housingMarketGrowthRate));
+		for (ResourceParam<?> existingResourceParam : getResourceParams()) {
+			resourceParams.removeIf(resourceParam -> resourceParam.getName().equals(existingResourceParam.getName()));
+		}
+		return resourceParams;
+	}
+
+	@Override
 	public List<ResourceParamStringValueEnum> getListOfAllowedValues(ResourceParamNameEnum resourceParamName) {
 		if (resourceParamName.equals(ResourceParamNameEnum.PROPERTY_STATUS)) {
 			return List.of(ResourceParamStringValueEnum.PROPERTY_STATUS_LIVING_IN, ResourceParamStringValueEnum.PROPERTY_STATUS_RENTED, ResourceParamStringValueEnum.PROPERTY_STATUS_SOLD);
 		}
-		throw new IllegalStateException("No list of allowed values found for " + resourceParamName.getValue());
+		return super.getListOfAllowedValues(resourceParamName);
 	}
 }

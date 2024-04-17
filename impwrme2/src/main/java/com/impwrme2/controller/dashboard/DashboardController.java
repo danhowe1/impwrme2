@@ -166,6 +166,13 @@ public class DashboardController {
 		ResourceParamDateValueBigDecimal shareMarketGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("6.5"));
 		shareMarketGrowthRate.addResourceParamDateValue(shareMarketGrowthRateVal);
 
+		ResourceParamBigDecimal housingMarketGrowthRate = new ResourceParamBigDecimal(ResourceParamNameEnum.SCENARIO_HOUSING_MARKET_GROWTH_RATE);
+		housingMarketGrowthRate.setUserAbleToCreateNewDateValue(true);
+		scenarioResource.addResourceParam(housingMarketGrowthRate);
+
+		ResourceParamDateValueBigDecimal housingMarketGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("6.0"));
+		housingMarketGrowthRate.addResourceParamDateValue(housingMarketGrowthRateVal);
+
 		Scenario scenario = new Scenario(scenarioResource, userId);
 		
 		// ----------
@@ -275,12 +282,31 @@ public class DashboardController {
 		Resource griffinSt = new ResourcePropertyExisting("Griffin Street");
 		griffinSt.setStartYearMonth(YearMonth.of(2024, 1));
 
+		// Griffin Street BALANCE_OPENING_FIXED.
+		ResourceParamIntegerPositive griffinStOpeningAssetValue = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_FIXED);
+		griffinSt.addResourceParam(griffinStOpeningAssetValue);
+		ResourceParamDateValueIntegerPositive griffinStOpeningAssetVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(3700000));
+		griffinStOpeningAssetValue.addResourceParamDateValue(griffinStOpeningAssetVal);		
+
 		// Griffin Street PROPERTY_STATUS.
 		ResourceParamString griffinStStatus = new ResourceParamString(ResourceParamNameEnum.PROPERTY_STATUS);
 		griffinStStatus.setUserAbleToCreateNewDateValue(true);
 		griffinSt.addResourceParam(griffinStStatus);
 		ResourceParamDateValueString griffinStStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourcePropertyExisting.PROPERTY_STATUS_LIVING_IN);
 		griffinStStatus.addResourceParamDateValue(griffinStStatusVal);		
+
+		// Griffin Street ASSET_OWNERSHIP.
+		Cashflow griffinStAssetOwnership = new Cashflow(CashflowCategory.EXPENSE_ASSET_OWNERSHIP, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		griffinSt.addCashflow(griffinStAssetOwnership);
+		CashflowDateRangeValue griffinStAssetOwnershipDRV = new CashflowDateRangeValue(griffinStAssetOwnership.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-1500));
+		griffinStAssetOwnership.addCashflowDateRangeValue(griffinStAssetOwnershipDRV);
+
+		// Griffin Street HOUSING_MARKET_GROWTH_RATE.
+//		ResourceParamBigDecimal griffinStGrowthRate = new ResourceParamBigDecimal(ResourceParamNameEnum.PROPERTY_HOUSING_MARKET_GROWTH_RATE);
+//		griffinStGrowthRate.setUserAbleToCreateNewDateValue(true);
+//		griffinSt.addResourceParam(griffinStGrowthRate);
+//		ResourceParamDateValueBigDecimal griffinStGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("6.0"));
+//		griffinStGrowthRate.addResourceParamDateValue(griffinStGrowthRateVal);
 
 		scenario.addResource(griffinSt);
 
