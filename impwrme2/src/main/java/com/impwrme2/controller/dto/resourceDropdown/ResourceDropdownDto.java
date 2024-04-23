@@ -58,6 +58,8 @@ public class ResourceDropdownDto {
 			return RESOURCE_NAV_LABEL_FAMILY;
 		case PROPERTY_EXISTING:
 			return RESOURCE_NAV_LABEL_PROPERTY;
+		case PROPERTY_NEW:
+			return RESOURCE_NAV_LABEL_PROPERTY;
 		case SCENARIO:
 			return RESOURCE_NAV_LABEL_SCENARIO;
 		default:

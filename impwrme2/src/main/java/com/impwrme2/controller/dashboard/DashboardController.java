@@ -33,6 +33,7 @@ import com.impwrme2.model.resource.ResourceCurrentAccount;
 import com.impwrme2.model.resource.ResourceHousehold;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
+import com.impwrme2.model.resource.ResourcePropertyNew;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParamBigDecimal;
@@ -295,7 +296,7 @@ public class DashboardController {
 		ResourceParamDateValueString griffinStStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourcePropertyExisting.PROPERTY_STATUS_LIVING_IN);
 		griffinStStatus.addResourceParamDateValue(griffinStStatusVal);		
 
-		// Griffin Street ASSET_OWNERSHIP.
+		// Griffin Street EXPENSE_ASSET_OWNERSHIP.
 		Cashflow griffinStAssetOwnership = new Cashflow(CashflowCategory.EXPENSE_ASSET_OWNERSHIP, CashflowFrequency.MONTHLY, Boolean.TRUE);
 		griffinSt.addCashflow(griffinStAssetOwnership);
 		CashflowDateRangeValue griffinStAssetOwnershipDRV = new CashflowDateRangeValue(griffinStAssetOwnership.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-1500));
@@ -308,7 +309,102 @@ public class DashboardController {
 //		ResourceParamDateValueBigDecimal griffinStGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("6.0"));
 //		griffinStGrowthRate.addResourceParamDateValue(griffinStGrowthRateVal);
 
+		// Griffin Street EXPENSE_RENTAL_PROPERTY.
+		Cashflow griffinStRentalExpense = new Cashflow(CashflowCategory.EXPENSE_RENTAL_PROPERTY, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		griffinSt.addCashflow(griffinStRentalExpense);
+		CashflowDateRangeValue griffinStRentalExpenseDRV = new CashflowDateRangeValue(griffinStRentalExpense.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-1300));
+		griffinStRentalExpense.addCashflowDateRangeValue(griffinStRentalExpenseDRV);
+
+		// Griffin Street INCOME_RENTAL_PROPERTY.
+		Cashflow griffinStRentalIncome = new Cashflow(CashflowCategory.INCOME_RENTAL_PROPERTY, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		griffinSt.addCashflow(griffinStRentalIncome);
+		CashflowDateRangeValue griffinStRentalIncomeDRV = new CashflowDateRangeValue(griffinStRentalIncome.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(6500));
+		griffinStRentalIncome.addCashflowDateRangeValue(griffinStRentalIncomeDRV);
+
+		// Griffin Street EXPENSE_ASSET_SALE_COMMISSION.
+		ResourceParamBigDecimal griffinStSaleCommission = new ResourceParamBigDecimal(ResourceParamNameEnum.PROPERTY_ASSET_SALE_COMMISSION);
+		griffinSt.addResourceParam(griffinStSaleCommission);
+		ResourceParamDateValueBigDecimal griffinStSaleCommissionVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("1.5"));
+		griffinStSaleCommission.addResourceParamDateValue(griffinStSaleCommissionVal);
+
+		// Griffin Street EXPENSE_ASSET_SALE_FIXED.
+		ResourceParamIntegerPositive griffinStSaleFixed = new ResourceParamIntegerPositive(ResourceParamNameEnum.PROPERTY_ASSET_SALE_FIXED);
+		griffinSt.addResourceParam(griffinStSaleFixed);
+		ResourceParamDateValueIntegerPositive griffinStSaleFixedVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(10000));
+		griffinStSaleFixed.addResourceParamDateValue(griffinStSaleFixedVal);
+
 		scenario.addResource(griffinSt);
+
+		// --------------------
+		// Investment property.
+		// --------------------
+		
+		Resource investmentProperty = new ResourcePropertyNew("Investment Property");
+		investmentProperty.setStartYearMonth(YearMonth.of(2024, 3));
+
+		// Investment Property BALANCE_OPENING_FIXED.
+		ResourceParamIntegerPositive investmentPropertyOpeningAssetValue = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_FIXED);
+		investmentProperty.addResourceParam(investmentPropertyOpeningAssetValue);
+		ResourceParamDateValueIntegerPositive investmentPropertyOpeningAssetVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 3), false, Integer.valueOf(1000000));
+		investmentPropertyOpeningAssetValue.addResourceParamDateValue(investmentPropertyOpeningAssetVal);		
+
+		// Investment Property PROPERTY_ASSET_PURCHASE_DEPOSIT.
+		ResourceParamIntegerNegative investmentPropertyDeposit = new ResourceParamIntegerNegative(ResourceParamNameEnum.PROPERTY_ASSET_PURCHASE_DEPOSIT);
+		investmentProperty.addResourceParam(investmentPropertyDeposit);
+		ResourceParamDateValueIntegerNegative investmentPropertyDepositVal = new ResourceParamDateValueIntegerNegative(YearMonth.of(2024, 3), false, Integer.valueOf(200000));
+		investmentPropertyDeposit.addResourceParamDateValue(investmentPropertyDepositVal);		
+
+		// Investment Property PROPERTY_ASSET_PURCHASE_ADDITIONAL_COSTS.
+		ResourceParamIntegerNegative investmentPropertyAdditionalCosts = new ResourceParamIntegerNegative(ResourceParamNameEnum.PROPERTY_ASSET_PURCHASE_ADDITIONAL_COSTS);
+		investmentProperty.addResourceParam(investmentPropertyAdditionalCosts);
+		ResourceParamDateValueIntegerNegative investmentPropertyAdditionalCostsVal = new ResourceParamDateValueIntegerNegative(YearMonth.of(2024, 3), false, Integer.valueOf(53425));
+		investmentPropertyAdditionalCosts.addResourceParamDateValue(investmentPropertyAdditionalCostsVal);
+
+		// Investment Property PROPERTY_STATUS.
+		ResourceParamString investmentPropertyStatus = new ResourceParamString(ResourceParamNameEnum.PROPERTY_STATUS);
+		investmentPropertyStatus.setUserAbleToCreateNewDateValue(true);
+		investmentProperty.addResourceParam(investmentPropertyStatus);
+		ResourceParamDateValueString investmentPropertyStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 3), false, ResourcePropertyExisting.PROPERTY_STATUS_RENTED);
+		investmentPropertyStatus.addResourceParamDateValue(investmentPropertyStatusVal);		
+
+		// Investment Property EXPENSE_ASSET_OWNERSHIP.
+		Cashflow investmentPropertyAssetOwnership = new Cashflow(CashflowCategory.EXPENSE_ASSET_OWNERSHIP, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		investmentProperty.addCashflow(investmentPropertyAssetOwnership);
+		CashflowDateRangeValue investmentPropertyAssetOwnershipDRV = new CashflowDateRangeValue(investmentPropertyAssetOwnership.getCategory().getType(), YearMonth.of(2024, 3), Integer.valueOf(-900));
+		investmentPropertyAssetOwnership.addCashflowDateRangeValue(investmentPropertyAssetOwnershipDRV);
+
+		// Investment Property HOUSING_MARKET_GROWTH_RATE.
+//		ResourceParamBigDecimal investmentPropertyGrowthRate = new ResourceParamBigDecimal(ResourceParamNameEnum.PROPERTY_HOUSING_MARKET_GROWTH_RATE);
+//		investmentPropertyGrowthRate.setUserAbleToCreateNewDateValue(true);
+//		investmentProperty.addResourceParam(investmentPropertyGrowthRate);
+//		ResourceParamDateValueBigDecimal investmentPropertyGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 3), false, new BigDecimal("6.0"));
+//		investmentPropertyGrowthRate.addResourceParamDateValue(investmentPropertyGrowthRateVal);
+
+		// Investment Property EXPENSE_RENTAL_PROPERTY.
+		Cashflow investmentPropertyRentalExpense = new Cashflow(CashflowCategory.EXPENSE_RENTAL_PROPERTY, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		investmentProperty.addCashflow(investmentPropertyRentalExpense);
+		CashflowDateRangeValue investmentPropertyRentalExpenseDRV = new CashflowDateRangeValue(investmentPropertyRentalExpense.getCategory().getType(), YearMonth.of(2024, 3), Integer.valueOf(-670));
+		investmentPropertyRentalExpense.addCashflowDateRangeValue(investmentPropertyRentalExpenseDRV);
+
+		// Investment Property INCOME_RENTAL_PROPERTY.
+		Cashflow investmentPropertyRentalIncome = new Cashflow(CashflowCategory.INCOME_RENTAL_PROPERTY, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		investmentProperty.addCashflow(investmentPropertyRentalIncome);
+		CashflowDateRangeValue investmentPropertyRentalIncomeDRV = new CashflowDateRangeValue(investmentPropertyRentalIncome.getCategory().getType(), YearMonth.of(2024, 3), Integer.valueOf(4200));
+		investmentPropertyRentalIncome.addCashflowDateRangeValue(investmentPropertyRentalIncomeDRV);
+
+		// Investment Property EXPENSE_ASSET_SALE_COMMISSION.
+		ResourceParamBigDecimal investmentPropertySaleCommission = new ResourceParamBigDecimal(ResourceParamNameEnum.PROPERTY_ASSET_SALE_COMMISSION);
+		investmentProperty.addResourceParam(investmentPropertySaleCommission);
+		ResourceParamDateValueBigDecimal investmentPropertySaleCommissionVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 3), false, new BigDecimal("1.5"));
+		investmentPropertySaleCommission.addResourceParamDateValue(investmentPropertySaleCommissionVal);
+
+		// Investment Property EXPENSE_ASSET_SALE_FIXED.
+		ResourceParamIntegerPositive investmentPropertySaleFixed = new ResourceParamIntegerPositive(ResourceParamNameEnum.PROPERTY_ASSET_SALE_FIXED);
+		investmentProperty.addResourceParam(investmentPropertySaleFixed);
+		ResourceParamDateValueIntegerPositive investmentPropertySaleFixedVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 3), false, Integer.valueOf(10000));
+		investmentPropertySaleFixed.addResourceParamDateValue(investmentPropertySaleFixedVal);
+
+		scenario.addResource(investmentProperty);
 
 		return scenario;
 	}

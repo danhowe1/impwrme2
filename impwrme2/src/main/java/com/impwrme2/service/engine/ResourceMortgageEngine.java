@@ -1,16 +1,10 @@
 package com.impwrme2.service.engine;
 
-import com.impwrme2.model.resource.ResourceCurrentAccount;
-
-public class ResourceCurrentAccountEngine extends ResourceEngine {
-
-	public ResourceCurrentAccountEngine(ResourceCurrentAccount resource) {
-		super(resource);
-	}
+public class ResourceMortgageEngine extends ResourceEngine {
 
 	@Override
 	public Integer getBalanceLiquidLegalMaxIfNotSpecified() {
-		return Integer.MAX_VALUE;
+		return Integer.valueOf(0);
 	}
 
 	@Override
@@ -20,7 +14,7 @@ public class ResourceCurrentAccountEngine extends ResourceEngine {
 
 	@Override
 	public Integer getBalanceLiquidPreferredMaxIfNotSpecified() {
-		return getBalanceLiquidLegalMaxIfNotSpecified();
+		return getBalanceLiquidPreferredMaxIfNotSpecified();
 	}
 
 	@Override

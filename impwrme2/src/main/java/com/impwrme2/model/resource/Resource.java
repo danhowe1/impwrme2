@@ -96,15 +96,15 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 	@SortNatural
 	private List<Cashflow> cashflows = new ArrayList<Cashflow>();
 
-	@Override
-	public ResourceScenario getResourceScenario() {
-		if (this instanceof ResourceScenario) return (ResourceScenario) this;
-		Resource resource = this;
-		while (!(resource instanceof ResourceScenario)) {
-			resource = this.getParent();
-		}
-		return (ResourceScenario) resource;
-	};
+//	@Override
+//	public ResourceScenario getResourceScenario() {
+//		if (this instanceof ResourceScenario) return (ResourceScenario) this;
+//		Resource resource = this;
+//		while (!(resource instanceof ResourceScenario)) {
+//			resource = this.getParent();
+//		}
+//		return (ResourceScenario) resource;
+//	};
 
 	@Override
 	public String getPrioritisationWithinResourceType() {

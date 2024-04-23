@@ -375,7 +375,12 @@ public class DataDisplayController {
 				journalEntry.getCategory().getType().equals(CashflowType.DEPOSIT) ||
 				journalEntry.getCategory().getType().equals(CashflowType.WITHDRAWAL)) {
 				filteredJournalEntries.add(journalEntry);				
-			}			
+			} else if (!displayFilter.isAssetTypeLiquid()) {
+				if (journalEntry.getCategory().getType().equals(CashflowType.APPRECIATION) || 
+					journalEntry.getCategory().getType().equals(CashflowType.DEPRECIATION)) { 
+					filteredJournalEntries.add(journalEntry);
+				}
+			}
 		}
 		return filteredJournalEntries;
 	}

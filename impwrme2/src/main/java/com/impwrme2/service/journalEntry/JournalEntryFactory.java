@@ -11,11 +11,11 @@ import com.impwrme2.model.resource.Resource;
 @Component
 public class JournalEntryFactory {
 
-	public JournalEntry create(Resource resource, YearMonth yearMonth, Integer amount, CashflowCategory category) {
+	public static JournalEntry create(Resource resource, YearMonth yearMonth, Integer amount, CashflowCategory category) {
 		return create(resource, yearMonth, amount, category, null);
 	}
 
-	public JournalEntry create(Resource resource, YearMonth yearMonth, Integer amount, CashflowCategory category, String detail) {
+	public static JournalEntry create(Resource resource, YearMonth yearMonth, Integer amount, CashflowCategory category, String detail) {
 		return new JournalEntry(resource, yearMonth, category, amount);
 	}
 }

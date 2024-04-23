@@ -1,9 +1,6 @@
 package com.impwrme2.service.journalEntry;
 
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,11 +12,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflow.CashflowCategory;
-import com.impwrme2.model.cashflow.CashflowFrequency;
 import com.impwrme2.model.cashflow.CashflowType;
-import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.journalEntry.JournalEntry;
 import com.impwrme2.model.journalEntry.JournalEntryResponse;
 import com.impwrme2.model.resource.Resource;
@@ -32,9 +26,6 @@ import com.impwrme2.service.engine.IResourceEngine;
 
 @Service
 public class JournalEntryService {
-
-	private static final MathContext SCALE_4_ROUNDING_HALF_EVEN =new MathContext(4,RoundingMode.HALF_EVEN);
-	private static final BigDecimal HUNDRED = new BigDecimal("100");
 	
 	private ResourceUnallocated resourceUnallocated;
 	private YearMonth currentYearMonth;
@@ -43,10 +34,7 @@ public class JournalEntryService {
 	private JournalEntryResponse journalEntryResponse;
 
 	@Autowired
-	private JournalEntryFactory journalEntryFactory;
-	
-	@Autowired
-	private PotManagerService potManager;
+	private BalanceTracker balanceTracker;
 	
 	@Autowired
 	private MessageSource messageSource;
@@ -59,55 +47,76 @@ public class JournalEntryService {
 
 	private List<JournalEntry> generateJournalEntries(final Scenario scenario) {
 
-		potManager.initialise(scenario);
+		// Set up initial state.
+		balanceTracker.initialise(scenario.getResources());
 		List<IResourceEngine> resourceEngines = getResourceEngines(scenario);
 		currentYearMonth = scenario.getStartYearMonth();
 		YearMonth END_DATE = scenario.calculateEndYearMonth();
-
-		// Set up initial state.
 		List<JournalEntry> totalJournalEntries = new ArrayList<JournalEntry>();
 
 		while (!currentYearMonth.isAfter(END_DATE)) {
 
-			List<JournalEntry> currentMonthsJournalEntries = new ArrayList<JournalEntry>();
+			List<JournalEntry> currentMonthsProcessedJournalEntries = new ArrayList<JournalEntry>();
+			List<JournalEntry> currentMonthsUnprocessedJournalEntries = new ArrayList<JournalEntry>();
 
 			for (IResourceEngine resourceEngine : resourceEngines) {
 				
 				if (currentYearMonth.equals(resourceEngine.getResource().getStartYearMonth())) {
 					// Generate opening balances if required.
-					currentMonthsJournalEntries.addAll(generateJournalEntryLiquidOpeningBalances(resourceEngine));
+					currentMonthsProcessedJournalEntries.addAll(generateJournalEntryOpeningBalances(resourceEngine.getResource()));
 				} else {
 					// Contribute months opening balance to the pot.
-					Integer balanceLiquidOpeningAmount = potManager.getResourceLiquidPotAmount(resourceEngine);
-					potManager.addToPotBalance(balanceLiquidOpeningAmount);
-					potManager.subtractFromResourceLiquidPotAmount(resourceEngine, potManager.getResourceLiquidPotAmount(resourceEngine));
+					Integer balanceLiquidOpeningAmount = balanceTracker.getResourceLiquidAmount(resourceEngine.getResource());
+					if (balanceLiquidOpeningAmount > 0) {
+						balanceTracker.addToPotBalance(balanceLiquidOpeningAmount);
+						balanceTracker.subtractFromResourceLiquidAmount(resourceEngine.getResource(), balanceLiquidOpeningAmount);
+					} else if (balanceLiquidOpeningAmount < 0) {
+						balanceTracker.subtractFromPotBalance(balanceLiquidOpeningAmount);
+						balanceTracker.addToResourceLiquidAmount(resourceEngine.getResource(), balanceLiquidOpeningAmount);						
+					}
 				}
 				
-				// Generate the monthly journal entries for each Expense and Income. We don't process the
-				// Deposits yet because we don't know if there'll be enough in the pot to do so. We don't
-				// process the Withdrawals yet because each engine may generate auto deposits that the
-				// Withdrawals could go against.
-				List<JournalEntry> resourceJournalEntries = generateJournalEntriesForExpensesAndIncome(resourceEngine);
-				currentMonthsJournalEntries.addAll(resourceJournalEntries);
+				//Get this resources raw journal entries.
+				currentMonthsUnprocessedJournalEntries.addAll(resourceEngine.generateJournalEntries(currentYearMonth, balanceTracker));
+				
+				// Process the expenses and income as these have to happen regardless of pot balances. 
+				// Process the appreciations and depreciations as they don't affect the pot.
+				// We don't process the Deposits yet because we don't know if there'll be enough in 
+				// the pot to do so. 
+				// We don't process the Withdrawals yet because each engine may generate auto deposits
+				// that the Withdrawals could go against.
+				List<JournalEntry> currentMonthsNonDepositsAndNonWithdrawals = processNonDepositsAndNonWithdrawals(currentMonthsUnprocessedJournalEntries);
+				currentMonthsProcessedJournalEntries.addAll(currentMonthsNonDepositsAndNonWithdrawals);
+				currentMonthsUnprocessedJournalEntries.removeAll(currentMonthsNonDepositsAndNonWithdrawals);				
 			}
 
 			// Generate users Withdrawals.
-			currentMonthsJournalEntries.addAll(generateJournalEntriesForUserWithdrawals(resourceEngines));
+			List<JournalEntry> currentMonthsUserWithdrawals = processUserWithdrawals(currentMonthsUnprocessedJournalEntries);
+			currentMonthsProcessedJournalEntries.addAll(currentMonthsUserWithdrawals);
+			currentMonthsUnprocessedJournalEntries.removeIf(journalEntry -> journalEntry.getCategory().getType().equals(CashflowType.WITHDRAWAL));
+//			currentMonthsUnprocessedJournalEntries.removeAll(currentMonthsUserWithdrawals);				
 					
 			// Ensure resource engines are in priority order.
 			Collections.sort(resourceEngines);
 
 			// Generate users Deposits if there's enough in the pot to do so.
-			currentMonthsJournalEntries.addAll(generateJournalEntriesForUserDeposits(resourceEngines));
+			List<JournalEntry> currentMonthsUserDeposits = processUserDeposits(resourceEngines, currentMonthsUnprocessedJournalEntries);
+			currentMonthsProcessedJournalEntries.addAll(currentMonthsUserDeposits);
+			currentMonthsUnprocessedJournalEntries.removeAll(currentMonthsUserDeposits);
 
+			// TODO Remove this sanity check when testing complete...
+			if (currentMonthsUnprocessedJournalEntries.size() > 0) {
+				throw new IllegalStateException("Unprocesed journal entries on " + currentYearMonth.toString());
+			}
+			
 			// Order in reverse for the following withdrawals.
 			Collections.sort(resourceEngines, Collections.reverseOrder()); 
 
 			// If the pot is negative make auto withdrawals from the resources in reverse order of importance, based on the preferred balances.
-			currentMonthsJournalEntries.addAll(generateJournalEntriesForAutoWithdrawalsOnPreferredLimits(resourceEngines));
+			currentMonthsProcessedJournalEntries.addAll(generateJournalEntriesForAutoWithdrawalsOnPreferredLimits(resourceEngines));
 						
 			// If the pot is still negative make auto withdrawals from the resources in reverse order of importance, based on the legal min and max values.
-			currentMonthsJournalEntries.addAll(generateJournalEntriesForAutoWithdrawalsOnLegalLimits(resourceEngines));
+			currentMonthsProcessedJournalEntries.addAll(generateJournalEntriesForAutoWithdrawalsOnLegalLimits(resourceEngines));
 			
 			// If the pot is still negative take the money from the debt resources (e.g. credit cards).
 			generateNegativePotDistributionToDebtResources(resourceEngines);
@@ -130,27 +139,20 @@ public class JournalEntryService {
 			// TODO Generate the intra account transfers. Do we still want these?
 			
 			// Generate the closing balances (including unallocated if necessary).
-			currentMonthsJournalEntries.addAll(generateJournalEntriesForClosingBalances(resourceEngines));
+			currentMonthsProcessedJournalEntries.addAll(generateJournalEntriesForClosingBalances(resourceEngines));
 			
-//			if (currentYearMonth.isBefore(YearMonth.of(2024, 4))) {
-//				Collections.sort(currentMonthsJournalEntries);
-//				for (JournalEntry journalEntry : currentMonthsJournalEntries) {
-//					System.out.println(journalEntry.toString());
-//					
-//					if (journalEntry.getResource().getResourceType().equals(ResourceType.CREDIT_CARD) &&
-//						journalEntry.getCategory().equals(CashflowCategory.JE_BALANCE_CLOSING_LIQUID) &&
-//						journalEntry.getAmount() < -15000)  {
-//						System.out.println("HERE!");
-//					}
-//						
-//				}
-//				System.out.println(potManager.toString());
-//			}
+			if (currentYearMonth.isBefore(YearMonth.of(2024, 4))) {
+				Collections.sort(currentMonthsProcessedJournalEntries);
+				for (JournalEntry journalEntry : currentMonthsProcessedJournalEntries) {
+					System.out.println(journalEntry.toString());
+				}
+				System.out.println(balanceTracker.toString());
+			}
 			
 			// TODO Temporarily put a sanity check here to make sure we're not creating or destroying money.
 			
 			// Move to the next month.
-			totalJournalEntries.addAll(currentMonthsJournalEntries);
+			totalJournalEntries.addAll(currentMonthsProcessedJournalEntries);
 			currentYearMonth = currentYearMonth.plusMonths(1);
 		}
 
@@ -163,9 +165,8 @@ public class JournalEntryService {
 		for (Resource resource : scenario.getSortedResources()) {
 			if (!(resource instanceof ResourceScenario)) {
 				Class<?>[] resourceClass = { resource.getClass() };					
-				String engineClassName = "com.impwrme2.service.engine." + resource.getClass().getSimpleName() + "Engine";
 				try {
-					Class<?> engineClass = Class.forName(engineClassName);					
+					Class<?> engineClass = Class.forName(resourceEngineClassName(resource));
 					Object engine = engineClass.getDeclaredConstructor(resourceClass).newInstance(resource);
 					engines.add((IResourceEngine) engine);
 				} catch (ClassNotFoundException e) {
@@ -178,113 +179,194 @@ public class JournalEntryService {
 		return engines;
 	}
 
-	private List<JournalEntry> generateJournalEntryLiquidOpeningBalances(IResourceEngine resourceEngine) {
+	private String resourceEngineClassName(Resource resource) {
+		String name = resource.getClass().getSimpleName();
+		name = name.replace("Existing", "");
+		name = name.replace("New", "");
+		return "com.impwrme2.service.engine." + name + "Engine";
+	}
+	
+	private List<JournalEntry> generateJournalEntryOpeningBalances(Resource resource) {
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
 		Integer balanceOpeningLiquid = Integer.valueOf(0);
 		Integer balanceOpeningFixed = Integer.valueOf(0);
 
-		Optional<ResourceParamDateValue<?>> balanceOpeningLiquidOpt = resourceEngine.getResource().getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_LIQUID, resourceEngine.getResource().getStartYearMonth());
+		Optional<ResourceParamDateValue<?>> balanceOpeningLiquidOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_LIQUID, resource.getStartYearMonth());
 		if (balanceOpeningLiquidOpt.isPresent()) balanceOpeningLiquid = (Integer) balanceOpeningLiquidOpt.get().getValue();
 
-		Optional<ResourceParamDateValue<?>> balanceOpeningFixedOpt = resourceEngine.getResource().getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_FIXED, resourceEngine.getResource().getStartYearMonth());
+		Optional<ResourceParamDateValue<?>> balanceOpeningFixedOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_FIXED, resource.getStartYearMonth());
 		if (balanceOpeningFixedOpt.isPresent()) balanceOpeningFixed = (Integer) balanceOpeningFixedOpt.get().getValue();
 
-		journalEntries.add(journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, balanceOpeningLiquid, CashflowCategory.JE_BALANCE_OPENING_LIQUID));
-		journalEntries.add(journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, balanceOpeningLiquid + balanceOpeningFixed, CashflowCategory.JE_BALANCE_OPENING_ASSET_VALUE));
+		journalEntries.add(JournalEntryFactory.create(resource, currentYearMonth, balanceOpeningLiquid, CashflowCategory.JE_BALANCE_OPENING_LIQUID));
+		journalEntries.add(JournalEntryFactory.create(resource, currentYearMonth, balanceOpeningLiquid + balanceOpeningFixed, CashflowCategory.JE_BALANCE_OPENING_ASSET_VALUE));
 		
 		if (balanceOpeningLiquid.intValue() > 0) {
 			// If there are savings in the account then we assume that these have been explicitly deposited by the user.
-			potManager.addToResourceLiquidDepositsAmount(resourceEngine, balanceOpeningLiquid);
+			balanceTracker.addToResourceLiquidDepositAmount(resource, balanceOpeningLiquid);
+			balanceTracker.addToResourceFixedAmount(resource, balanceOpeningFixed);
 		} else if (balanceOpeningLiquid.intValue() < 0) {
 			// If this is debt then just put the amount straight into the pot. We assume the user wants to pay this off asap.
-			potManager.addToPotBalance(balanceOpeningLiquid);
+			balanceTracker.subtractFromPotBalance(balanceOpeningLiquid);
+			balanceTracker.subtractFromResourceFixedAmount(resource, balanceOpeningFixed);
 		}
-		potManager.addToResourceFixedAmount(resourceEngine, balanceOpeningFixed);
 		
+		if (balanceOpeningFixed > 0) {
+			balanceTracker.addToResourceFixedAmount(resource, balanceOpeningFixed);
+		} else if (balanceOpeningFixed > 0) {
+			balanceTracker.subtractFromResourceFixedAmount(resource, balanceOpeningFixed);		
+		}
 		return journalEntries;
 	}
 
-	private List<JournalEntry> generateJournalEntriesForExpensesAndIncome(IResourceEngine resourceEngine) {
-		
-		if (currentYearMonth.isBefore(resourceEngine.getResource().getStartYearMonth())) {
-			return Collections.emptyList();
+	private List<JournalEntry> processNonDepositsAndNonWithdrawals(List<JournalEntry> unprocessedJournalEntries) {
+		List<JournalEntry> processedJournalEntries = new ArrayList<JournalEntry>();
+		for (JournalEntry journalEntry : unprocessedJournalEntries) {
+			
+			switch (journalEntry.getCategory().getType()) {
+			case APPRECIATION:
+				balanceTracker.addToResourceFixedAmount(journalEntry.getResource(), journalEntry.getAmount());
+				processedJournalEntries.add(journalEntry);
+				break;
+			case EXPENSE:
+				balanceTracker.subtractFromPotBalance(journalEntry.getAmount());
+				processedJournalEntries.add(journalEntry);
+				break;
+			case DEPRECIATION:
+				balanceTracker.subtractFromResourceFixedAmount(journalEntry.getResource(), journalEntry.getAmount());
+				processedJournalEntries.add(journalEntry);
+				break;
+			case INCOME:
+				balanceTracker.addToPotBalance(journalEntry.getAmount());
+				processedJournalEntries.add(journalEntry);
+				break;
+			default:
+				break;				
+			}
 		}
+		return processedJournalEntries;
+	}
 
-		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
-		for (Cashflow cashflow : resourceEngine.getCashflowsToProcess(currentYearMonth)) {
-			if (cashflow.getCategory().getType().equals(CashflowType.EXPENSE) || cashflow.getCategory().getType().equals(CashflowType.INCOME)) {
-				Optional<CashflowDateRangeValue> cfdrvOpt = cashflow.getCashflowDateRangeValue(currentYearMonth);
-				if (cfdrvOpt.isPresent()) {
-					CashflowDateRangeValue cfdrv = cfdrvOpt.get();
-					if (cfdrv.getValue().intValue() != 0 && isCashflowDue(cfdrv, currentYearMonth)) {
-						Integer amount = calculateAmountWithCpi(cfdrv, currentYearMonth);
-						if (amount != 0) {
-							journalEntries.add(createExpenseOrIncome(resourceEngine.getResource(), amount, cfdrv.getCashflow().getCategory(), cashflow.getDetail()));
+//	private List<JournalEntry> generateJournalEntriesForExpensesAndIncome(IResourceEngine resourceEngine) {
+//		
+//		if (currentYearMonth.isBefore(resourceEngine.getResource().getStartYearMonth())) {
+//			return Collections.emptyList();
+//		}
+//
+//		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
+//		for (Cashflow cashflow : resourceEngine.getCashflowsToProcess(currentYearMonth)) {
+//			if (cashflow.getCategory().getType().equals(CashflowType.EXPENSE) || cashflow.getCategory().getType().equals(CashflowType.INCOME)) {
+//				Optional<CashflowDateRangeValue> cfdrvOpt = cashflow.getCashflowDateRangeValue(currentYearMonth);
+//				if (cfdrvOpt.isPresent()) {
+//					CashflowDateRangeValue cfdrv = cfdrvOpt.get();
+//					if (cfdrv.getValue().intValue() != 0 && isCashflowDue(cfdrv, currentYearMonth)) {
+//						Integer amount = calculateAmountWithCpi(cfdrv, currentYearMonth);
+//						if (amount != 0) {
+//							journalEntries.add(createExpenseOrIncome(resourceEngine.getResource(), amount, cfdrv.getCashflow().getCategory(), cashflow.getDetail()));
+//						}
+//					}
+//				}
+//			}
+//		}
+//		return journalEntries;
+//	}
+
+	private List<JournalEntry> processUserWithdrawals(List<JournalEntry> unprocessedJournalEntries) {
+		List<JournalEntry> processedJournalEntries = new ArrayList<JournalEntry>();
+		for (JournalEntry journalEntry : unprocessedJournalEntries) {
+			if (journalEntry.getCategory().getType().equals(CashflowType.WITHDRAWAL)) {
+				Integer withdrawalAvailable = -balanceTracker.getResourceLiquidDepositAmount(journalEntry.getResource());
+				Integer withdrawalAmount = Math.max(journalEntry.getAmount(), withdrawalAvailable);
+				if (withdrawalAmount != 0) {
+					// Withdrawal amount available may be different to the user requested amount so create new one.
+					JournalEntry journalEntryNew = JournalEntryFactory.create(journalEntry.getResource(), currentYearMonth, withdrawalAmount, journalEntry.getCategory(), journalEntry.getDetail());
+					balanceTracker.addToPotBalance(-journalEntryNew.getAmount());
+					balanceTracker.subtractFromResourceLiquidDepositAmount(journalEntryNew.getResource(), -journalEntryNew.getAmount());
+					processedJournalEntries.add(journalEntryNew);
+				}
+			}
+		}
+		return processedJournalEntries;
+	}
+
+//	private List<JournalEntry> generateJournalEntriesForUserWithdrawals(final List<IResourceEngine> resourceEngines) {
+//		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
+//
+//		for (IResourceEngine resourceEngine : resourceEngines) {
+//			if (!currentYearMonth.isBefore(resourceEngine.getResource().getStartYearMonth())) {
+//				for (Cashflow cashflow : resourceEngine.getResource().getCashflows()) {
+//					if (cashflow.getCategory().getType().equals(CashflowType.WITHDRAWAL)) {
+//						Optional<CashflowDateRangeValue> cfdrvOpt = cashflow.getCashflowDateRangeValue(currentYearMonth);
+//						if (cfdrvOpt.isPresent()) {
+//							CashflowDateRangeValue cfdrv = cfdrvOpt.get();
+//							if (cfdrv.getValue().intValue() != 0 && isCashflowDue(cfdrv, currentYearMonth)) {
+//								Integer withdrawalAmount = calculateAmountWithCpi(cfdrv, currentYearMonth);
+//								Integer withdrawalAvailable = -potManager.getResourceLiquidDepositsAmount(resourceEngine);
+//								withdrawalAmount = Math.max(withdrawalAmount, withdrawalAvailable);
+//								if (withdrawalAmount != 0) {
+//									journalEntries.add(createUserWithdrawal(resourceEngine, withdrawalAmount, cashflow.getDetail()));
+//								}
+//							}
+//						}						
+//					}
+//				}
+//			}
+//		}		
+//		
+//		return journalEntries;
+//	}
+
+	private List<JournalEntry> processUserDeposits(List<IResourceEngine> resourceEngines, List<JournalEntry> unprocessedJournalEntries) {
+		List<JournalEntry> processedJournalEntries = new ArrayList<JournalEntry>();
+		for (IResourceEngine resourceEngine : resourceEngines) {
+			for (JournalEntry journalEntry : unprocessedJournalEntries) {
+				if (journalEntry.getResource().equals(resourceEngine.getResource())) {
+					if (journalEntry.getCategory().getType().equals(CashflowType.DEPOSIT)) {
+						Integer depositAvailable = balanceTracker.getResourceLiquidDepositAmount(journalEntry.getResource());
+						Integer depositAmount = Math.min(journalEntry.getAmount(), depositAvailable);
+						if (depositAmount != 0) {
+							// Deposit amount available may be different to the user requested amount so create new one.
+							JournalEntry journalEntryNew = JournalEntryFactory.create(journalEntry.getResource(), currentYearMonth, depositAmount, journalEntry.getCategory(), journalEntry.getDetail());
+							balanceTracker.subtractFromPotBalance(journalEntryNew.getAmount());
+							balanceTracker.addToResourceLiquidDepositAmount(resourceEngine.getResource(), journalEntryNew.getAmount());
+							processedJournalEntries.add(journalEntryNew);
 						}
 					}
 				}
 			}
 		}
-		return journalEntries;
+		return processedJournalEntries;
 	}
 
-	private List<JournalEntry> generateJournalEntriesForUserWithdrawals(final List<IResourceEngine> resourceEngines) {
-		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
-
-		for (IResourceEngine resourceEngine : resourceEngines) {
-			if (!currentYearMonth.isBefore(resourceEngine.getResource().getStartYearMonth())) {
-				for (Cashflow cashflow : resourceEngine.getResource().getCashflows()) {
-					if (cashflow.getCategory().getType().equals(CashflowType.WITHDRAWAL)) {
-						Optional<CashflowDateRangeValue> cfdrvOpt = cashflow.getCashflowDateRangeValue(currentYearMonth);
-						if (cfdrvOpt.isPresent()) {
-							CashflowDateRangeValue cfdrv = cfdrvOpt.get();
-							if (cfdrv.getValue().intValue() != 0 && isCashflowDue(cfdrv, currentYearMonth)) {
-								Integer withdrawalAmount = calculateAmountWithCpi(cfdrv, currentYearMonth);
-								Integer withdrawalAvailable = -potManager.getResourceLiquidDepositsAmount(resourceEngine);
-								withdrawalAmount = Math.max(withdrawalAmount, withdrawalAvailable);
-								if (withdrawalAmount != 0) {
-									journalEntries.add(createUserWithdrawal(resourceEngine, withdrawalAmount, cashflow.getDetail()));
-								}
-							}
-						}						
-					}
-				}
-			}
-		}		
-		
-		return journalEntries;
-	}
-
-	private List<JournalEntry> generateJournalEntriesForUserDeposits(final List<IResourceEngine> resourceEngines) {
-		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
-
-		for (IResourceEngine resourceEngine : resourceEngines) {
-			if (!currentYearMonth.isBefore(resourceEngine.getResource().getStartYearMonth())) {
-				for (Cashflow cashflow : resourceEngine.getResource().getCashflows()) {
-					if (cashflow.getCategory().getType().equals(CashflowType.DEPOSIT)) {
-						Optional<CashflowDateRangeValue> cfdrvOpt = cashflow.getCashflowDateRangeValue(currentYearMonth);
-						if (cfdrvOpt.isPresent()) {
-							CashflowDateRangeValue cfdrv = cfdrvOpt.get();
-							if (cfdrv.getValue().intValue() != 0 && isCashflowDue(cfdrv, currentYearMonth)) {
-								Integer depositAmount = calculateAmountWithCpi(cfdrv, currentYearMonth);
-								Integer depositAvailable = potManager.getPotBalance();
-								depositAmount = Math.min(depositAmount, depositAvailable);
-								depositAmount = Math.max(0, depositAmount);
-								if (depositAmount != 0) {
-									journalEntries.add(createUserDeposit(resourceEngine, depositAmount, cashflow.getDetail()));
-								}
-							}
-						}						
-					}
-				}
-			}
-//			if (potManager.getPotBalance() == 0) {
-//				break;
+//	private List<JournalEntry> generateJournalEntriesForUserDeposits(final List<IResourceEngine> resourceEngines) {
+//		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
+//
+//		for (IResourceEngine resourceEngine : resourceEngines) {
+//			if (!currentYearMonth.isBefore(resourceEngine.getResource().getStartYearMonth())) {
+//				for (Cashflow cashflow : resourceEngine.getResource().getCashflows()) {
+//					if (cashflow.getCategory().getType().equals(CashflowType.DEPOSIT)) {
+//						Optional<CashflowDateRangeValue> cfdrvOpt = cashflow.getCashflowDateRangeValue(currentYearMonth);
+//						if (cfdrvOpt.isPresent()) {
+//							CashflowDateRangeValue cfdrv = cfdrvOpt.get();
+//							if (cfdrv.getValue().intValue() != 0 && isCashflowDue(cfdrv, currentYearMonth)) {
+//								Integer depositAmount = calculateAmountWithCpi(cfdrv, currentYearMonth);
+//								Integer depositAvailable = potManager.getPotBalance();
+//								depositAmount = Math.min(depositAmount, depositAvailable);
+//								depositAmount = Math.max(0, depositAmount);
+//								if (depositAmount != 0) {
+//									journalEntries.add(createUserDeposit(resourceEngine, depositAmount, cashflow.getDetail()));
+//								}
+//							}
+//						}						
+//					}
+//				}
 //			}
-		}		
-		
-		return journalEntries;
-	}
+////			if (potManager.getPotBalance() == 0) {
+////				break;
+////			}
+//		}		
+//		
+//		return journalEntries;
+//	}
 
 	private List<JournalEntry> generateJournalEntriesForAutoWithdrawalsOnPreferredLimits(final List<IResourceEngine> resourceEngines) {
 		return generateJournalEntriesForAutoWithdrawalsOnLegalOrPreferredLimits(resourceEngines, "Preferred");
@@ -296,9 +378,9 @@ public class JournalEntryService {
 
 	private List<JournalEntry> generateJournalEntriesForAutoWithdrawalsOnLegalOrPreferredLimits(final List<IResourceEngine> resourceEngines, String legalOrPreferred) {
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
-		if (potManager.getPotBalance() < 0) {
+		if (balanceTracker.getPotBalance() < 0) {
 			for (IResourceEngine resourceEngine : resourceEngines) {
-				Integer withdrawalAmount = potManager.getResourceLiquidDepositsAmount(resourceEngine);
+				Integer withdrawalAmount = balanceTracker.getResourceLiquidDepositAmount(resourceEngine.getResource());
 				
 				Integer balanceMin;
 				if (legalOrPreferred.equals("Preferred")) {
@@ -307,12 +389,12 @@ public class JournalEntryService {
 					balanceMin = resourceEngine.getBalanceLiquidLegalMin(currentYearMonth);
 				}
 				withdrawalAmount = withdrawalAmount - balanceMin;
-				withdrawalAmount = Math.min(withdrawalAmount, potManager.getPotBalance() * -1);
-				withdrawalAmount = Math.min(withdrawalAmount, potManager.getResourceLiquidDepositsAmount(resourceEngine));
+				withdrawalAmount = Math.min(withdrawalAmount, balanceTracker.getPotBalance() * -1);
+				withdrawalAmount = Math.min(withdrawalAmount, balanceTracker.getResourceLiquidDepositAmount(resourceEngine.getResource()));
 				if (withdrawalAmount != 0) {
-					journalEntries.add(createAutoWithdrawal(resourceEngine, -withdrawalAmount));
+					journalEntries.add(createAutoWithdrawal(resourceEngine, withdrawalAmount));
 				}
-				if (potManager.getPotBalance() == 0) {
+				if (balanceTracker.getPotBalance() == 0) {
 					break;
 				}
 			}
@@ -321,13 +403,13 @@ public class JournalEntryService {
 	}
 
 	private void generateNegativePotDistributionToDebtResources(final List<IResourceEngine> resourceEngines) {
-		if (potManager.getPotBalance() < 0) {
+		if (balanceTracker.getPotBalance() < 0) {
 			for (IResourceEngine resourceEngine : resourceEngines) {
 				Integer amount = resourceEngine.getBalanceLiquidLegalMin(currentYearMonth);
-				amount = Math.max(amount, potManager.getPotBalance());
-				potManager.addToPotBalance(amount * -1);
-				potManager.subtractFromResourceLiquidPotAmount(resourceEngine, amount * -1);
-				if (potManager.getPotBalance() == 0) {
+				amount = Math.max(amount, balanceTracker.getPotBalance());
+				balanceTracker.addToPotBalance(amount);
+				balanceTracker.subtractFromResourceLiquidAmount(resourceEngine.getResource(), amount);
+				if (balanceTracker.getPotBalance() == 0) {
 					break;
 				}
 			}
@@ -351,24 +433,28 @@ public class JournalEntryService {
 	}
 
 	private void generatePotDistributionBasedOnLegalOrPreferredBalances(final List<IResourceEngine> resourceEngines, String legalOrPreferred) {
-		if (potManager.getPotBalance() > 0) {
+		if (balanceTracker.getPotBalance() > 0) {
 			for (IResourceEngine resourceEngine : resourceEngines) {
 				Integer balanceToAttain = null;
 				if (legalOrPreferred.equals("Legal Min")) {
-					balanceToAttain = Math.min(resourceEngine.getBalanceLiquidLegalMin(currentYearMonth), potManager.getPotBalance());
+					// We don't want to put money into debt resources here. This has been done earlier if necessary.
+					balanceToAttain = Math.max(resourceEngine.getBalanceLiquidLegalMin(currentYearMonth), 0);
 				} else if (legalOrPreferred.equals("Preferred Min")) {
-					balanceToAttain = Math.min(resourceEngine.getBalanceLiquidPreferredMin(currentYearMonth), potManager.getPotBalance());
+					balanceToAttain = resourceEngine.getBalanceLiquidPreferredMin(currentYearMonth);
 				} else if (legalOrPreferred.equals("Preferred Max")) {
-					balanceToAttain = Math.min(resourceEngine.getBalanceLiquidPreferredMax(currentYearMonth), potManager.getPotBalance());
+					balanceToAttain = resourceEngine.getBalanceLiquidPreferredMax(currentYearMonth);
 				} else if (legalOrPreferred.equals("Legal Max")) {
-					balanceToAttain = Math.min(resourceEngine.getBalanceLiquidLegalMax(currentYearMonth), potManager.getPotBalance());
+					balanceToAttain = resourceEngine.getBalanceLiquidLegalMax(currentYearMonth);
 				}
-				Integer existingBalance = potManager.getResourceLiquidBalance(resourceEngine, currentYearMonth);
-				Integer amountToDistribute = balanceToAttain - existingBalance;
-				potManager.subtractFromPotBalance(amountToDistribute);
-				potManager.addToResourceLiquidPotAmount(resourceEngine, amountToDistribute);
-				if (potManager.getPotBalance() == 0) {
-					break;
+				Integer existingBalance = balanceTracker.getResourceLiquidBalance(resourceEngine.getResource());
+				if (balanceToAttain > existingBalance) {
+					Integer amountToDistribute = balanceToAttain - existingBalance;
+					amountToDistribute = Math.min(amountToDistribute, balanceTracker.getPotBalance());
+					balanceTracker.subtractFromPotBalance(amountToDistribute);
+					balanceTracker.addToResourceLiquidAmount(resourceEngine.getResource(), amountToDistribute);
+					if (balanceTracker.getPotBalance() == 0) {
+						break;
+					}					
 				}
 			}
 		}
@@ -377,14 +463,14 @@ public class JournalEntryService {
 	private List<JournalEntry> generateJournalEntriesForClosingBalances(final List<IResourceEngine> resourceEngines) {
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
 		for (IResourceEngine resourceEngine : resourceEngines) {
-			Integer balanceLiquid = potManager.getResourceLiquidBalance(resourceEngine, currentYearMonth);
-			journalEntries.add(journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, balanceLiquid, CashflowCategory.JE_BALANCE_CLOSING_LIQUID));	
-			Integer assetValue = potManager.getResourceAssetValue(resourceEngine, currentYearMonth);
-			journalEntries.add(journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, assetValue, CashflowCategory.JE_BALANCE_CLOSING_ASSET_VALUE));	
+			Integer balanceLiquid = balanceTracker.getResourceLiquidBalance(resourceEngine.getResource());
+			journalEntries.add(JournalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, balanceLiquid, CashflowCategory.JE_BALANCE_CLOSING_LIQUID));	
+			Integer assetValue = balanceTracker.getResourceAssetValue(resourceEngine.getResource());
+			journalEntries.add(JournalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, assetValue, CashflowCategory.JE_BALANCE_CLOSING_ASSET_VALUE));	
 		}
-		if (potManager.getPotBalance() != 0) {
-			journalEntries.add(journalEntryFactory.create(getResourceUnallocated(), currentYearMonth, potManager.getPotBalance(), CashflowCategory.JE_BALANCE_CLOSING_LIQUID));				
-			journalEntries.add(journalEntryFactory.create(getResourceUnallocated(), currentYearMonth, potManager.getPotBalance(), CashflowCategory.JE_BALANCE_CLOSING_ASSET_VALUE));
+		if (balanceTracker.getPotBalance() != 0) {
+			journalEntries.add(JournalEntryFactory.create(getResourceUnallocated(), currentYearMonth, balanceTracker.getPotBalance(), CashflowCategory.JE_BALANCE_CLOSING_LIQUID));				
+			journalEntries.add(JournalEntryFactory.create(getResourceUnallocated(), currentYearMonth, balanceTracker.getPotBalance(), CashflowCategory.JE_BALANCE_CLOSING_ASSET_VALUE));
 		}
 		return journalEntries;
 	}
@@ -398,61 +484,61 @@ public class JournalEntryService {
 		return resourceUnallocated;
 	}
 
-	private JournalEntry createExpenseOrIncome(final Resource resource, final Integer amount, CashflowCategory category, String detail) {
-		potManager.addToPotBalance(amount);
-		return journalEntryFactory.create(resource, currentYearMonth, amount, category, detail);		
-	}
+//	private JournalEntry createExpenseOrIncome(final Resource resource, final Integer amount, CashflowCategory category, String detail) {
+//		potManager.addToPotBalance(amount);
+//		return journalEntryFactory.create(resource, currentYearMonth, amount, category, detail);		
+//	}
 
-	private JournalEntry createUserWithdrawal(final IResourceEngine resourceEngine, final Integer amount, String detail) {
-		potManager.addToPotBalance(-amount);
-		potManager.subtractFromResourceLiquidDepositsAmount(resourceEngine, -amount);
-		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, amount, CashflowCategory.JE_USER_WITHDRAWAL, detail);		
-	}
+//	private JournalEntry createUserWithdrawal(final IResourceEngine resourceEngine, final Integer amount, String detail) {
+//		potManager.addToPotBalance(-amount);
+//		potManager.subtractFromResourceLiquidDepositsAmount(resourceEngine, -amount);
+//		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, amount, CashflowCategory.JE_USER_WITHDRAWAL, detail);		
+//	}
 
-	private JournalEntry createUserDeposit(final IResourceEngine resourceEngine, final Integer amount, String detail) {
-		potManager.subtractFromPotBalance(amount);
-		potManager.addToResourceLiquidDepositsAmount(resourceEngine, amount);
-		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, amount, CashflowCategory.JE_USER_DEPOSIT, detail);		
-	}
+//	private JournalEntry createUserDeposit(final IResourceEngine resourceEngine, final Integer amount, String detail) {
+//		potManager.subtractFromPotBalance(amount);
+//		potManager.addToResourceLiquidDepositsAmount(resourceEngine, amount);
+//		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, amount, CashflowCategory.JE_USER_DEPOSIT, detail);		
+//	}
 
 	private JournalEntry createAutoWithdrawal(final IResourceEngine resourceEngine, final Integer amount) {
-		potManager.addToPotBalance(-amount);
-		potManager.subtractFromResourceLiquidDepositsAmount(resourceEngine, -amount);
-		return journalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, amount, CashflowCategory.JE_AUTO_WITHDRAWAL);	
+		balanceTracker.addToPotBalance(Math.abs(amount));
+		balanceTracker.subtractFromResourceLiquidDepositAmount(resourceEngine.getResource(), Math.abs(amount));
+		return JournalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, -1 * Math.abs(amount), CashflowCategory.JE_AUTO_WITHDRAWAL);	
 	}
 	
-	private boolean isCashflowDue(CashflowDateRangeValue cfdrv, YearMonth currentYearMonth) {		
-		if (cfdrv.getCashflow().getFrequency().equals(CashflowFrequency.MONTHLY)) {
-			return true;
-		} else if (cfdrv.getCashflow().getFrequency().equals(CashflowFrequency.QUARTERLY)) {
-			int monthsDiff = Math.abs(cfdrv.getYearMonthStart().getMonthValue() - currentYearMonth.getMonthValue());
-			if (Math.floorMod(monthsDiff, 3) == 0) {
-				return true;
-			}
-		} else if (cfdrv.getCashflow().getFrequency().equals(CashflowFrequency.ANNUALLY)) {
-			if (cfdrv.getYearMonthStart().getMonthValue() == currentYearMonth.getMonthValue()) {
-				return true;
-			}
-		} else if (cfdrv.getCashflow().getFrequency().equals(CashflowFrequency.ONE_OFF)) {
-			if (cfdrv.getYearMonthStart().equals(currentYearMonth)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private Integer calculateAmountWithCpi(CashflowDateRangeValue cfdrv, YearMonth yearMonth) {
-		BigDecimal amount = BigDecimal.valueOf(cfdrv.getValue());
-		if (cfdrv.getCashflow().getCpiAffected()) {
-			BigDecimal cpi = cfdrv.getCashflow().getResource().getScenario().getResourceScenario().getCpi().divide(HUNDRED, SCALE_4_ROUNDING_HALF_EVEN);
-			cpi = cpi.add(BigDecimal.ONE);
-			int yearsOfCpi = yearMonth.getYear() - cfdrv.getYearMonthStart().getYear();
-			amount = amount.multiply(cpi.pow(yearsOfCpi));
-		}
-		return integerOf(amount);
-	}
-
-	private Integer integerOf(BigDecimal decimal) {
-		return decimal.setScale(0, RoundingMode.HALF_UP).intValue();
-	}
+//	private boolean isCashflowDue(CashflowDateRangeValue cfdrv, YearMonth currentYearMonth) {		
+//		if (cfdrv.getCashflow().getFrequency().equals(CashflowFrequency.MONTHLY)) {
+//			return true;
+//		} else if (cfdrv.getCashflow().getFrequency().equals(CashflowFrequency.QUARTERLY)) {
+//			int monthsDiff = Math.abs(cfdrv.getYearMonthStart().getMonthValue() - currentYearMonth.getMonthValue());
+//			if (Math.floorMod(monthsDiff, 3) == 0) {
+//				return true;
+//			}
+//		} else if (cfdrv.getCashflow().getFrequency().equals(CashflowFrequency.ANNUALLY)) {
+//			if (cfdrv.getYearMonthStart().getMonthValue() == currentYearMonth.getMonthValue()) {
+//				return true;
+//			}
+//		} else if (cfdrv.getCashflow().getFrequency().equals(CashflowFrequency.ONE_OFF)) {
+//			if (cfdrv.getYearMonthStart().equals(currentYearMonth)) {
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
+//
+//	private Integer calculateAmountWithCpi(CashflowDateRangeValue cfdrv, YearMonth yearMonth) {
+//		BigDecimal amount = BigDecimal.valueOf(cfdrv.getValue());
+//		if (cfdrv.getCashflow().getCpiAffected()) {
+//			BigDecimal cpi = cfdrv.getCashflow().getResource().getScenario().getResourceScenario().getCpi().divide(HUNDRED, SCALE_4_ROUNDING_HALF_EVEN);
+//			cpi = cpi.add(BigDecimal.ONE);
+//			int yearsOfCpi = yearMonth.getYear() - cfdrv.getYearMonthStart().getYear();
+//			amount = amount.multiply(cpi.pow(yearsOfCpi));
+//		}
+//		return integerOf(amount);
+//	}
+//
+//	private Integer integerOf(BigDecimal decimal) {
+//		return decimal.setScale(0, RoundingMode.HALF_UP).intValue();
+//	}
 }
