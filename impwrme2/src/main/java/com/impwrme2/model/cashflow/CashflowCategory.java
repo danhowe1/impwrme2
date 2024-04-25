@@ -39,6 +39,7 @@ public enum CashflowCategory {
 	JE_AUTO_DEPOSIT(Values.JE_AUTO_DEPOSIT, CashflowType.DEPOSIT),
 	JE_USER_DEPOSIT(Values.JE_USER_DEPOSIT, CashflowType.DEPOSIT),
 
+	APPRECIATION_ASSET_SALE(Values.APPRECIATION_ASSET_SALE, CashflowType.APPRECIATION),
 	APPRECIATION_GROWTH(Values.APPRECIATION_GROWTH, CashflowType.APPRECIATION),
 
 	DEPRECIATION_SALE(Values.DEPRECIATION_SALE, CashflowType.DEPRECIATION),
@@ -65,6 +66,7 @@ public enum CashflowCategory {
 		public static final String JE_AUTO_WITHDRAWAL = "JE_AUTO_WITHDRAWAL";
 		public static final String JE_USER_DEPOSIT = "JE_USER_DEPOSIT";
 		public static final String JE_USER_WITHDRAWAL = "JE_USER_WITHDRAWAL";
+		public static final String APPRECIATION_ASSET_SALE = "APPRECIATION_ASSET_SALE";
 		public static final String APPRECIATION_GROWTH = "APPRECIATION_GROWTH";
 		public static final String DEPOSIT_ADDITIONAL_PAYMENT = "DEPOSIT_ADDITIONAL_PAYMENT";
 		public static final String DEPOSIT_BALANCE = "DEPOSIT_BALANCE";

@@ -164,10 +164,11 @@ public class JournalEntryService {
 		List<IResourceEngine> engines = new ArrayList<IResourceEngine>();
 		for (Resource resource : scenario.getSortedResources()) {
 			if (!(resource instanceof ResourceScenario)) {
-				Class<?>[] resourceClass = { resource.getClass() };					
 				try {
 					Class<?> engineClass = Class.forName(resourceEngineClassName(resource));
-					Object engine = engineClass.getDeclaredConstructor(resourceClass).newInstance(resource);
+					Class<?> [] paramTypes = { resource.getClass(), BalanceTracker.class };
+					Object [] paramValues = {  resource, balanceTracker };
+					Object engine = engineClass.getConstructor(paramTypes).newInstance(paramValues);
 					engines.add((IResourceEngine) engine);
 				} catch (ClassNotFoundException e) {
 					throw new RuntimeException(e);
@@ -212,7 +213,7 @@ public class JournalEntryService {
 		
 		if (balanceOpeningFixed > 0) {
 			balanceTracker.addToResourceFixedAmount(resource, balanceOpeningFixed);
-		} else if (balanceOpeningFixed > 0) {
+		} else if (balanceOpeningFixed < 0) {
 			balanceTracker.subtractFromResourceFixedAmount(resource, balanceOpeningFixed);		
 		}
 		return journalEntries;
@@ -321,7 +322,8 @@ public class JournalEntryService {
 			for (JournalEntry journalEntry : unprocessedJournalEntries) {
 				if (journalEntry.getResource().equals(resourceEngine.getResource())) {
 					if (journalEntry.getCategory().getType().equals(CashflowType.DEPOSIT)) {
-						Integer depositAvailable = balanceTracker.getResourceLiquidDepositAmount(journalEntry.getResource());
+//						Integer depositAvailable = balanceTracker.getResourceLiquidDepositAmount(journalEntry.getResource());
+						Integer depositAvailable = balanceTracker.getPotBalance();
 						Integer depositAmount = Math.min(journalEntry.getAmount(), depositAvailable);
 						if (depositAmount != 0) {
 							// Deposit amount available may be different to the user requested amount so create new one.
@@ -442,9 +444,9 @@ public class JournalEntryService {
 				} else if (legalOrPreferred.equals("Preferred Min")) {
 					balanceToAttain = resourceEngine.getBalanceLiquidPreferredMin(currentYearMonth);
 				} else if (legalOrPreferred.equals("Preferred Max")) {
-					balanceToAttain = resourceEngine.getBalanceLiquidPreferredMax(currentYearMonth);
+					balanceToAttain = resourceEngine.getBalanceLiquidPreferredMax(currentYearMonth, balanceTracker);
 				} else if (legalOrPreferred.equals("Legal Max")) {
-					balanceToAttain = resourceEngine.getBalanceLiquidLegalMax(currentYearMonth);
+					balanceToAttain = resourceEngine.getBalanceLiquidLegalMax(currentYearMonth, balanceTracker);
 				}
 				Integer existingBalance = balanceTracker.getResourceLiquidBalance(resourceEngine.getResource());
 				if (balanceToAttain > existingBalance) {

@@ -18,18 +18,18 @@ import com.impwrme2.service.journalEntry.JournalEntryFactory;
 
 public class ResourcePropertyEngine extends ResourceEngine {
 
-	public ResourcePropertyEngine(ResourcePropertyExisting resource) {
-		super(resource);
+	public ResourcePropertyEngine(final ResourcePropertyExisting resource, final BalanceTracker balanceTracker) {
+		super(resource, balanceTracker);
 	}
 
-	public ResourcePropertyEngine(ResourcePropertyNew resource) {
-		super(resource);
+	public ResourcePropertyEngine(final ResourcePropertyNew resource, final BalanceTracker balanceTracker) {
+		super(resource, balanceTracker);
 	}
 
 	private boolean isSold = false;
 	
 	@Override
-	public Integer getBalanceLiquidLegalMaxIfNotSpecified() {
+	public Integer getBalanceLiquidLegalMaxIfNotSpecified(final BalanceTracker balanceTracker) {
 		return Integer.valueOf(0);
 	}
 
@@ -39,7 +39,7 @@ public class ResourcePropertyEngine extends ResourceEngine {
 	}
 
 	@Override
-	public Integer getBalanceLiquidPreferredMaxIfNotSpecified() {
+	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(final BalanceTracker balanceTracker) {
 		return Integer.valueOf(0);
 	}
 
@@ -79,6 +79,7 @@ public class ResourcePropertyEngine extends ResourceEngine {
 		
 		return journalEntries;
 	}
+	
 	private List<JournalEntry> createJournalEntriesForPurchase(ResourceParamDateValue<String> status, final BalanceTracker balanceTracker, final YearMonth yearMonth) {
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
 		if (getResource() instanceof ResourcePropertyNew && getResource().getStartYearMonth().equals(yearMonth)) {

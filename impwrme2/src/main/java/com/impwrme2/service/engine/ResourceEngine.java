@@ -24,7 +24,7 @@ public abstract class ResourceEngine implements IResourceEngine {
 
 	private static final MathContext SCALE_4_ROUNDING_HALF_EVEN =new MathContext(4,RoundingMode.HALF_EVEN);
 	private static final BigDecimal HUNDRED = new BigDecimal("100");
-	private static final MathContext SCALE_10_ROUNDING_HALF_EVEN =new MathContext(10,RoundingMode.HALF_EVEN);
+	protected static final MathContext SCALE_10_ROUNDING_HALF_EVEN =new MathContext(10,RoundingMode.HALF_EVEN);
 	private static final double POWER_OF_ONE_TWELFTH = BigDecimal.ONE.divide(new BigDecimal("12"), SCALE_10_ROUNDING_HALF_EVEN).doubleValue();
 
 	protected final Resource resource;
@@ -40,7 +40,7 @@ public abstract class ResourceEngine implements IResourceEngine {
 		this.resource = null;
 	}
 
-	public ResourceEngine(final Resource resource) {
+	public ResourceEngine(final Resource resource, final BalanceTracker balanceTracker) {
 		this.resource = resource;
 		
 		// Set the initial balances because the get methods for these may not get called in month 1 and therefore never be set.
@@ -48,7 +48,7 @@ public abstract class ResourceEngine implements IResourceEngine {
 		Optional<ResourceParam<?>> rpLegalMaxOpt = resource.getResourceParam(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MAX);
 		if (rpLegalMaxOpt.isEmpty()) {
 			// No resource param found so use the default one.
-			balanceLiquidLegalMaxConstant =  Optional.of(getBalanceLiquidLegalMaxIfNotSpecified());			
+			balanceLiquidLegalMaxConstant =  Optional.of(getBalanceLiquidLegalMaxIfNotSpecified(balanceTracker));			
 		} else {
 			List<?> resourceParamDateValues = rpLegalMaxOpt.get().getResourceParamDateValues();
 			if (1 == resourceParamDateValues.size()) {
@@ -78,7 +78,7 @@ public abstract class ResourceEngine implements IResourceEngine {
 		Optional<ResourceParam<?>> rpPreferredMaxOpt = resource.getResourceParam(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MAX);
 		if (rpPreferredMaxOpt.isEmpty()) {
 			// No resource param found so use the default one.
-			balanceLiquidPreferredMaxConstant =  Optional.of(getBalanceLiquidPreferredMaxIfNotSpecified());			
+			balanceLiquidPreferredMaxConstant =  Optional.of(getBalanceLiquidPreferredMaxIfNotSpecified(balanceTracker));			
 		} else {
 			List<?> resourceParamDateValues = rpPreferredMaxOpt.get().getResourceParamDateValues();
 			if (1 == resourceParamDateValues.size()) {
@@ -118,7 +118,7 @@ public abstract class ResourceEngine implements IResourceEngine {
 	}
 
 	@Override
-	public final Integer getBalanceLiquidLegalMax(YearMonth yearMonth) {
+	public final Integer getBalanceLiquidLegalMax(YearMonth yearMonth, final BalanceTracker balanceTracker) {
 		if (balanceLiquidLegalMaxConstant.isPresent()) {
 			return balanceLiquidLegalMaxConstant.get();
 		}
@@ -126,7 +126,7 @@ public abstract class ResourceEngine implements IResourceEngine {
 		if (rpdvOpt.isPresent()) {
 			return (Integer) rpdvOpt.get().getValue();
 		}
-		return getBalanceLiquidLegalMaxIfNotSpecified();
+		return getBalanceLiquidLegalMaxIfNotSpecified(balanceTracker);
 	}
 
 	@Override
@@ -142,7 +142,7 @@ public abstract class ResourceEngine implements IResourceEngine {
 	}
 
 	@Override
-	public final Integer getBalanceLiquidPreferredMax(YearMonth yearMonth) {
+	public final Integer getBalanceLiquidPreferredMax(YearMonth yearMonth, final BalanceTracker balanceTracker) {
 		if (balanceLiquidPreferredMaxConstant.isPresent()) {
 			return balanceLiquidPreferredMaxConstant.get();
 		}
@@ -150,7 +150,7 @@ public abstract class ResourceEngine implements IResourceEngine {
 		if (rpdvOpt.isPresent()) {
 			return (Integer) rpdvOpt.get().getValue();
 		}
-		return getBalanceLiquidPreferredMaxIfNotSpecified();
+		return getBalanceLiquidPreferredMaxIfNotSpecified(balanceTracker);
 	}
 
 	@Override

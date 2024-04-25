@@ -1,6 +1,7 @@
 package com.impwrme2.model.resourceParamDateValue;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.YearMonth;
 
 import com.impwrme2.model.converter.BigDecimalStringAttributeConverter;
@@ -36,7 +37,7 @@ public class ResourceParamDateValueBigDecimal extends ResourceParamDateValue<Big
 
 	@Override
 	public void setValue(BigDecimal value) {
-		this.value = value;		
+		this.value = value.setScale(2, RoundingMode.HALF_EVEN);
 	}
 
 	@Override

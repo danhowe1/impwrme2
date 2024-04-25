@@ -31,6 +31,7 @@ import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceCreditCard;
 import com.impwrme2.model.resource.ResourceCurrentAccount;
 import com.impwrme2.model.resource.ResourceHousehold;
+import com.impwrme2.model.resource.ResourceMortgageExisting;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
 import com.impwrme2.model.resource.ResourcePropertyNew;
@@ -334,6 +335,49 @@ public class DashboardController {
 		griffinStSaleFixed.addResourceParamDateValue(griffinStSaleFixedVal);
 
 		scenario.addResource(griffinSt);
+
+		// ------------------------
+		// Griffin Street Mortgage.
+		// ------------------------
+		
+		Resource griffinStMortgage = new ResourceMortgageExisting("Griffin Street Mortgage");
+		griffinStMortgage.setStartYearMonth(YearMonth.of(2024, 1));
+		
+		griffinSt.addChild(griffinStMortgage);
+
+		// Griffin Street Mortgage BALANCE_OPENING_FIXED.
+		ResourceParamIntegerNegative griffinStMortgageOpeningAssetValue = new ResourceParamIntegerNegative(ResourceParamNameEnum.BALANCE_OPENING_FIXED);
+		griffinStMortgage.addResourceParam(griffinStMortgageOpeningAssetValue);
+		ResourceParamDateValueIntegerNegative griffinStMortgageOpeningAssetVal = new ResourceParamDateValueIntegerNegative(YearMonth.of(2024, 1), false, Integer.valueOf(-656116));
+		griffinStMortgageOpeningAssetValue.addResourceParamDateValue(griffinStMortgageOpeningAssetVal);		
+
+		// Griffin Street Mortgage MORTGAGE_INTEREST_RATE.
+		ResourceParamBigDecimal griffinStInterestRate = new ResourceParamBigDecimal(ResourceParamNameEnum.MORTGAGE_INTEREST_RATE);
+		griffinStInterestRate.setUserAbleToCreateNewDateValue(true);
+		griffinStMortgage.addResourceParam(griffinStInterestRate);
+		ResourceParamDateValueBigDecimal griffinStInterestRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal(7.14));
+		griffinStInterestRate.addResourceParamDateValue(griffinStInterestRateVal);		
+
+		// Griffin Street Mortgage MORTGAGE_REMAINING_MONTHS.
+		ResourceParamIntegerPositive griffinStRemainingMonths = new ResourceParamIntegerPositive(ResourceParamNameEnum.MORTGAGE_REMAINING_MONTHS);
+		griffinStMortgage.addResourceParam(griffinStRemainingMonths);
+		ResourceParamDateValueIntegerPositive griffinStRemainingMonthsVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(7));
+		griffinStRemainingMonths.addResourceParamDateValue(griffinStRemainingMonthsVal);
+
+		// Griffin Street Mortgage MORTGAGE_REMAINING_YEARS.
+		ResourceParamIntegerPositive griffinStRemainingYears = new ResourceParamIntegerPositive(ResourceParamNameEnum.MORTGAGE_REMAINING_YEARS);
+		griffinStMortgage.addResourceParam(griffinStRemainingYears);
+		ResourceParamDateValueIntegerPositive griffinStRemainingYearsVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(13));
+		griffinStRemainingYears.addResourceParamDateValue(griffinStRemainingYearsVal);
+		
+		// Griffin Street Mortgage MORTGAGE_REPAYMENT_TYPE.
+		ResourceParamString griffinStMortgageStatus = new ResourceParamString(ResourceParamNameEnum.MORTGAGE_REPAYMENT_TYPE);
+		griffinStMortgageStatus.setUserAbleToCreateNewDateValue(true);
+		griffinStMortgage.addResourceParam(griffinStMortgageStatus);
+		ResourceParamDateValueString griffinStMortgageStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourceMortgageExisting.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST);
+		griffinStMortgageStatus.addResourceParamDateValue(griffinStMortgageStatusVal);		
+
+		scenario.addResource(griffinStMortgage);
 
 		// --------------------
 		// Investment property.

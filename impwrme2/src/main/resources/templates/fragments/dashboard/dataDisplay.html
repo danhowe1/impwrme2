@@ -150,11 +150,13 @@
 						oTable.destroy();
 						$('#dashboardTable').empty();
 						oTable = $('#dashboardTable').DataTable({
+							dom : 'Brtip',
 							responsive : true,
 							paging : false,
 							searching : false,
 							info : false,
 							ordering : false,
+							buttons : [ 'excel' ],
 							columns : data.columns,
 							"columnDefs": [
 						        {
@@ -196,24 +198,27 @@
 						oTransactionsTable.destroy();
 						$('#dashboardTransactionsTable').empty();
 						oTransactionsTable = $('#dashboardTransactionsTable').DataTable({
+							dom : 'Brtip',
 							responsive : true,
 							paging : false,
 							searching : false,
 							info : false,
-							ordering : false,
+							buttons : [ 'excel' ],
 							columns : data.columns,
 							"columnDefs": [
 								{
 									// First two columns align left.
 									"targets": [0, 1], 
-									"className": "dt-left"
+									"className": "dt-left",
+									"orderable": true
 								},
 						        {
 						            "render": function (data, type, row) {
 						                 return commaSeparateNumber(data);
 						            },
 						            "className": "dt-nowrap",
-						            "targets": ['_all']
+						            "targets": ['_all'],
+									"orderable": false
 						        },
 						    ],
 							data : data.journalEntries

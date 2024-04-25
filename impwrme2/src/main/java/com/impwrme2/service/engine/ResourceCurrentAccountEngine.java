@@ -1,15 +1,16 @@
 package com.impwrme2.service.engine;
 
 import com.impwrme2.model.resource.ResourceCurrentAccount;
+import com.impwrme2.service.journalEntry.BalanceTracker;
 
 public class ResourceCurrentAccountEngine extends ResourceEngine {
 
-	public ResourceCurrentAccountEngine(ResourceCurrentAccount resource) {
-		super(resource);
+	public ResourceCurrentAccountEngine(ResourceCurrentAccount resource, final BalanceTracker balanceTracker) {
+		super(resource, balanceTracker);
 	}
 
 	@Override
-	public Integer getBalanceLiquidLegalMaxIfNotSpecified() {
+	public Integer getBalanceLiquidLegalMaxIfNotSpecified(final BalanceTracker balanceTracker) {
 		return Integer.MAX_VALUE;
 	}
 
@@ -19,8 +20,8 @@ public class ResourceCurrentAccountEngine extends ResourceEngine {
 	}
 
 	@Override
-	public Integer getBalanceLiquidPreferredMaxIfNotSpecified() {
-		return getBalanceLiquidLegalMaxIfNotSpecified();
+	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(final BalanceTracker balanceTracker) {
+		return getBalanceLiquidLegalMaxIfNotSpecified(balanceTracker);
 	}
 
 	@Override

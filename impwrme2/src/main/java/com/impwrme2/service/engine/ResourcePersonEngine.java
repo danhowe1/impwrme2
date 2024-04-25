@@ -19,15 +19,15 @@ public class ResourcePersonEngine extends ResourceEngine {
 	private final Integer retirementAge;
 	private final YearMonth retirementDate;
 	
-	public ResourcePersonEngine(ResourcePerson resource) {
-		super(resource);
+	public ResourcePersonEngine(ResourcePerson resource, final BalanceTracker balanceTracker) {
+		super(resource, balanceTracker);
 		birthYearMonth = (YearMonth)  resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH, resource.getStartYearMonth()).get().getValue();
 		retirementAge = (Integer)  resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_RETIREMENT_AGE, resource.getStartYearMonth()).get().getValue();
 		retirementDate = birthYearMonth.plusYears(retirementAge);
 	}
 
 	@Override
-	public Integer getBalanceLiquidLegalMaxIfNotSpecified() {
+	public Integer getBalanceLiquidLegalMaxIfNotSpecified(final BalanceTracker balanceTracker) {
 		return Integer.valueOf(0);
 	}
 
@@ -37,7 +37,7 @@ public class ResourcePersonEngine extends ResourceEngine {
 	}
 
 	@Override
-	public Integer getBalanceLiquidPreferredMaxIfNotSpecified() {
+	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(final BalanceTracker balanceTracker) {
 		return Integer.valueOf(0);
 	}
 
