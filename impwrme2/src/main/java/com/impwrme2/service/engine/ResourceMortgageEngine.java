@@ -48,7 +48,8 @@ public class ResourceMortgageEngine extends ResourceEngine {
 
 	@Override
 	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(final BalanceTracker balanceTracker) {
-		return getBalanceLiquidLegalMaxIfNotSpecified(balanceTracker);
+		return Integer.valueOf(0);
+//		return getBalanceLiquidLegalMaxIfNotSpecified(balanceTracker);
 	}
 
 	@Override
