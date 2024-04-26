@@ -2,6 +2,7 @@ package com.impwrme2.model.resource;
 
 import java.util.List;
 
+import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.enums.ResourceParamStringValueEnum;
 
@@ -42,5 +43,10 @@ public class ResourceMortgageExisting extends Resource {
 					ResourceParamStringValueEnum.MORTGAGE_REPAYMENT_PAY_OUT);
 		}
 		return super.getListOfAllowedValues(resourceParamName);
+	}
+
+	@Override
+	public List<CashflowCategory> getCashflowCategoriesUsersCanCreate() {
+		return List.of(CashflowCategory.DEPOSIT_ADDITIONAL_PAYMENT, CashflowCategory.WITHDRAWAL_REDRAW);
 	}
 }

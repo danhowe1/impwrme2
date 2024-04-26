@@ -37,8 +37,8 @@ public class ResourceMortgageEngine extends ResourceEngine {
 
 	@Override
 	public Integer getBalanceLiquidLegalMaxIfNotSpecified(final BalanceTracker balanceTracker) {
-		return Integer.valueOf(0);
-//		return -1 * balanceTracker.getResourceFixedAmount(getResource());
+//		return Integer.valueOf(0);
+		return -1 * balanceTracker.getResourceFixedAmount(getResource());
 	}
 
 	@Override
@@ -95,10 +95,7 @@ public class ResourceMortgageEngine extends ResourceEngine {
 			}
 		}
 		
-		// TODO This will require processing after the deposits and withdrawals have been done somehow!
-		Integer currentMonthsNetDepositsAndWithdrawals = 0;
-		
-		Integer principalAndInterestPreOffset = calculatePrincipalAndInterestPreOffset(yearMonth, currentMonthsNetDepositsAndWithdrawals);
+		Integer principalAndInterestPreOffset = calculatePrincipalAndInterestPreOffset(yearMonth);
 		BigDecimal interestOnlyPreOffset = calculateInterestOnlyPreOffset(balanceTracker, yearMonth);
 		BigDecimal interestEarnedInOffsetAccounts = calculateInterestEarnedInOffsetAccounts(balanceTracker, yearMonth);
 		
@@ -107,16 +104,18 @@ public class ResourceMortgageEngine extends ResourceEngine {
 		
 		if (mortgageType.getValue().equals(ResourceMortgageExisting.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST)) {
 			principalExpense = principalAndInterestPreOffset - interestExpense;
-			
-			// Don't pay off more than is required when we get down to the final payment.
-			if (principalExpense < balanceTracker.getResourceFixedAmount(resource)) {
-				principalExpense = balanceTracker.getResourceFixedAmount(resource);
-			}
 		}
 		
+		if (Math.abs(principalExpense) >= Math.abs(balanceTracker.getResourceAssetValue(resource))) {
+			return createJournalEntriesForPayOut(balanceTracker, yearMonth);
+		}
+				
 		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, interestExpense, CashflowCategory.EXPENSE_INTEREST));
 		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, principalExpense, CashflowCategory.EXPENSE_PRINCIPAL));					
 		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -principalExpense, CashflowCategory.APPRECIATION_GROWTH));					
+
+		// Standard cash-flows.
+		journalEntries.addAll(generateJournalEntriesFromCashflows(yearMonth, resource.getCashflows()));
 		
 		return journalEntries;
 	}
@@ -155,8 +154,14 @@ public class ResourceMortgageEngine extends ResourceEngine {
 	private List<JournalEntry> createJournalEntriesForPayOut(final BalanceTracker balanceTracker, final YearMonth yearMonth) {
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
 		Integer mortgageAmount = balanceTracker.getResourceFixedAmount(resource);
-		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, mortgageAmount, CashflowCategory.EXPENSE_ASSET_SALE_FIXED));
-		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -mortgageAmount, CashflowCategory.APPRECIATION_ASSET_SALE));
+		Integer additionalPayments = balanceTracker.getResourceLiquidDepositAmount(resource);
+		if (additionalPayments > 0) {
+			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -additionalPayments, CashflowCategory.WITHDRAWAL_BALANCE));
+		}
+		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, mortgageAmount, CashflowCategory.EXPENSE_PRINCIPAL));
+		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -mortgageAmount, CashflowCategory.APPRECIATION_GROWTH));
+		isPaidOut = true;
+		
 		return journalEntries;
 	}
 
@@ -169,7 +174,7 @@ public class ResourceMortgageEngine extends ResourceEngine {
 		return (BigDecimal) annualInterestRateOpt.get().getValue();
 	}
 
-	private Integer calculatePrincipalAndInterestPreOffset(final YearMonth yearMonth, final Integer currentMonthsNetDepositsAndWithdrawals) {
+	private Integer calculatePrincipalAndInterestPreOffset(final YearMonth yearMonth) {
 
 		BigDecimal monthlyInterestRate = monthlyInterestRate(yearMonth);
 		BigDecimal numerator = monthlyInterestRate.multiply(new BigDecimal(balanceOpeningFixed));
@@ -177,7 +182,7 @@ public class ResourceMortgageEngine extends ResourceEngine {
 		denominator = denominator.pow(-totalMonthsRemaining, SCALE_10_ROUNDING_HALF_EVEN);
 		denominator = BigDecimal.ONE.subtract(denominator);
 
-		return integerOf(numerator.divide(denominator, SCALE_10_ROUNDING_HALF_EVEN)) - currentMonthsNetDepositsAndWithdrawals;
+		return integerOf(numerator.divide(denominator, SCALE_10_ROUNDING_HALF_EVEN));
 	}
 
 	private BigDecimal calculateInterestOnlyPreOffset(final BalanceTracker balanceTracker, final YearMonth yearMonth) {

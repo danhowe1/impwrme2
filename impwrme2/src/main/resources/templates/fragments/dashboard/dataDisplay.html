@@ -157,14 +157,27 @@
 							info : false,
 							ordering : false,
 							buttons : [ 'excel' ],
+							scrollX : true,
+							sScrollXInner : "100%",
+							scrollCollapse: true,
+							fixedColumns  :   {
+						        leftColumns: 1,
+						    },
 							columns : data.columns,
 							"columnDefs": [
+								{
+									// First column align left.
+									"targets": [0], 
+									"className": "dt-left",
+									"orderable": false
+								},								
 						        {
 						            "render": function (data, type, row) {
 						                 return commaSeparateNumber(data);
 						            },
-						            "className": "dt-nowrap",
-						            "targets": ['_all']
+						            "className": "dt-nowrap dt-head-right",
+						            "targets": ['_all'],
+									"orderable": false
 						        },
 						    ],
 							data : data.journalEntries
@@ -204,8 +217,14 @@
 							searching : false,
 							info : false,
 							buttons : [ 'excel' ],
+							scrollX : true,
+							sScrollXInner : "100%",
+							scrollCollapse: true,
+							fixedColumns  :   {
+						        leftColumns: 2,
+						    },
 							columns : data.columns,
-							"columnDefs": [
+							columnDefs : [
 								{
 									// First two columns align left.
 									"targets": [0, 1], 
@@ -357,7 +376,7 @@
 		<!-- Row for balances table. -->
 		<!-- ----------------------- -->
 		
-		<div id="rowTableBalances" class="row bg-white mx-1 py-1" style="overflow-x: auto;">
+		<div id="rowTableBalances" class="row bg-white mx-1 py-1">
 			<div class="col m-2">
 				<table id="dashboardTable"
 					class="table table-responsive table-bordered compact">
@@ -369,7 +388,7 @@
 		<!-- Row for transactions table. -->
 		<!-- --------------------------- -->
 		
-		<div id="rowTableTransactions" class="row bg-white mx-1 py-1" style="overflow-x: auto;">
+		<div id="rowTableTransactions" class="row bg-white mx-1 py-1">
 			<div class="col m-2">
 				<table id="dashboardTransactionsTable"
 					class="table table-responsive table-bordered compact">
