@@ -28,14 +28,11 @@ import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.cashflow.CashflowFrequency;
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.resource.Resource;
-import com.impwrme2.model.resource.ResourceCreditCard;
-import com.impwrme2.model.resource.ResourceCurrentAccount;
 import com.impwrme2.model.resource.ResourceHousehold;
 import com.impwrme2.model.resource.ResourceMortgageExisting;
 import com.impwrme2.model.resource.ResourceMortgageOffset;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
-import com.impwrme2.model.resource.ResourcePropertyNew;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParamBigDecimal;
@@ -154,25 +151,18 @@ public class DashboardController {
 		ResourceParamBigDecimal cpi = new ResourceParamBigDecimal(ResourceParamNameEnum.SCENARIO_CPI);
 		cpi.setUserAbleToCreateNewDateValue(true);
 		scenarioResource.addResourceParam(cpi);
-
-		ResourceParamDateValueBigDecimal cpiVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("2.15"));
+		ResourceParamDateValueBigDecimal cpiVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("2.00"));
 		cpi.addResourceParamDateValue(cpiVal);
-
-		ResourceParamDateValueBigDecimal cpiVal2 = new ResourceParamDateValueBigDecimal(YearMonth.of(2027, 10), true, new BigDecimal("3.00"));
-		cpiVal2.setUserAbleToChangeDate(true);
-		cpi.addResourceParamDateValue(cpiVal2);
 
 		ResourceParamBigDecimal shareMarketGrowthRate = new ResourceParamBigDecimal(ResourceParamNameEnum.SCENARIO_SHARE_MARKET_GROWTH_RATE);
 		shareMarketGrowthRate.setUserAbleToCreateNewDateValue(true);
 		scenarioResource.addResourceParam(shareMarketGrowthRate);
-
-		ResourceParamDateValueBigDecimal shareMarketGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("6.5"));
+		ResourceParamDateValueBigDecimal shareMarketGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("4.0"));
 		shareMarketGrowthRate.addResourceParamDateValue(shareMarketGrowthRateVal);
 
 		ResourceParamBigDecimal housingMarketGrowthRate = new ResourceParamBigDecimal(ResourceParamNameEnum.SCENARIO_HOUSING_MARKET_GROWTH_RATE);
 		housingMarketGrowthRate.setUserAbleToCreateNewDateValue(true);
 		scenarioResource.addResourceParam(housingMarketGrowthRate);
-
 		ResourceParamDateValueBigDecimal housingMarketGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("6.0"));
 		housingMarketGrowthRate.addResourceParamDateValue(housingMarketGrowthRateVal);
 
@@ -196,87 +186,146 @@ public class DashboardController {
 
 		ResourceParamYearMonth birthYearMonth = new ResourceParamYearMonth(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH);
 		amandaResource.addResourceParam(birthYearMonth);
-
 		ResourceParamDateValueYearMonth birthYearMonthVal = new ResourceParamDateValueYearMonth(YearMonth.of(2024, 1), false, YearMonth.of(1972, 2));
 		birthYearMonth.addResourceParamDateValue(birthYearMonthVal);
 
 		ResourceParamIntegerPositive departureAge = new ResourceParamIntegerPositive(ResourceParamNameEnum.PERSON_DEPARTURE_AGE);
 		amandaResource.addResourceParam(departureAge);
-
 		ResourceParamDateValueIntegerPositive deprtureAgeVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(100));
 		departureAge.addResourceParamDateValue(deprtureAgeVal);
 
 		ResourceParamIntegerPositive retirementAge = new ResourceParamIntegerPositive(ResourceParamNameEnum.PERSON_RETIREMENT_AGE);
 		amandaResource.addResourceParam(retirementAge);
-
-		ResourceParamDateValueIntegerPositive retirementAgeVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(65));
+		ResourceParamDateValueIntegerPositive retirementAgeVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(45));
 		retirementAge.addResourceParamDateValue(retirementAgeVal);
 		
-		Cashflow amandaEmploymentIncome = new Cashflow(CashflowCategory.INCOME_EMPLOYMENT, CashflowFrequency.MONTHLY, Boolean.TRUE);
-		amandaResource.addCashflow(amandaEmploymentIncome);
-		
-		CashflowDateRangeValue amandaEmploymentIncomeDRV = new CashflowDateRangeValue(amandaEmploymentIncome.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(2500));
-		amandaEmploymentIncome.addCashflowDateRangeValue(amandaEmploymentIncomeDRV);
+//		Cashflow amandaEmploymentIncome = new Cashflow(CashflowCategory.INCOME_EMPLOYMENT, CashflowFrequency.MONTHLY, Boolean.TRUE);
+//		amandaResource.addCashflow(amandaEmploymentIncome);
+//		CashflowDateRangeValue amandaEmploymentIncomeDRV = new CashflowDateRangeValue(amandaEmploymentIncome.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(2500));
+//		amandaEmploymentIncome.addCashflowDateRangeValue(amandaEmploymentIncomeDRV);
 		
 		Cashflow amandaLivingExpense = new Cashflow(CashflowCategory.EXPENSE_LIVING_ESSENTIAL, CashflowFrequency.MONTHLY, Boolean.TRUE);
-		amandaResource.addCashflow(amandaLivingExpense);
-		
+		amandaResource.addCashflow(amandaLivingExpense);		
 		CashflowDateRangeValue amandaLivingExpenseDRV = new CashflowDateRangeValue(amandaLivingExpense.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-3000));
 		amandaLivingExpense.addCashflowDateRangeValue(amandaLivingExpenseDRV);
 	
+		Cashflow amandaLivingSplurgeExpense = new Cashflow(CashflowCategory.EXPENSE_LIVING_NON_ESSENTIAL, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		amandaResource.addCashflow(amandaLivingSplurgeExpense);		
+		CashflowDateRangeValue amandaLivingSplurgeExpenseDRV = new CashflowDateRangeValue(amandaLivingSplurgeExpense.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-2500));
+		amandaLivingSplurgeExpense.addCashflowDateRangeValue(amandaLivingSplurgeExpenseDRV);
+	
+		Cashflow amandaFlightsExpense = new Cashflow(CashflowCategory.EXPENSE_HOLIDAYS, "Flights", CashflowFrequency.ANNUALLY, Boolean.TRUE);
+		amandaResource.addCashflow(amandaFlightsExpense);		
+		CashflowDateRangeValue amandaFlightsExpenseDRV = new CashflowDateRangeValue(amandaFlightsExpense.getCategory().getType(), YearMonth.of(2024, 6), YearMonth.of(2043, 1), Integer.valueOf(-10000));
+		amandaFlightsExpense.addCashflowDateRangeValue(amandaFlightsExpenseDRV);
+	
+		Cashflow amandaUKPensionIncome = new Cashflow(CashflowCategory.INCOME_MISC, "UK pension", CashflowFrequency.MONTHLY, Boolean.TRUE);
+		amandaResource.addCashflow(amandaUKPensionIncome);		
+		CashflowDateRangeValue amandaUKPensionIncomeDRV = new CashflowDateRangeValue(amandaUKPensionIncome.getCategory().getType(), YearMonth.of(2039, 3), Integer.valueOf(2000));
+		amandaUKPensionIncome.addCashflowDateRangeValue(amandaUKPensionIncomeDRV);
+	
 		scenario.addResource(amandaResource);
+		
+		// ----
+		// Dan.
+		// ----
+		
+		Resource danResource = new ResourcePerson("Dan");
+		danResource.setStartYearMonth(YearMonth.of(2024, 1));
+
+		ResourceParamYearMonth danBirthYearMonth = new ResourceParamYearMonth(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH);
+		danResource.addResourceParam(danBirthYearMonth);
+		ResourceParamDateValueYearMonth danBirthYearMonthVal = new ResourceParamDateValueYearMonth(YearMonth.of(2024, 1), false, YearMonth.of(1971, 11));
+		danBirthYearMonth.addResourceParamDateValue(danBirthYearMonthVal);
+
+		ResourceParamIntegerPositive danDepartureAge = new ResourceParamIntegerPositive(ResourceParamNameEnum.PERSON_DEPARTURE_AGE);
+		danResource.addResourceParam(danDepartureAge);
+		ResourceParamDateValueIntegerPositive danDeprtureAgeVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(100));
+		danDepartureAge.addResourceParamDateValue(danDeprtureAgeVal);
+
+		ResourceParamIntegerPositive danRetirementAge = new ResourceParamIntegerPositive(ResourceParamNameEnum.PERSON_RETIREMENT_AGE);
+		danResource.addResourceParam(danRetirementAge);
+		ResourceParamDateValueIntegerPositive danRetirementAgeVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(45));
+		danRetirementAge.addResourceParamDateValue(danRetirementAgeVal);
+		
+//		Cashflow danEmploymentIncome = new Cashflow(CashflowCategory.INCOME_EMPLOYMENT, CashflowFrequency.MONTHLY, Boolean.TRUE);
+//		danResource.addCashflow(danEmploymentIncome);
+//		CashflowDateRangeValue danEmploymentIncomeDRV = new CashflowDateRangeValue(danEmploymentIncome.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(2500));
+//		danEmploymentIncome.addCashflowDateRangeValue(danEmploymentIncomeDRV);
+		
+		Cashflow danLivingExpense = new Cashflow(CashflowCategory.EXPENSE_LIVING_ESSENTIAL, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		danResource.addCashflow(danLivingExpense);		
+		CashflowDateRangeValue danLivingExpenseDRV = new CashflowDateRangeValue(danLivingExpense.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-3000));
+		danLivingExpense.addCashflowDateRangeValue(danLivingExpenseDRV);
+	
+		Cashflow danLivingSplurgeExpense = new Cashflow(CashflowCategory.EXPENSE_LIVING_NON_ESSENTIAL, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		danResource.addCashflow(danLivingSplurgeExpense);		
+		CashflowDateRangeValue danLivingSplurgeExpenseDRV = new CashflowDateRangeValue(danLivingSplurgeExpense.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-2500));
+		danLivingSplurgeExpense.addCashflowDateRangeValue(danLivingSplurgeExpenseDRV);
+	
+		Cashflow danFlightsExpense = new Cashflow(CashflowCategory.EXPENSE_HOLIDAYS, "Flights", CashflowFrequency.ANNUALLY, Boolean.TRUE);
+		danResource.addCashflow(danFlightsExpense);		
+		CashflowDateRangeValue danFlightsExpenseDRV = new CashflowDateRangeValue(danFlightsExpense.getCategory().getType(), YearMonth.of(2024, 6), YearMonth.of(2043, 1), Integer.valueOf(-10000));
+		danFlightsExpense.addCashflowDateRangeValue(danFlightsExpenseDRV);
+	
+		Cashflow danUKPensionIncome = new Cashflow(CashflowCategory.INCOME_MISC, "UK pension", CashflowFrequency.MONTHLY, Boolean.TRUE);
+		danResource.addCashflow(danUKPensionIncome);		
+		CashflowDateRangeValue danUKPensionIncomeDRV = new CashflowDateRangeValue(danUKPensionIncome.getCategory().getType(), YearMonth.of(2038, 12), Integer.valueOf(2000));
+		danUKPensionIncome.addCashflowDateRangeValue(danUKPensionIncomeDRV);
+	
+		scenario.addResource(danResource);
 		
 		// ------------
 		// Credit card.
 		// ------------
 		
-		Resource creditCard = new ResourceCreditCard("Credit Card");
-		creditCard.setStartYearMonth(YearMonth.of(2024, 1));
-
-		ResourceParamIntegerNegative balanceLegalMin = new ResourceParamIntegerNegative(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MIN);
-		balanceLegalMin.setUserAbleToCreateNewDateValue(true);
-		creditCard.addResourceParam(balanceLegalMin);
-
-		ResourceParamDateValueIntegerNegative balanceLegalMinVal = new ResourceParamDateValueIntegerNegative(YearMonth.of(2024, 1), false, Integer.valueOf(-15000));
-		balanceLegalMin.addResourceParamDateValue(balanceLegalMinVal);
-
-		ResourceParamIntegerNegative balanceOpeningLiquid = new ResourceParamIntegerNegative(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
-		creditCard.addResourceParam(balanceOpeningLiquid);
-
-		ResourceParamDateValueIntegerNegative balanceOpeningLiquidVal = new ResourceParamDateValueIntegerNegative(YearMonth.of(2024, 1), false, Integer.valueOf(-12000));
-		balanceOpeningLiquid.addResourceParamDateValue(balanceOpeningLiquidVal);		
-		
-		scenario.addResource(creditCard);
+//		Resource creditCard = new ResourceCreditCard("Credit Card");
+//		creditCard.setStartYearMonth(YearMonth.of(2024, 1));
+//
+//		ResourceParamIntegerNegative balanceLegalMin = new ResourceParamIntegerNegative(ResourceParamNameEnum.BALANCE_LIQUID_LEGAL_MIN);
+//		balanceLegalMin.setUserAbleToCreateNewDateValue(true);
+//		creditCard.addResourceParam(balanceLegalMin);
+//
+//		ResourceParamDateValueIntegerNegative balanceLegalMinVal = new ResourceParamDateValueIntegerNegative(YearMonth.of(2024, 1), false, Integer.valueOf(-15000));
+//		balanceLegalMin.addResourceParamDateValue(balanceLegalMinVal);
+//
+//		ResourceParamIntegerNegative balanceOpeningLiquid = new ResourceParamIntegerNegative(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
+//		creditCard.addResourceParam(balanceOpeningLiquid);
+//
+//		ResourceParamDateValueIntegerNegative balanceOpeningLiquidVal = new ResourceParamDateValueIntegerNegative(YearMonth.of(2024, 1), false, Integer.valueOf(-12000));
+//		balanceOpeningLiquid.addResourceParamDateValue(balanceOpeningLiquidVal);		
+//		
+//		scenario.addResource(creditCard);
 		
 		// ------------------
 		// Current account 1.
 		// ------------------
 		
-		Resource currentAccount1 = new ResourceCurrentAccount("Current Account 1");
-		currentAccount1.setStartYearMonth(YearMonth.of(2024, 1));
-
-		ResourceParamIntegerPositive currentAccount1BalanceOpeningLiquid = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
-		currentAccount1.addResourceParam(currentAccount1BalanceOpeningLiquid);
-
-		ResourceParamDateValueIntegerPositive currentAccount1BalanceOpeningLiquidVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(30000));
-		currentAccount1BalanceOpeningLiquid.addResourceParamDateValue(currentAccount1BalanceOpeningLiquidVal);		
-		
-		scenario.addResource(currentAccount1);
+//		Resource currentAccount1 = new ResourceCurrentAccount("Current Account 1");
+//		currentAccount1.setStartYearMonth(YearMonth.of(2024, 1));
+//
+//		ResourceParamIntegerPositive currentAccount1BalanceOpeningLiquid = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
+//		currentAccount1.addResourceParam(currentAccount1BalanceOpeningLiquid);
+//
+//		ResourceParamDateValueIntegerPositive currentAccount1BalanceOpeningLiquidVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(30000));
+//		currentAccount1BalanceOpeningLiquid.addResourceParamDateValue(currentAccount1BalanceOpeningLiquidVal);		
+//		
+//		scenario.addResource(currentAccount1);
 		
 		// ------------------
 		// Current account 2.
 		// ------------------
 		
-		Resource currentAccount2 = new ResourceCurrentAccount("Current Account 2");
-		currentAccount2.setStartYearMonth(YearMonth.of(2024, 1));
-
-		ResourceParamIntegerPositive currentAccount2BalanceOpeningLiquid = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
-		currentAccount2.addResourceParam(currentAccount2BalanceOpeningLiquid);
-
-		ResourceParamDateValueIntegerPositive currentAccount2BalanceOpeningLiquidVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(20000));
-		currentAccount2BalanceOpeningLiquid.addResourceParamDateValue(currentAccount2BalanceOpeningLiquidVal);		
-		
-		scenario.addResource(currentAccount2);
+//		Resource currentAccount2 = new ResourceCurrentAccount("Current Account 2");
+//		currentAccount2.setStartYearMonth(YearMonth.of(2024, 1));
+//
+//		ResourceParamIntegerPositive currentAccount2BalanceOpeningLiquid = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
+//		currentAccount2.addResourceParam(currentAccount2BalanceOpeningLiquid);
+//
+//		ResourceParamDateValueIntegerPositive currentAccount2BalanceOpeningLiquidVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(20000));
+//		currentAccount2BalanceOpeningLiquid.addResourceParamDateValue(currentAccount2BalanceOpeningLiquidVal);		
+//		
+//		scenario.addResource(currentAccount2);
 
 		// ---------------
 		// Griffin Street.
@@ -295,8 +344,14 @@ public class DashboardController {
 		ResourceParamString griffinStStatus = new ResourceParamString(ResourceParamNameEnum.PROPERTY_STATUS);
 		griffinStStatus.setUserAbleToCreateNewDateValue(true);
 		griffinSt.addResourceParam(griffinStStatus);
-		ResourceParamDateValueString griffinStStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourcePropertyExisting.PROPERTY_STATUS_LIVING_IN);
+		ResourceParamDateValueString griffinStStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourcePropertyExisting.PROPERTY_STATUS_RENTED);
 		griffinStStatus.addResourceParamDateValue(griffinStStatusVal);		
+
+		ResourceParamDateValueString griffinStStatus2Val = new ResourceParamDateValueString(YearMonth.of(2024, 2), false, ResourcePropertyExisting.PROPERTY_STATUS_LIVING_IN);
+		griffinStStatus.addResourceParamDateValue(griffinStStatus2Val);		
+
+		ResourceParamDateValueString griffinStStatus3Val = new ResourceParamDateValueString(YearMonth.of(2025, 11), false, ResourcePropertyExisting.PROPERTY_STATUS_SOLD);
+		griffinStStatus.addResourceParamDateValue(griffinStStatus3Val);		
 
 		// Griffin Street EXPENSE_ASSET_OWNERSHIP.
 		Cashflow griffinStAssetOwnership = new Cashflow(CashflowCategory.EXPENSE_ASSET_OWNERSHIP, CashflowFrequency.MONTHLY, Boolean.TRUE);
@@ -314,13 +369,13 @@ public class DashboardController {
 		// Griffin Street EXPENSE_RENTAL_PROPERTY.
 		Cashflow griffinStRentalExpense = new Cashflow(CashflowCategory.EXPENSE_RENTAL_PROPERTY, CashflowFrequency.MONTHLY, Boolean.TRUE);
 		griffinSt.addCashflow(griffinStRentalExpense);
-		CashflowDateRangeValue griffinStRentalExpenseDRV = new CashflowDateRangeValue(griffinStRentalExpense.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-1300));
+		CashflowDateRangeValue griffinStRentalExpenseDRV = new CashflowDateRangeValue(griffinStRentalExpense.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-400));
 		griffinStRentalExpense.addCashflowDateRangeValue(griffinStRentalExpenseDRV);
 
 		// Griffin Street INCOME_RENTAL_PROPERTY.
 		Cashflow griffinStRentalIncome = new Cashflow(CashflowCategory.INCOME_RENTAL_PROPERTY, CashflowFrequency.MONTHLY, Boolean.TRUE);
 		griffinSt.addCashflow(griffinStRentalIncome);
-		CashflowDateRangeValue griffinStRentalIncomeDRV = new CashflowDateRangeValue(griffinStRentalIncome.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(6500));
+		CashflowDateRangeValue griffinStRentalIncomeDRV = new CashflowDateRangeValue(griffinStRentalIncome.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(6933));
 		griffinStRentalIncome.addCashflowDateRangeValue(griffinStRentalIncomeDRV);
 
 		// Griffin Street EXPENSE_ASSET_SALE_COMMISSION.
@@ -341,7 +396,7 @@ public class DashboardController {
 		// Griffin Street Mortgage.
 		// ------------------------
 		
-		Resource griffinStMortgage = new ResourceMortgageExisting("Griffin Street Mortgage");
+		Resource griffinStMortgage = new ResourceMortgageExisting("Griffin Street Variable");
 		griffinStMortgage.setStartYearMonth(YearMonth.of(2024, 1));
 		
 		griffinSt.addChild(griffinStMortgage);
@@ -362,7 +417,7 @@ public class DashboardController {
 		// Griffin Street Mortgage MORTGAGE_REMAINING_MONTHS.
 		ResourceParamIntegerPositive griffinStRemainingMonths = new ResourceParamIntegerPositive(ResourceParamNameEnum.MORTGAGE_REMAINING_MONTHS);
 		griffinStMortgage.addResourceParam(griffinStRemainingMonths);
-		ResourceParamDateValueIntegerPositive griffinStRemainingMonthsVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(7));
+		ResourceParamDateValueIntegerPositive griffinStRemainingMonthsVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(8));
 		griffinStRemainingMonths.addResourceParamDateValue(griffinStRemainingMonthsVal);
 
 		// Griffin Street Mortgage MORTGAGE_REMAINING_YEARS.
@@ -380,22 +435,199 @@ public class DashboardController {
 
 		scenario.addResource(griffinStMortgage);
 
+		// -------------
+		// Addison Road.
+		// -------------
+		
+		Resource addisonRd = new ResourcePropertyExisting("Addison Road");
+		addisonRd.setStartYearMonth(YearMonth.of(2024, 1));
+
+		// Addison Road BALANCE_OPENING_FIXED.
+		ResourceParamIntegerPositive addisonRdOpeningAssetValue = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_FIXED);
+		addisonRd.addResourceParam(addisonRdOpeningAssetValue);
+		ResourceParamDateValueIntegerPositive addisonRdOpeningAssetVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(6000000));
+		addisonRdOpeningAssetValue.addResourceParamDateValue(addisonRdOpeningAssetVal);		
+
+		// Addison Road PROPERTY_STATUS.
+		ResourceParamString addisonRdStatus = new ResourceParamString(ResourceParamNameEnum.PROPERTY_STATUS);
+		addisonRdStatus.setUserAbleToCreateNewDateValue(true);
+		addisonRd.addResourceParam(addisonRdStatus);
+		ResourceParamDateValueString addisonRdStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourcePropertyExisting.PROPERTY_STATUS_RENTED);
+		addisonRdStatus.addResourceParamDateValue(addisonRdStatusVal);		
+
+		ResourceParamDateValueString addisonRdStatus2Val = new ResourceParamDateValueString(YearMonth.of(2026, 3), false, ResourcePropertyExisting.PROPERTY_STATUS_LIVING_IN);
+		addisonRdStatus.addResourceParamDateValue(addisonRdStatus2Val);		
+
+		// Addison Road EXPENSE_ASSET_OWNERSHIP.
+		Cashflow addisonRdAssetOwnership = new Cashflow(CashflowCategory.EXPENSE_ASSET_OWNERSHIP, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		addisonRd.addCashflow(addisonRdAssetOwnership);
+		CashflowDateRangeValue addisonRdAssetOwnershipDRV = new CashflowDateRangeValue(addisonRdAssetOwnership.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-1300));
+		addisonRdAssetOwnership.addCashflowDateRangeValue(addisonRdAssetOwnershipDRV);
+
+		// Addison Road EXPENSE_ASSET_OWNERSHIP CPT.
+		Cashflow addisonRdAssetOwnershipCPT = new Cashflow(CashflowCategory.EXPENSE_ASSET_OWNERSHIP, "CPT", CashflowFrequency.ANNUALLY, Boolean.FALSE);
+		addisonRd.addCashflow(addisonRdAssetOwnershipCPT);
+		CashflowDateRangeValue addisonRdAssetOwnershipCPTDRV = new CashflowDateRangeValue(addisonRdAssetOwnershipCPT.getCategory().getType(), YearMonth.of(2024, 10), YearMonth.of(2031, 11), Integer.valueOf(-10250));
+		addisonRdAssetOwnershipCPT.addCashflowDateRangeValue(addisonRdAssetOwnershipCPTDRV);
+
+		// Addison Road EXPENSE_ASSET_OWNERSHIP RENOS.
+		Cashflow addisonRdAssetOwnershipRenos = new Cashflow(CashflowCategory.EXPENSE_ASSET_OWNERSHIP, "Renos", CashflowFrequency.ONE_OFF, Boolean.FALSE);
+		addisonRd.addCashflow(addisonRdAssetOwnershipRenos);
+		CashflowDateRangeValue addisonRdAssetOwnershipRenosDRV = new CashflowDateRangeValue(addisonRdAssetOwnershipRenos.getCategory().getType(), YearMonth.of(2030, 4), Integer.valueOf(-150000));
+		addisonRdAssetOwnershipRenos.addCashflowDateRangeValue(addisonRdAssetOwnershipRenosDRV);
+
+		// Addison Road HOUSING_MARKET_GROWTH_RATE.
+//		ResourceParamBigDecimal addisonRdGrowthRate = new ResourceParamBigDecimal(ResourceParamNameEnum.PROPERTY_HOUSING_MARKET_GROWTH_RATE);
+//		addisonRdGrowthRate.setUserAbleToCreateNewDateValue(true);
+//		addisonRd.addResourceParam(addisonRdGrowthRate);
+//		ResourceParamDateValueBigDecimal addisonRdGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("6.0"));
+//		addisonRdGrowthRate.addResourceParamDateValue(addisonRdGrowthRateVal);
+
+		// Addison Road EXPENSE_RENTAL_PROPERTY.
+		Cashflow addisonRdRentalExpense = new Cashflow(CashflowCategory.EXPENSE_RENTAL_PROPERTY, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		addisonRd.addCashflow(addisonRdRentalExpense);
+		CashflowDateRangeValue addisonRdRentalExpenseDRV = new CashflowDateRangeValue(addisonRdRentalExpense.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-600));
+		addisonRdRentalExpense.addCashflowDateRangeValue(addisonRdRentalExpenseDRV);
+
+		// Addison Road INCOME_RENTAL_PROPERTY.
+		Cashflow addisonRdRentalIncome = new Cashflow(CashflowCategory.INCOME_RENTAL_PROPERTY, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		addisonRd.addCashflow(addisonRdRentalIncome);
+		CashflowDateRangeValue addisonRdRentalIncomeDRV = new CashflowDateRangeValue(addisonRdRentalIncome.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(10768));
+		addisonRdRentalIncome.addCashflowDateRangeValue(addisonRdRentalIncomeDRV);
+
+		// Addison Road EXPENSE_ASSET_SALE_COMMISSION.
+		ResourceParamBigDecimal addisonRdSaleCommission = new ResourceParamBigDecimal(ResourceParamNameEnum.PROPERTY_ASSET_SALE_COMMISSION);
+		addisonRd.addResourceParam(addisonRdSaleCommission);
+		ResourceParamDateValueBigDecimal addisonRdSaleCommissionVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("1.5"));
+		addisonRdSaleCommission.addResourceParamDateValue(addisonRdSaleCommissionVal);
+
+		// Addison Road EXPENSE_ASSET_SALE_FIXED.
+		ResourceParamIntegerPositive addisonRdSaleFixed = new ResourceParamIntegerPositive(ResourceParamNameEnum.PROPERTY_ASSET_SALE_FIXED);
+		addisonRd.addResourceParam(addisonRdSaleFixed);
+		ResourceParamDateValueIntegerPositive addisonRdSaleFixedVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(10000));
+		addisonRdSaleFixed.addResourceParamDateValue(addisonRdSaleFixedVal);
+
+		scenario.addResource(addisonRd);
+
+		// ------------------------
+		// Addison Road Mortgage 1.
+		// ------------------------
+		
+		Resource addisonRdMortgage = new ResourceMortgageExisting("Addison Road Variable");
+		addisonRdMortgage.setStartYearMonth(YearMonth.of(2024, 1));
+		
+		addisonRd.addChild(addisonRdMortgage);
+
+		// Addison Road Mortgage BALANCE_OPENING_FIXED.
+		ResourceParamIntegerNegative addisonRdMortgageOpeningAssetValue = new ResourceParamIntegerNegative(ResourceParamNameEnum.BALANCE_OPENING_FIXED);
+		addisonRdMortgage.addResourceParam(addisonRdMortgageOpeningAssetValue);
+		ResourceParamDateValueIntegerNegative addisonRdMortgageOpeningAssetVal = new ResourceParamDateValueIntegerNegative(YearMonth.of(2024, 1), false, Integer.valueOf(-1347025));
+		addisonRdMortgageOpeningAssetValue.addResourceParamDateValue(addisonRdMortgageOpeningAssetVal);		
+
+		// Addison Road Mortgage MORTGAGE_INTEREST_RATE.
+		ResourceParamBigDecimal addisonRdInterestRate = new ResourceParamBigDecimal(ResourceParamNameEnum.MORTGAGE_INTEREST_RATE);
+		addisonRdInterestRate.setUserAbleToCreateNewDateValue(true);
+		addisonRdMortgage.addResourceParam(addisonRdInterestRate);
+		ResourceParamDateValueBigDecimal addisonRdInterestRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal(6.79));
+		addisonRdInterestRate.addResourceParamDateValue(addisonRdInterestRateVal);		
+
+		// Addison Road Mortgage MORTGAGE_REMAINING_MONTHS.
+		ResourceParamIntegerPositive addisonRdRemainingMonths = new ResourceParamIntegerPositive(ResourceParamNameEnum.MORTGAGE_REMAINING_MONTHS);
+		addisonRdMortgage.addResourceParam(addisonRdRemainingMonths);
+		ResourceParamDateValueIntegerPositive addisonRdRemainingMonthsVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(9));
+		addisonRdRemainingMonths.addResourceParamDateValue(addisonRdRemainingMonthsVal);
+
+		// Addison Road Mortgage MORTGAGE_REMAINING_YEARS.
+		ResourceParamIntegerPositive addisonRdRemainingYears = new ResourceParamIntegerPositive(ResourceParamNameEnum.MORTGAGE_REMAINING_YEARS);
+		addisonRdMortgage.addResourceParam(addisonRdRemainingYears);
+		ResourceParamDateValueIntegerPositive addisonRdRemainingYearsVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(21));
+		addisonRdRemainingYears.addResourceParamDateValue(addisonRdRemainingYearsVal);
+		
+		// Addison Road Mortgage MORTGAGE_REPAYMENT_TYPE.
+		ResourceParamString addisonRdMortgageStatus = new ResourceParamString(ResourceParamNameEnum.MORTGAGE_REPAYMENT_TYPE);
+		addisonRdMortgageStatus.setUserAbleToCreateNewDateValue(true);
+		addisonRdMortgage.addResourceParam(addisonRdMortgageStatus);
+		ResourceParamDateValueString addisonRdMortgageStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourceMortgageExisting.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST);
+		addisonRdMortgageStatus.addResourceParamDateValue(addisonRdMortgageStatusVal);		
+
+		scenario.addResource(addisonRdMortgage);
+
 		// -------------------------------
-		// Griffin Street Mortgage Offset.
+		// Addison Road Mortgage Offset.
 		// -------------------------------
 		
-//		Resource griffinStMortgageOffset = new ResourceMortgageOffset("StG Personal");
-//		griffinStMortgageOffset.setStartYearMonth(YearMonth.of(2024, 1));
-//		
-//		griffinStMortgage.addChild(griffinStMortgageOffset);
-//
-//		// Griffin Street Mortgage Offset BALANCE_OPENING_LIQUID.
-//		ResourceParamIntegerPositive griffinStMortgageOffsetBalanceOpeningLiquid = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
-//		griffinStMortgageOffset.addResourceParam(griffinStMortgageOffsetBalanceOpeningLiquid);
-//		ResourceParamDateValueIntegerPositive griffinStMortgageOffsetBalanceOpeningLiquidVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(30000));
-//		griffinStMortgageOffsetBalanceOpeningLiquid.addResourceParamDateValue(griffinStMortgageOffsetBalanceOpeningLiquidVal);		
-//
-//		scenario.addResource(griffinStMortgageOffset);
+		Resource addisonRdMortgageOffset = new ResourceMortgageOffset("StG Personal");
+		addisonRdMortgageOffset.setStartYearMonth(YearMonth.of(2024, 1));
+		
+		addisonRdMortgage.addChild(addisonRdMortgageOffset);
+
+		// Addison Road Mortgage Offset BALANCE_OPENING_LIQUID.
+		ResourceParamIntegerPositive addisonRdMortgageOffsetBalanceOpeningLiquid = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
+		addisonRdMortgageOffset.addResourceParam(addisonRdMortgageOffsetBalanceOpeningLiquid);
+		ResourceParamDateValueIntegerPositive addisonRdMortgageOffsetBalanceOpeningLiquidVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(910452));
+		addisonRdMortgageOffsetBalanceOpeningLiquid.addResourceParamDateValue(addisonRdMortgageOffsetBalanceOpeningLiquidVal);		
+
+		scenario.addResource(addisonRdMortgageOffset);
+		
+		// ------------------------
+		// Addison Road Mortgage 2.
+		// ------------------------
+		
+		Resource addisonRd2Mortgage = new ResourceMortgageExisting("Addison Road Fixed");
+		addisonRd2Mortgage.setStartYearMonth(YearMonth.of(2024, 1));
+		
+		addisonRd.addChild(addisonRd2Mortgage);
+
+		// Addison Road Mortgage BALANCE_OPENING_FIXED.
+		ResourceParamIntegerNegative addisonRd2MortgageOpeningAssetValue = new ResourceParamIntegerNegative(ResourceParamNameEnum.BALANCE_OPENING_FIXED);
+		addisonRd2Mortgage.addResourceParam(addisonRd2MortgageOpeningAssetValue);
+		ResourceParamDateValueIntegerNegative addisonRd2MortgageOpeningAssetVal = new ResourceParamDateValueIntegerNegative(YearMonth.of(2024, 1), false, Integer.valueOf(-722118));
+		addisonRd2MortgageOpeningAssetValue.addResourceParamDateValue(addisonRd2MortgageOpeningAssetVal);		
+
+		// Addison Road Mortgage MORTGAGE_INTEREST_RATE.
+		ResourceParamBigDecimal addisonRd2InterestRate = new ResourceParamBigDecimal(ResourceParamNameEnum.MORTGAGE_INTEREST_RATE);
+		addisonRd2InterestRate.setUserAbleToCreateNewDateValue(true);
+		addisonRd2Mortgage.addResourceParam(addisonRd2InterestRate);
+		ResourceParamDateValueBigDecimal addisonRd2InterestRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal(6.79));
+		addisonRd2InterestRate.addResourceParamDateValue(addisonRd2InterestRateVal);		
+
+		// Addison Road Mortgage MORTGAGE_REMAINING_MONTHS.
+		ResourceParamIntegerPositive addisonRd2RemainingMonths = new ResourceParamIntegerPositive(ResourceParamNameEnum.MORTGAGE_REMAINING_MONTHS);
+		addisonRd2Mortgage.addResourceParam(addisonRd2RemainingMonths);
+		ResourceParamDateValueIntegerPositive addisonRd2RemainingMonthsVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(9));
+		addisonRd2RemainingMonths.addResourceParamDateValue(addisonRd2RemainingMonthsVal);
+
+		// Addison Road Mortgage MORTGAGE_REMAINING_YEARS.
+		ResourceParamIntegerPositive addisonRd2RemainingYears = new ResourceParamIntegerPositive(ResourceParamNameEnum.MORTGAGE_REMAINING_YEARS);
+		addisonRd2Mortgage.addResourceParam(addisonRd2RemainingYears);
+		ResourceParamDateValueIntegerPositive addisonRd2RemainingYearsVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(21));
+		addisonRd2RemainingYears.addResourceParamDateValue(addisonRd2RemainingYearsVal);
+		
+		// Addison Road Mortgage MORTGAGE_REPAYMENT_TYPE.
+		ResourceParamString addisonRd2MortgageStatus = new ResourceParamString(ResourceParamNameEnum.MORTGAGE_REPAYMENT_TYPE);
+		addisonRd2MortgageStatus.setUserAbleToCreateNewDateValue(true);
+		addisonRd2Mortgage.addResourceParam(addisonRd2MortgageStatus);
+		ResourceParamDateValueString addisonRd2MortgageStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourceMortgageExisting.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST);
+		addisonRd2MortgageStatus.addResourceParamDateValue(addisonRd2MortgageStatusVal);		
+
+		scenario.addResource(addisonRd2Mortgage);
+
+		// -------------------------------
+		// Addison Road Mortgage Offset.
+		// -------------------------------
+		
+		Resource addisonRd2MortgageOffset = new ResourceMortgageOffset("StG Personal 2");
+		addisonRd2MortgageOffset.setStartYearMonth(YearMonth.of(2024, 1));
+		
+		addisonRd2Mortgage.addChild(addisonRd2MortgageOffset);
+
+		// Addison Road Mortgage Offset BALANCE_OPENING_LIQUID.
+		ResourceParamIntegerPositive addisonRd2MortgageOffsetBalanceOpeningLiquid = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
+		addisonRd2MortgageOffset.addResourceParam(addisonRd2MortgageOffsetBalanceOpeningLiquid);
+		ResourceParamDateValueIntegerPositive addisonRd2MortgageOffsetBalanceOpeningLiquidVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(0));
+		addisonRd2MortgageOffsetBalanceOpeningLiquid.addResourceParamDateValue(addisonRd2MortgageOffsetBalanceOpeningLiquidVal);		
+
+		scenario.addResource(addisonRd2MortgageOffset);
 		
 		// --------------------
 		// Investment property.
