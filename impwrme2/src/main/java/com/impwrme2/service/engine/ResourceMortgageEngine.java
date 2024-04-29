@@ -20,6 +20,7 @@ public class ResourceMortgageEngine extends ResourceEngine {
 
 	private Integer balanceOpeningFixed;
 	private Integer totalMonthsRemaining = 0;
+	private boolean payOutDateReached = false;
 	
 	public ResourceMortgageEngine(final ResourceMortgageExisting resource, final BalanceTracker balanceTracker) {
 		super(resource, balanceTracker);
@@ -29,15 +30,8 @@ public class ResourceMortgageEngine extends ResourceEngine {
 		totalMonthsRemaining = yearsRemaining * 12 + monthsRemaining;
 	}
 
-//	public ResourceMortgageEngine(final ResourceMortgageNew resource, final BalanceTracker balanceTracker) {
-//		super(resource, balanceTracker);
-//	}
-
-	private boolean isPaidOut = false;
-
 	@Override
 	public Integer getBalanceLiquidLegalMaxIfNotSpecified(final BalanceTracker balanceTracker) {
-//		return Integer.valueOf(0);
 		return -1 * balanceTracker.getResourceFixedAmount(getResource());
 	}
 
@@ -49,7 +43,6 @@ public class ResourceMortgageEngine extends ResourceEngine {
 	@Override
 	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(final BalanceTracker balanceTracker) {
 		return Integer.valueOf(0);
-//		return getBalanceLiquidLegalMaxIfNotSpecified(balanceTracker);
 	}
 
 	@Override
@@ -61,62 +54,59 @@ public class ResourceMortgageEngine extends ResourceEngine {
 	public List<JournalEntry> generateJournalEntries(YearMonth yearMonth, BalanceTracker balanceTracker) {
 
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
-		if (yearMonth.isBefore(getResource().getStartYearMonth())) return journalEntries;
-		if (isPaidOut) return journalEntries;
-		ResourceParamDateValue<String> mortgageType = mortgageType(yearMonth);
+		
+		if (!yearMonth.isAfter(getResource().getStartYearMonth())) {
+			// We don't do anything until month 2 because calculations to do with offset 
+			// accounts are based on the previous months offset account balances. We can't
+			// use the current months offset account balances because they haven't been
+			// allocated yet - everything is in the main pot.
+			return journalEntries;
+		}
+		
+		if (payOutDateReached) return journalEntries;
 
-		// If property is being sold or pay out date is reached return pay out entries.
+		ResourceParamDateValue<String> mortgageType = mortgageType(yearMonth);
 		if (isPropertySaleMonth(yearMonth) || isPayOutMonth(mortgageType, yearMonth)) {
-			return createJournalEntriesForPayOut(balanceTracker, yearMonth);
+			// If property is being sold or pay out date is reached return pay out entries.
+//			return createJournalEntriesForPayOut(balanceTracker, yearMonth);
+			payOutDateReached = true;
 		}
 		
 		if (mortgageType.getValue().equals(ResourceMortgageExisting.MORTGAGE_REPAYMENT_INTEREST_ONLY)) {
 			// Alter the months remaining for interest only loans.
-			totalMonthsRemaining--;
-			
+			totalMonthsRemaining--;			
 			if (totalMonthsRemaining == 0) {
-				// This is an interest only mortgage but we've reached the end of time so 
-				// we pay off the final month's interest and the full remaining principal.
-				Integer assetValue = balanceTracker.getResourceAssetValue(resource);
-				BigDecimal monthlyInterestRate = monthlyInterestRate(yearMonth);
-				
-				// Interest expense.
-				Integer interestExpense = integerOf(monthlyInterestRate.multiply(new BigDecimal(assetValue)));
-				if (interestExpense < 0) {
-					journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, interestExpense, CashflowCategory.EXPENSE_INTEREST));
-				}
-				
-				// Principal expense and asset appreciation.
-				if (assetValue < 0) {
-					journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, assetValue, CashflowCategory.EXPENSE_PRINCIPAL));					
-					journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -assetValue, CashflowCategory.APPRECIATION_GROWTH));					
-				}
-				
-				return  journalEntries;
+				// Last month so pay out the mortgage.
+				payOutDateReached = true;
+//				return createJournalEntriesForInterestOnlyMortgage(balanceTracker, yearMonth);
 			}
 		}
 		
-		Integer principalAndInterestPreOffset = calculatePrincipalAndInterestPreOffset(yearMonth);
-		BigDecimal interestOnlyPreOffset = calculateInterestOnlyPreOffset(balanceTracker, yearMonth);
-		BigDecimal interestEarnedInOffsetAccounts = calculateInterestEarnedInOffsetAccounts(balanceTracker, yearMonth);
-		
-		Integer interestExpense = integerOf(interestOnlyPreOffset.add(interestEarnedInOffsetAccounts));
-		Integer principalExpense = 0;
-		
-		if (mortgageType.getValue().equals(ResourceMortgageExisting.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST)) {
-			principalExpense = principalAndInterestPreOffset - interestExpense;
-		}
-		
-		if (Math.abs(principalExpense) >= Math.abs(balanceTracker.getResourceAssetValue(resource))) {
-			return createJournalEntriesForPayOut(balanceTracker, yearMonth);
-		}
+//		Integer principalAndInterestPreOffset = calculatePrincipalAndInterestPreOffset(yearMonth);
+//		BigDecimal interestOnlyPreOffset = calculateInterestOnlyPreOffset(balanceTracker, yearMonth);
+//		BigDecimal interestEarnedInOffsetAccounts = calculateInterestEarnedInOffsetAccounts(balanceTracker, yearMonth);
+//		
+//		Integer interestExpense = Math.min(0, integerOf(interestOnlyPreOffset.add(interestEarnedInOffsetAccounts)));
+//		Integer principalExpense = 0;
+//		
+//		if (mortgageType.getValue().equals(ResourceMortgageExisting.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST)) {
+//			principalExpense = principalAndInterestPreOffset - interestExpense;
+//		}
+//		
+//		if (Math.abs(principalExpense) >= Math.abs(balanceTracker.getResourceAssetValue(resource))) {
+//			return createJournalEntriesForPayOut(balanceTracker, interestExpense, yearMonth);
+//		}
 				
-		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, interestExpense, CashflowCategory.EXPENSE_INTEREST));
-		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, principalExpense, CashflowCategory.EXPENSE_PRINCIPAL));					
-		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -principalExpense, CashflowCategory.APPRECIATION_GROWTH));					
+//		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, interestExpense, CashflowCategory.EXPENSE_INTEREST));
+//		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, principalExpense, CashflowCategory.EXPENSE_PRINCIPAL));					
+//		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -principalExpense, CashflowCategory.APPRECIATION_GROWTH));					
+
+		journalEntries.addAll(generateJournalEntriesForCurrentMonth(yearMonth, balanceTracker));
 
 		// Standard cash-flows.
-		journalEntries.addAll(generateJournalEntriesFromCashflows(yearMonth, resource.getCashflows()));
+		if (!payOutDateReached) {
+			journalEntries.addAll(generateJournalEntriesFromCashflows(yearMonth, resource.getCashflows()));
+		}
 		
 		return journalEntries;
 	}
@@ -125,11 +115,76 @@ public class ResourceMortgageEngine extends ResourceEngine {
 		ResourceParamDateValue<String> propertyStatus = propertyStatus(yearMonth);
 		if (propertyStatus.getValue().equals(ResourcePropertyExisting.PROPERTY_STATUS_SOLD) &&
 			propertyStatus.getYearMonth().equals(yearMonth)) {
-			isPaidOut = true;
+			payOutDateReached = true;
 			return true;
 		}
 		return false;
 	}
+
+	private List<JournalEntry> generateJournalEntriesForCurrentMonth(final YearMonth yearMonth, final BalanceTracker balanceTracker) {
+		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
+		ResourceParamDateValue<String> mortgageType = mortgageType(yearMonth);
+
+		Integer interestExpense = calculateInterestPayment(balanceTracker, yearMonth);
+		Integer principalExpense = 0;
+		Integer additionalPayments = balanceTracker.getResourceLiquidDepositAmount(resource);
+		
+		if (payOutDateReached) {
+			principalExpense = balanceTracker.getResourceFixedAmount(resource);
+			if (additionalPayments > 0) {
+//				principalExpense = principalExpense - additionalPayments;
+				journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -additionalPayments, CashflowCategory.WITHDRAWAL_BALANCE));
+			}
+		} else if (mortgageType.getValue().equals(ResourceMortgageExisting.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST)) {
+			Integer principalAndInterestPreOffset = calculatePrincipalAndInterestPreOffset(yearMonth);
+			principalExpense = principalAndInterestPreOffset - interestExpense;
+			
+			if (principalExpense < balanceTracker.getResourceAssetValue(resource)) {
+				principalExpense = balanceTracker.getResourceAssetValue(resource);
+				payOutDateReached = true;
+				if (additionalPayments > 0) {
+					principalExpense = principalExpense - additionalPayments;
+					journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -additionalPayments, CashflowCategory.WITHDRAWAL_BALANCE));
+				}
+			}
+		}
+		
+		if (principalExpense < 0) {
+			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, principalExpense, CashflowCategory.EXPENSE_PRINCIPAL));
+			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -principalExpense, CashflowCategory.APPRECIATION_GROWTH));
+		}
+		
+		if (interestExpense < 0) {
+			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, interestExpense, CashflowCategory.EXPENSE_INTEREST));
+		}
+		
+		return journalEntries;
+	}
+	
+//	private PrincipalAndInterestExpense calculateCurrentMonthsPrincipalAndInterest(final BalanceTracker balanceTracker, final YearMonth yearMonth) {
+//		PrincipalAndInterestExpense piExpense = new PrincipalAndInterestExpense();
+//		
+//		ResourceParamDateValue<String> mortgageType = mortgageType(yearMonth);
+//
+//		Integer principalAndInterestPreOffset = calculatePrincipalAndInterestPreOffset(yearMonth);
+//		BigDecimal interestOnlyPreOffset = calculateInterestOnlyPreOffset(balanceTracker, yearMonth);
+//		BigDecimal interestEarnedInOffsetAccounts = calculateInterestEarnedInOffsetAccounts(balanceTracker, yearMonth);
+//		
+//		piExpense.setInterest(Math.min(0, integerOf(interestOnlyPreOffset.add(interestEarnedInOffsetAccounts))));
+//		
+//		Integer principalExpense = 0;
+//		
+//		if (mortgageType.getValue().equals(ResourceMortgageExisting.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST)) {
+//			principalExpense = principalAndInterestPreOffset - piExpense.getInterest();
+//		}
+//		
+//		if (Math.abs(principalExpense) >= Math.abs(balanceTracker.getResourceAssetValue(resource))) {
+//			principalExpense = balanceTracker.getResourceAssetValue(resource);
+//		}
+//		piExpense.setPrincipal(principalExpense);
+//		
+//		return piExpense;
+//	}
 
 	@SuppressWarnings("unchecked")
 	private ResourceParamDateValue<String> propertyStatus(final YearMonth yearMonth) {
@@ -140,7 +195,7 @@ public class ResourceMortgageEngine extends ResourceEngine {
 	private boolean isPayOutMonth(final ResourceParamDateValue<String> mortgageType, final YearMonth yearMonth) {
 		if (mortgageType.getValue().equals(ResourceMortgageExisting.MORTGAGE_REPAYMENT_PAY_OUT) &&
 			mortgageType.getYearMonth().equals(yearMonth)) {
-			isPaidOut = true;
+			payOutDateReached = true;
 			return true;
 		}
 		return false;
@@ -152,20 +207,44 @@ public class ResourceMortgageEngine extends ResourceEngine {
 		return (ResourceParamDateValue<String>) mortgageTypeOpt.get();
 	}
 
-	private List<JournalEntry> createJournalEntriesForPayOut(final BalanceTracker balanceTracker, final YearMonth yearMonth) {
-		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
-		Integer mortgageAmount = balanceTracker.getResourceFixedAmount(resource);
-		Integer additionalPayments = balanceTracker.getResourceLiquidDepositAmount(resource);
-		if (additionalPayments > 0) {
-			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -additionalPayments, CashflowCategory.WITHDRAWAL_BALANCE));
-		}
-		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, mortgageAmount, CashflowCategory.EXPENSE_PRINCIPAL));
-		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -mortgageAmount, CashflowCategory.APPRECIATION_GROWTH));
-		isPaidOut = true;
-		
-		return journalEntries;
-	}
+//	private List<JournalEntry> createJournalEntriesForPayOut(final BalanceTracker balanceTracker, final Integer interestExpense, final YearMonth yearMonth) {
+//		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
+//		Integer principalExpense = balanceTracker.getResourceFixedAmount(resource);
+//		Integer additionalPayments = balanceTracker.getResourceLiquidDepositAmount(resource);
+//		if (additionalPayments > 0) {
+//			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -additionalPayments, CashflowCategory.WITHDRAWAL_BALANCE));
+//		}
+//		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, interestExpense, CashflowCategory.EXPENSE_INTEREST));
+//		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, principalExpense, CashflowCategory.EXPENSE_PRINCIPAL));
+//		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -principalExpense, CashflowCategory.APPRECIATION_GROWTH));
+//		isPaidOut = true;
+//		
+//		return journalEntries;
+//	}
 
+//	private List<JournalEntry> createJournalEntriesForInterestOnlyMortgage(final BalanceTracker balanceTracker, final YearMonth yearMonth) {
+//		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
+//
+//		// This is an interest only mortgage but we've reached the end of time so 
+//		// we pay off the final month's interest and the full remaining principal.
+//		Integer assetValue = balanceTracker.getResourceAssetValue(resource);
+//		BigDecimal monthlyInterestRate = monthlyInterestRate(yearMonth);
+//		
+//		// Interest expense.
+//		Integer interestExpense = integerOf(monthlyInterestRate.multiply(new BigDecimal(assetValue)));
+//		if (interestExpense < 0) {
+//			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, interestExpense, CashflowCategory.EXPENSE_INTEREST));
+//		}
+//		
+//		// Principal expense and asset appreciation.
+//		if (assetValue < 0) {
+//			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, assetValue, CashflowCategory.EXPENSE_PRINCIPAL));					
+//			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -assetValue, CashflowCategory.APPRECIATION_GROWTH));					
+//		}
+//				
+//		return journalEntries;
+//	}
+	
 	private BigDecimal monthlyInterestRate(final YearMonth yearMonth) {
 			return annualInterestRate(yearMonth).divide(BigDecimal.valueOf(1200), SCALE_10_ROUNDING_HALF_EVEN);
 	}
@@ -176,19 +255,24 @@ public class ResourceMortgageEngine extends ResourceEngine {
 	}
 
 	private Integer calculatePrincipalAndInterestPreOffset(final YearMonth yearMonth) {
-
 		BigDecimal monthlyInterestRate = monthlyInterestRate(yearMonth);
 		BigDecimal numerator = monthlyInterestRate.multiply(new BigDecimal(balanceOpeningFixed));
 		BigDecimal denominator = BigDecimal.ONE.add(monthlyInterestRate);
 		denominator = denominator.pow(-totalMonthsRemaining, SCALE_10_ROUNDING_HALF_EVEN);
 		denominator = BigDecimal.ONE.subtract(denominator);
-
 		return integerOf(numerator.divide(denominator, SCALE_10_ROUNDING_HALF_EVEN));
 	}
 
+	private Integer calculateInterestPayment(final BalanceTracker balanceTracker, final YearMonth yearMonth) {
+		BigDecimal interestOnlyPreOffset = calculateInterestOnlyPreOffset(balanceTracker, yearMonth);
+		BigDecimal interestEarnedInOffsetAccounts = calculateInterestEarnedInOffsetAccounts(balanceTracker, yearMonth);
+		return Math.min(0, integerOf(interestOnlyPreOffset.add(interestEarnedInOffsetAccounts)));
+	}
+	
 	private BigDecimal calculateInterestOnlyPreOffset(final BalanceTracker balanceTracker, final YearMonth yearMonth) {
 		BigDecimal monthlyInterestRate = monthlyInterestRate(yearMonth);
-		BigDecimal balance = new BigDecimal(balanceTracker.getResourceFixedAmount(resource) + balanceTracker.getResourceLiquidDepositAmount(resource));
+		// We work on the previous months balance so that the offset accounts can net off properly.
+		BigDecimal balance = new BigDecimal(balanceTracker.getResourceFixedAmountPreviousMonth(resource) + balanceTracker.getResourceLiquidDepositAmountPreviousMonth(resource));
 		return monthlyInterestRate.multiply(balance);
 	}
 
@@ -196,8 +280,26 @@ public class ResourceMortgageEngine extends ResourceEngine {
 		BigDecimal monthlyInterestRate = monthlyInterestRate(yearMonth);
 		BigDecimal aggregateOffsetBalance = BigDecimal.ZERO;
 		for (Resource childResource : resource.getChildren()) {
-			aggregateOffsetBalance = aggregateOffsetBalance.add(new BigDecimal(balanceTracker.getResourceLiquidBalance(childResource)));
+			aggregateOffsetBalance = aggregateOffsetBalance.add(new BigDecimal(balanceTracker.getResourceLiquidBalancePreviousMonth(childResource)));
 		}
 		return monthlyInterestRate.multiply(aggregateOffsetBalance);
 	}
+	
+//	class PrincipalAndInterestExpense {
+//		private Integer principal = 0;
+//		private Integer interest = 0;
+//		
+//		public Integer getPrincipal() {
+//			return principal;
+//		}
+//		public void setPrincipal(Integer principal) {
+//			this.principal = principal;
+//		}
+//		public Integer getInterest() {
+//			return interest;
+//		}
+//		public void setInterest(Integer interest) {
+//			this.interest = interest;
+//		}
+//	}
 }

@@ -65,17 +65,19 @@ public class ResourcePropertyEngine extends ResourceEngine {
 		// Sale journal entries if required.
 		journalEntries.addAll(createJournalEntriesForSale(status, balanceTracker, yearMonth));
 
-		// If the property isn't rented we don't include the rental expenses and income.
-		final List<Cashflow> cashflowsToProcess = new ArrayList<Cashflow>(getResource().getCashflows());
-		if (!status.getValue().equals(ResourcePropertyExisting.PROPERTY_STATUS_RENTED)) {
-			cashflowsToProcess.removeIf(value -> value.getCategory().equals(CashflowCategory.EXPENSE_RENTAL_PROPERTY) || value.getCategory().equals(CashflowCategory.INCOME_RENTAL_PROPERTY));			
+		if (!isSold) {
+			// If the property isn't rented we don't include the rental expenses and income.
+			final List<Cashflow> cashflowsToProcess = new ArrayList<Cashflow>(getResource().getCashflows());
+			if (!status.getValue().equals(ResourcePropertyExisting.PROPERTY_STATUS_RENTED)) {
+				cashflowsToProcess.removeIf(value -> value.getCategory().equals(CashflowCategory.EXPENSE_RENTAL_PROPERTY) || value.getCategory().equals(CashflowCategory.INCOME_RENTAL_PROPERTY));			
+			}
+	
+			// Monthly appreciation from property growth.
+			journalEntries.add(createJournalEntryForMonthlyAppreciationPropertyGrowth(yearMonth, balanceTracker));
+			
+			// Standard cash-flows.
+			journalEntries.addAll(generateJournalEntriesFromCashflows(yearMonth, cashflowsToProcess));
 		}
-
-		// Monthly appreciation from property growth.
-		journalEntries.add(createJournalEntryForMonthlyAppreciationPropertyGrowth(yearMonth, balanceTracker));
-		
-		// Standard cash-flows.
-		journalEntries.addAll(generateJournalEntriesFromCashflows(yearMonth, cashflowsToProcess));
 		
 		return journalEntries;
 	}

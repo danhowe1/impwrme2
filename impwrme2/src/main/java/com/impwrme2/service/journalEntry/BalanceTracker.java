@@ -13,19 +13,34 @@ public class BalanceTracker {
 
 	private Integer potBalance;
 	private Map<Resource, Integer> resourceLiquidAmount;
+	private Map<Resource, Integer> resourceLiquidAmountPreviousMonth;
 	private Map<Resource, Integer> resourceLiquidDepositAmount;
+	private Map<Resource, Integer> resourceLiquidDepositAmountPreviousMonth;
 	private Map<Resource, Integer> resourceFixedAmount;
+	private Map<Resource, Integer> resourceFixedAmountPreviousMonth;
 
 	public void initialise(final Set<Resource> resources) {
 		potBalance = 0;
 		resourceLiquidAmount = new HashMap<Resource, Integer>();
+		resourceLiquidAmountPreviousMonth = new HashMap<Resource, Integer>();
 		resourceLiquidDepositAmount = new HashMap<Resource, Integer>();
+		resourceLiquidDepositAmountPreviousMonth = new HashMap<Resource, Integer>();
 		resourceFixedAmount = new HashMap<Resource, Integer>();
+		resourceFixedAmountPreviousMonth = new HashMap<Resource, Integer>();
 		for (Resource resource : resources) {
 			resourceLiquidAmount.put(resource, Integer.valueOf(0));
+			resourceLiquidAmountPreviousMonth.put(resource, Integer.valueOf(0));
 			resourceLiquidDepositAmount.put(resource, Integer.valueOf(0));
+			resourceLiquidDepositAmountPreviousMonth.put(resource, Integer.valueOf(0));
 			resourceFixedAmount.put(resource, Integer.valueOf(0));
+			resourceFixedAmountPreviousMonth.put(resource, Integer.valueOf(0));
 		}
+	}
+	
+	public void processEndOfMonth() {
+		resourceLiquidAmountPreviousMonth.putAll(resourceLiquidAmount);
+		resourceLiquidDepositAmountPreviousMonth.putAll(resourceLiquidDepositAmount);
+		resourceFixedAmountPreviousMonth.putAll(resourceFixedAmount);
 	}
 	
 	// ----
@@ -52,6 +67,10 @@ public class BalanceTracker {
 		return getResourceLiquidAmount(resource) + getResourceLiquidDepositAmount(resource);
 	}
 
+	public Integer getResourceLiquidBalancePreviousMonth(Resource resource) {
+		return getResourceLiquidAmountPreviousMonth(resource) + getResourceLiquidDepositAmountPreviousMonth(resource);
+	}
+
 	public Integer getResourceAssetValue(Resource resource) {
 		return getResourceLiquidBalance(resource) + getResourceFixedAmount(resource);
 	}
@@ -62,6 +81,10 @@ public class BalanceTracker {
 	
 	public Integer getResourceLiquidAmount(Resource resource) {
 		return resourceLiquidAmount.get(resource);
+	}
+	
+	public Integer getResourceLiquidAmountPreviousMonth(Resource resource) {
+		return resourceLiquidAmountPreviousMonth.get(resource);
 	}
 	
 	public void addToResourceLiquidAmount(Resource resource, Integer amount) {
@@ -84,6 +107,10 @@ public class BalanceTracker {
 		return resourceLiquidDepositAmount.get(resource);
 	}
 	
+	public Integer getResourceLiquidDepositAmountPreviousMonth(Resource resource) {
+		return resourceLiquidDepositAmountPreviousMonth.get(resource);
+	}
+	
 	public void addToResourceLiquidDepositAmount(Resource resource, Integer amount) {
 		Integer currentAmount = resourceLiquidDepositAmount.get(resource);
 		currentAmount = currentAmount + Math.abs(amount);
@@ -104,6 +131,10 @@ public class BalanceTracker {
 		return resourceFixedAmount.get(resource);
 	}
 
+	public Integer getResourceFixedAmountPreviousMonth(Resource resource) {
+		return resourceFixedAmountPreviousMonth.get(resource);
+	}
+	
 	public void addToResourceFixedAmount(Resource resource, Integer amount) {
 		Integer currentAmount = resourceFixedAmount.get(resource);
 		currentAmount = currentAmount + Math.abs(amount);

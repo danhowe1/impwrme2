@@ -152,6 +152,7 @@ public class JournalEntryService {
 			
 			// Move to the next month.
 			totalJournalEntries.addAll(currentMonthsProcessedJournalEntries);
+			balanceTracker.processEndOfMonth();
 			currentYearMonth = currentYearMonth.plusMonths(1);
 		}
 
@@ -270,9 +271,15 @@ public class JournalEntryService {
 				if (journalEntry.getResource().equals(resourceEngine.getResource())) {
 					if (journalEntry.getCategory().getType().equals(CashflowType.DEPOSIT)) {
 //						Integer depositAvailable = balanceTracker.getResourceLiquidDepositAmount(journalEntry.getResource());
+						// Can't take out more than the pot balance.
 						Integer depositAvailable = Math.max(0, balanceTracker.getPotBalance());
+						// Reduce the deposit amount if necessary.
 						Integer depositAmount = Math.min(journalEntry.getAmount(), depositAvailable);
-
+						// Can't deposit an amount that would exceed the legal liquid balance.
+						Integer balanceLiquidLegalMax = resourceEngine.getBalanceLiquidLegalMaxIfNotSpecified(balanceTracker);
+						Integer maxDepositAmount = balanceLiquidLegalMax - balanceTracker.getResourceLiquidBalance(journalEntry.getResource());
+						depositAmount = Math.min(depositAmount, maxDepositAmount);
+						
 						// Deposit amount available may be different to the user requested amount so create new one.
 						JournalEntry journalEntryNew = JournalEntryFactory.create(journalEntry.getResource(), currentYearMonth, depositAmount, journalEntry.getCategory(), journalEntry.getDetail());
 						balanceTracker.subtractFromPotBalance(journalEntryNew.getAmount());

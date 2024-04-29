@@ -58,6 +58,8 @@ public class ResourceDropdownDto {
 			return RESOURCE_NAV_LABEL_LOANS;
 		case MORTGAGE_NEW:
 			return RESOURCE_NAV_LABEL_LOANS;
+		case MORTGAGE_OFFSET_ACCOUNT:
+			return RESOURCE_NAV_LABEL_SAVINGS;
 		case PERSON:
 			return RESOURCE_NAV_LABEL_FAMILY;
 		case PROPERTY_EXISTING:
