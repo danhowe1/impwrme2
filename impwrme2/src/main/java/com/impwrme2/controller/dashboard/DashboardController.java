@@ -34,6 +34,7 @@ import com.impwrme2.model.resource.ResourceMortgageOffset;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
 import com.impwrme2.model.resource.ResourceScenario;
+import com.impwrme2.model.resource.ResourceShares;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParamBigDecimal;
 import com.impwrme2.model.resourceParam.ResourceParamIntegerNegative;
@@ -628,6 +629,42 @@ public class DashboardController {
 		addisonRd2MortgageOffsetBalanceOpeningLiquid.addResourceParamDateValue(addisonRd2MortgageOffsetBalanceOpeningLiquidVal);		
 
 		scenario.addResource(addisonRd2MortgageOffset);
+		
+		// -------
+		// Shares.
+		// -------
+		
+		Resource shares = new ResourceShares("Shares");
+		shares.setStartYearMonth(YearMonth.of(2024, 1));
+		
+		// Shares BALANCE_OPENING_LIQUID.
+		ResourceParamIntegerPositive sharesBalanceOpeningLiquid = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_LIQUID);
+		shares.addResourceParam(sharesBalanceOpeningLiquid);
+		ResourceParamDateValueIntegerPositive sharesBalanceOpeningLiquidVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(6156));
+		sharesBalanceOpeningLiquid.addResourceParamDateValue(sharesBalanceOpeningLiquidVal);		
+
+		// Shares SHARES_SHARE_MARKET_GROWTH_RATE.
+//		ResourceParamBigDecimal sharesShareMarketGrowthRate = new ResourceParamBigDecimal(ResourceParamNameEnum.SHARES_SHARE_MARKET_GROWTH_RATE);
+//		sharesShareMarketGrowthRate.setUserAbleToCreateNewDateValue(true);
+//		shares.addResourceParam(sharesShareMarketGrowthRate);
+//		ResourceParamDateValueBigDecimal sharesShareMarketGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("4.0"));
+//		sharesShareMarketGrowthRate.addResourceParamDateValue(sharesShareMarketGrowthRateVal);
+
+		// Shares SHARES_DIVIDEND_YIELD.
+		ResourceParamBigDecimal sharesDividendYield = new ResourceParamBigDecimal(ResourceParamNameEnum.SHARES_DIVIDEND_YIELD);
+		sharesDividendYield.setUserAbleToCreateNewDateValue(true);
+		shares.addResourceParam(sharesDividendYield);
+		ResourceParamDateValueBigDecimal sharesDividendYieldVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("3.0"));
+		sharesDividendYield.addResourceParamDateValue(sharesDividendYieldVal);
+
+		// Shares SHARES_DIVIDEND_PROCESSING.
+		ResourceParamString sharesDividendProcessing = new ResourceParamString(ResourceParamNameEnum.SHARES_DIVIDEND_PROCESSING);
+		sharesDividendProcessing.setUserAbleToCreateNewDateValue(true);
+		shares.addResourceParam(sharesDividendProcessing);
+		ResourceParamDateValueString sharesDividendProcessingVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourceShares.SHARES_DIVIDEND_PROCESSING_REINVEST);
+		sharesDividendProcessing.addResourceParamDateValue(sharesDividendProcessingVal);		
+
+		scenario.addResource(shares);
 		
 		// --------------------
 		// Investment property.

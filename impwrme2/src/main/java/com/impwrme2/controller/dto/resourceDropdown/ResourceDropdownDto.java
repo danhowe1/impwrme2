@@ -23,6 +23,7 @@ public class ResourceDropdownDto {
 	private final static String RESOURCE_NAV_LABEL_PROPERTY = "resourceNavLabelProperty";
 	private final static String RESOURCE_NAV_LABEL_LOANS = "resourceNavLabelLoans";
 	private final static String RESOURCE_NAV_LABEL_SAVINGS = "resourceNavLabelSavings";
+	private final static String RESOURCE_NAV_LABEL_INVESTMENTS = "resourceNavLabelInvestments";
 
 	private final ResourceType activeResourceType;
 	private Long scenarioResourceId;
@@ -68,6 +69,8 @@ public class ResourceDropdownDto {
 			return RESOURCE_NAV_LABEL_PROPERTY;
 		case SCENARIO:
 			return RESOURCE_NAV_LABEL_SCENARIO;
+		case SHARES:
+			return RESOURCE_NAV_LABEL_INVESTMENTS;
 		default:
 			throw new IllegalStateException("Unknown resource tpye " + resourceType.getValue() + ".");
 		}
