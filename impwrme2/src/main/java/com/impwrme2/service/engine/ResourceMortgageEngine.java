@@ -151,7 +151,7 @@ public class ResourceMortgageEngine extends ResourceEngine {
 		
 		if (principalExpense < 0) {
 			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, principalExpense, CashflowCategory.EXPENSE_PRINCIPAL));
-			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -principalExpense, CashflowCategory.APPRECIATION_GROWTH));
+			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -principalExpense, CashflowCategory.APPRECIATION_GROWTH_FIXED));
 		}
 		
 		if (interestExpense < 0) {

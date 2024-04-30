@@ -63,7 +63,7 @@ public class ResourceSharesEngine extends ResourceEngine {
 		BigDecimal growthRate = shareMarketGrowthRate(yearMonth);
 		BigDecimal monthlyGrowthRate = calculateMonthlyGrowthRateFromAnnualGrowthRate(growthRate);
 		BigDecimal amount = BigDecimal.valueOf(balanceTracker.getResourceLiquidBalancePreviousMonth(getResource())).multiply(monthlyGrowthRate);
-		return JournalEntryFactory.create(getResource(), yearMonth, integerOf(amount), CashflowCategory.APPRECIATION_GROWTH);
+		return JournalEntryFactory.create(getResource(), yearMonth, integerOf(amount), CashflowCategory.APPRECIATION_GROWTH_LIQUID);
 	}
 
 	private BigDecimal shareMarketGrowthRate(final YearMonth yearMonth) {
@@ -102,10 +102,4 @@ public class ResourceSharesEngine extends ResourceEngine {
 		Optional<ResourceParamDateValue<?>> dividendProcessingOpt = (Optional<ResourceParamDateValue<?>>) getResource().getResourceParamDateValue(ResourceParamNameEnum.SHARES_DIVIDEND_PROCESSING, yearMonth);
 		return (String) dividendProcessingOpt.get().getValue();
 	}
-
-//	@SuppressWarnings("unchecked")
-//	private ResourceParamDateValue<String> dividendProcessing(final YearMonth yearMonth) {
-//		Optional<ResourceParamDateValue<?>> dividendProcessingOpt = (Optional<ResourceParamDateValue<?>>) getResource().getResourceParamDateValue(ResourceParamNameEnum.SHARES_DIVIDEND_PROCESSING, yearMonth);
-//		return (ResourceParamDateValue<String>) dividendProcessingOpt.get();
-//	}
 }

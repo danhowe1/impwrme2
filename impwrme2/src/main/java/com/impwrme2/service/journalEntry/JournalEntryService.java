@@ -224,8 +224,12 @@ public class JournalEntryService {
 		for (JournalEntry journalEntry : unprocessedJournalEntries) {
 			
 			switch (journalEntry.getCategory().getType()) {
-			case APPRECIATION:
+			case APPRECIATION_FIXED:
 				balanceTracker.addToResourceFixedAmount(journalEntry.getResource(), journalEntry.getAmount());
+				processedJournalEntries.add(journalEntry);
+				break;
+			case APPRECIATION_LIQUID:
+				balanceTracker.addToResourceLiquidDepositAmount(journalEntry.getResource(), journalEntry.getAmount());
 				processedJournalEntries.add(journalEntry);
 				break;
 			case EXPENSE:

@@ -376,7 +376,8 @@ public class DataDisplayController {
 				journalEntry.getCategory().getType().equals(CashflowType.WITHDRAWAL)) {
 				filteredJournalEntries.add(journalEntry);				
 			} else if (!displayFilter.isAssetTypeLiquid()) {
-				if (journalEntry.getCategory().getType().equals(CashflowType.APPRECIATION) || 
+				if (journalEntry.getCategory().getType().equals(CashflowType.APPRECIATION_FIXED) || 
+					journalEntry.getCategory().getType().equals(CashflowType.APPRECIATION_LIQUID) || 
 					journalEntry.getCategory().getType().equals(CashflowType.DEPRECIATION)) { 
 					filteredJournalEntries.add(journalEntry);
 				}

@@ -128,7 +128,7 @@ public class ResourcePropertyEngine extends ResourceEngine {
 		BigDecimal growthRate = propertyGrowthRate(yearMonth);
 		BigDecimal monthlyGrowthRate = calculateMonthlyGrowthRateFromAnnualGrowthRate(growthRate);
 		BigDecimal amount = BigDecimal.valueOf(balanceTracker.getResourceFixedAmount(getResource())).multiply(monthlyGrowthRate);
-		return JournalEntryFactory.create(getResource(), yearMonth, integerOf(amount), CashflowCategory.APPRECIATION_GROWTH);
+		return JournalEntryFactory.create(getResource(), yearMonth, integerOf(amount), CashflowCategory.APPRECIATION_GROWTH_FIXED);
 		
 	}
 	
