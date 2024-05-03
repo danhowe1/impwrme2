@@ -35,6 +35,7 @@ import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.ResourceShares;
+import com.impwrme2.model.resource.ResourceSuperannuation;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParamBigDecimal;
 import com.impwrme2.model.resourceParam.ResourceParamIntegerNegative;
@@ -227,6 +228,55 @@ public class DashboardController {
 	
 		scenario.addResource(amandaResource);
 		
+		// ---------------
+		// Super (Amanda).
+		// ---------------
+
+		Resource amandaSuper = new ResourceSuperannuation("Super - Amanda");
+		amandaSuper.setStartYearMonth(YearMonth.of(2024, 1));
+
+		amandaResource.addChild(amandaSuper);
+
+		// Super (Amanda) BALANCE_OPENING_FIXED.
+		ResourceParamIntegerPositive amandaSuperBalanceOpeningFixed = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_FIXED);
+		amandaSuper.addResourceParam(amandaSuperBalanceOpeningFixed);
+		ResourceParamDateValueIntegerPositive amandaSuperBalanceOpeningFixedVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(713185));
+		amandaSuperBalanceOpeningFixed.addResourceParamDateValue(amandaSuperBalanceOpeningFixedVal);
+
+		// Super (Amanda) SUPER_PRESERVATION_AGE.
+		ResourceParamIntegerPositive amandaPreservationAge = new ResourceParamIntegerPositive(ResourceParamNameEnum.SUPER_PRESERVATION_AGE);
+		amandaSuper.addResourceParam(amandaPreservationAge);
+		ResourceParamDateValueIntegerPositive amandaPreservationAgeVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(60));
+		amandaPreservationAge.addResourceParamDateValue(amandaPreservationAgeVal);
+
+		// Super (Amanda) SUPER_GROWTH_RATE.
+		ResourceParamBigDecimal amandaSuperGrowthRate = new ResourceParamBigDecimal(ResourceParamNameEnum.SUPER_GROWTH_RATE);
+		amandaSuperGrowthRate.setUserAbleToCreateNewDateValue(true);
+		amandaSuper.addResourceParam(amandaSuperGrowthRate);
+		ResourceParamDateValueBigDecimal amandaSuperGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("6.0"));
+		amandaSuperGrowthRate.addResourceParamDateValue(amandaSuperGrowthRateVal);
+
+		// Super (Amanda) SUPER_FEE_ANNUAL_PERCENTAGE.
+		ResourceParamBigDecimal amandaSuperFeeAnnualPercentage = new ResourceParamBigDecimal(ResourceParamNameEnum.SUPER_MANAGEMENT_FEE_ANNUAL_PERCENTAGE);
+		amandaSuperFeeAnnualPercentage.setUserAbleToCreateNewDateValue(true);
+		amandaSuper.addResourceParam(amandaSuperFeeAnnualPercentage);
+		ResourceParamDateValueBigDecimal amandaSuperFeeAnnualPercentageVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("0.02"));
+		amandaSuperFeeAnnualPercentage.addResourceParamDateValue(amandaSuperFeeAnnualPercentageVal);
+
+		// Super (Amanda) DEPRECIATION_FEE.
+		Cashflow amandaSuperAdminFee = new Cashflow(CashflowCategory.DEPRECIATION_ADMIN_FEE, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		amandaSuper.addCashflow(amandaSuperAdminFee);		
+		CashflowDateRangeValue amandaSuperAdminFeeDRV = new CashflowDateRangeValue(amandaSuperAdminFee.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-6));
+		amandaSuperAdminFee.addCashflowDateRangeValue(amandaSuperAdminFeeDRV);
+
+		// Super (Amanda) APPRECIATION_SUPER_CONTRIBUTION_NON_CONCESSIONAL_PERSONAL.
+		Cashflow amandaSuperContribNonConcPersonal = new Cashflow(CashflowCategory.APPRECIATION_SUPER_CONTRIBUTION_NON_CONCESSIONAL_PERSONAL, CashflowFrequency.ANNUALLY, Boolean.FALSE);
+		amandaSuper.addCashflow(amandaSuperContribNonConcPersonal);		
+		CashflowDateRangeValue amandaSuperContribNonConcPersonalDRV = new CashflowDateRangeValue(amandaSuperAdminFee.getCategory().getType(), YearMonth.of(2026, 6), YearMonth.of(2032, 2), Integer.valueOf(27500));
+		amandaSuperContribNonConcPersonal.addCashflowDateRangeValue(amandaSuperContribNonConcPersonalDRV);
+		
+		scenario.addResource(amandaSuper);
+
 		// ----
 		// Dan.
 		// ----
@@ -269,6 +319,11 @@ public class DashboardController {
 		CashflowDateRangeValue danFlightsExpenseDRV = new CashflowDateRangeValue(danFlightsExpense.getCategory().getType(), YearMonth.of(2024, 6), YearMonth.of(2043, 1), Integer.valueOf(-10000));
 		danFlightsExpense.addCashflowDateRangeValue(danFlightsExpenseDRV);
 	
+		Cashflow danCanadaExpense = new Cashflow(CashflowCategory.EXPENSE_HOLIDAYS, "Canada heli ski", CashflowFrequency.ONE_OFF, Boolean.FALSE);
+		danResource.addCashflow(danCanadaExpense);		
+		CashflowDateRangeValue danCanadaExpenseDRV = new CashflowDateRangeValue(danCanadaExpense.getCategory().getType(), YearMonth.of(2025, 3), Integer.valueOf(-25000));
+		danCanadaExpense.addCashflowDateRangeValue(danCanadaExpenseDRV);
+	
 		Cashflow danUKPensionIncome = new Cashflow(CashflowCategory.INCOME_MISC, "UK pension", CashflowFrequency.MONTHLY, Boolean.TRUE);
 		danResource.addCashflow(danUKPensionIncome);		
 		CashflowDateRangeValue danUKPensionIncomeDRV = new CashflowDateRangeValue(danUKPensionIncome.getCategory().getType(), YearMonth.of(2038, 12), Integer.valueOf(2000));
@@ -276,6 +331,55 @@ public class DashboardController {
 	
 		scenario.addResource(danResource);
 		
+		// ------------
+		// Super (Dan).
+		// ------------
+
+		Resource danSuper = new ResourceSuperannuation("Super - Dan");
+		danSuper.setStartYearMonth(YearMonth.of(2024, 1));
+
+		danResource.addChild(danSuper);
+
+		// Super (Dan) BALANCE_OPENING_FIXED.
+		ResourceParamIntegerPositive danSuperBalanceOpeningFixed = new ResourceParamIntegerPositive(ResourceParamNameEnum.BALANCE_OPENING_FIXED);
+		danSuper.addResourceParam(danSuperBalanceOpeningFixed);
+		ResourceParamDateValueIntegerPositive danSuperBalanceOpeningFixedVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(808644));
+		danSuperBalanceOpeningFixed.addResourceParamDateValue(danSuperBalanceOpeningFixedVal);
+
+		// Super (Dan) SUPER_PRESERVATION_AGE.
+		ResourceParamIntegerPositive danPreservationAge = new ResourceParamIntegerPositive(ResourceParamNameEnum.SUPER_PRESERVATION_AGE);
+		danSuper.addResourceParam(danPreservationAge);
+		ResourceParamDateValueIntegerPositive danPreservationAgeVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(60));
+		danPreservationAge.addResourceParamDateValue(danPreservationAgeVal);
+
+		// Super (Dan) SUPER_GROWTH_RATE.
+		ResourceParamBigDecimal danSuperGrowthRate = new ResourceParamBigDecimal(ResourceParamNameEnum.SUPER_GROWTH_RATE);
+		danSuperGrowthRate.setUserAbleToCreateNewDateValue(true);
+		danSuper.addResourceParam(danSuperGrowthRate);
+		ResourceParamDateValueBigDecimal danSuperGrowthRateVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("6.0"));
+		danSuperGrowthRate.addResourceParamDateValue(danSuperGrowthRateVal);
+
+		// Super (Dan) SUPER_FEE_ANNUAL_PERCENTAGE.
+		ResourceParamBigDecimal danSuperFeeAnnualPercentage = new ResourceParamBigDecimal(ResourceParamNameEnum.SUPER_MANAGEMENT_FEE_ANNUAL_PERCENTAGE);
+		danSuperFeeAnnualPercentage.setUserAbleToCreateNewDateValue(true);
+		danSuper.addResourceParam(danSuperFeeAnnualPercentage);
+		ResourceParamDateValueBigDecimal danSuperFeeAnnualPercentageVal = new ResourceParamDateValueBigDecimal(YearMonth.of(2024, 1), false, new BigDecimal("0.02"));
+		danSuperFeeAnnualPercentage.addResourceParamDateValue(danSuperFeeAnnualPercentageVal);
+
+		// Super (Dan) DEPRECIATION_FEE.
+		Cashflow danSuperAdminFee = new Cashflow(CashflowCategory.DEPRECIATION_ADMIN_FEE, CashflowFrequency.MONTHLY, Boolean.TRUE);
+		danSuper.addCashflow(danSuperAdminFee);		
+		CashflowDateRangeValue danSuperAdminFeeDRV = new CashflowDateRangeValue(danSuperAdminFee.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-6));
+		danSuperAdminFee.addCashflowDateRangeValue(danSuperAdminFeeDRV);
+
+		// Super (Dan) APPRECIATION_SUPER_CONTRIBUTION_NON_CONCESSIONAL_PERSONAL.
+		Cashflow danSuperContribNonConcPersonal = new Cashflow(CashflowCategory.APPRECIATION_SUPER_CONTRIBUTION_NON_CONCESSIONAL_PERSONAL, CashflowFrequency.ANNUALLY, Boolean.FALSE);
+		danSuper.addCashflow(danSuperContribNonConcPersonal);		
+		CashflowDateRangeValue danSuperContribNonConcPersonalDRV = new CashflowDateRangeValue(danSuperAdminFee.getCategory().getType(), YearMonth.of(2026, 6), YearMonth.of(2032, 2), Integer.valueOf(27500));
+		danSuperContribNonConcPersonal.addCashflowDateRangeValue(danSuperContribNonConcPersonalDRV);
+		
+		scenario.addResource(danSuper);
+
 		// ------------
 		// Credit card.
 		// ------------
@@ -359,6 +463,12 @@ public class DashboardController {
 		griffinSt.addCashflow(griffinStAssetOwnership);
 		CashflowDateRangeValue griffinStAssetOwnershipDRV = new CashflowDateRangeValue(griffinStAssetOwnership.getCategory().getType(), YearMonth.of(2024, 1), Integer.valueOf(-1500));
 		griffinStAssetOwnership.addCashflowDateRangeValue(griffinStAssetOwnershipDRV);
+
+		// Griffin Street EXPENSE_ASSET_OWNERSHIP RENOS.
+		Cashflow griffinStAssetOwnershipRenos = new Cashflow(CashflowCategory.EXPENSE_ASSET_OWNERSHIP, "Renos", CashflowFrequency.ONE_OFF, Boolean.FALSE);
+		griffinSt.addCashflow(griffinStAssetOwnershipRenos);
+		CashflowDateRangeValue griffinStAssetOwnershipRenosDRV = new CashflowDateRangeValue(griffinStAssetOwnershipRenos.getCategory().getType(), YearMonth.of(2024, 5), Integer.valueOf(-70000));
+		griffinStAssetOwnershipRenos.addCashflowDateRangeValue(griffinStAssetOwnershipRenosDRV);
 
 		// Griffin Street HOUSING_MARKET_GROWTH_RATE.
 //		ResourceParamBigDecimal griffinStGrowthRate = new ResourceParamBigDecimal(ResourceParamNameEnum.PROPERTY_HOUSING_MARKET_GROWTH_RATE);
@@ -663,6 +773,9 @@ public class DashboardController {
 		shares.addResourceParam(sharesDividendProcessing);
 		ResourceParamDateValueString sharesDividendProcessingVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourceShares.SHARES_DIVIDEND_PROCESSING_REINVEST);
 		sharesDividendProcessing.addResourceParamDateValue(sharesDividendProcessingVal);		
+
+		ResourceParamDateValueString sharesDividendProcessing2Val = new ResourceParamDateValueString(YearMonth.of(2026, 1), true, ResourceShares.SHARES_DIVIDEND_PROCESSING_TAKE_AS_INCOME);
+		sharesDividendProcessing.addResourceParamDateValue(sharesDividendProcessing2Val);		
 
 		scenario.addResource(shares);
 		

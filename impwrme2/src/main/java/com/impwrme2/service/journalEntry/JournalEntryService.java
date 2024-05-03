@@ -140,7 +140,7 @@ public class JournalEntryService {
 			// Generate the closing balances (including unallocated if necessary).
 			currentMonthsProcessedJournalEntries.addAll(generateJournalEntriesForClosingBalances(resourceEngines));
 			
-//			if (currentYearMonth.isBefore(YearMonth.of(2024, 4))) {
+//			if (currentYearMonth.isBefore(YearMonth.of(2034, 5))) {
 //				Collections.sort(currentMonthsProcessedJournalEntries);
 //				for (JournalEntry journalEntry : currentMonthsProcessedJournalEntries) {
 //					System.out.println(journalEntry.toString());

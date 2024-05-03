@@ -71,6 +71,8 @@ public class ResourceDropdownDto {
 			return RESOURCE_NAV_LABEL_SCENARIO;
 		case SHARES:
 			return RESOURCE_NAV_LABEL_INVESTMENTS;
+		case SUPERANNUATION:
+			return RESOURCE_NAV_LABEL_INVESTMENTS;
 		default:
 			throw new IllegalStateException("Unknown resource tpye " + resourceType.getValue() + ".");
 		}
