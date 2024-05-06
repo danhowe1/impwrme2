@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.journalEntry.JournalEntry;
 import com.impwrme2.model.resource.ResourceSuperannuation;
@@ -51,23 +50,27 @@ public class ResourceSuperannuationEngine extends ResourceEngine {
 	public List<JournalEntry> generateJournalEntries(YearMonth yearMonth, BalanceTracker balanceTracker) {
 
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
-
 		if (yearMonth.isBefore(getResource().getStartYearMonth())) return journalEntries;
-		
 		if (payOutDateReached) return journalEntries;
+		
+		// Monthly appreciation from share market growth.
+		BigDecimal appreciationGrowth = calculateMonthlyAppreciationShareMarketGrowth(yearMonth, balanceTracker);
+		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, integerOf(appreciationGrowth), CashflowCategory.APPRECIATION_GROWTH_FIXED));
+
+		// Monthly depreciation from annual management fee.
+		BigDecimal managementFee = calculateMonthlyDepreciationAnnualManagementFee(yearMonth, balanceTracker);
+		journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -integerOf(managementFee), CashflowCategory.DEPRECIATION_MANAGEMENT_FEE));
 
 		if (isPayOutMonth(yearMonth)) {
 			Integer closingBalance = balanceTracker.getResourceFixedAmount(resource);
+			// We include this month's appreciation because if we didn't and transferred this balance into Shares, the Shares
+			// balance wouldn't update until next month. In this case neither this Super or the Shares would have counted the
+			// monthly growth.
+			closingBalance = closingBalance + integerOf(appreciationGrowth) - integerOf(managementFee);
 			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, closingBalance, CashflowCategory.INCOME_ASSET_SALE));
 			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -closingBalance, CashflowCategory.DEPRECIATION_SALE));
 			return journalEntries;
 		}
-
-		// Monthly appreciation from share market growth.
-		journalEntries.add(createJournalEntryForMonthlyAppreciationShareMarketGrowth(yearMonth, balanceTracker));
-
-		// Monthly depreciation from annual management fee.
-		journalEntries.add(createJournalEntryForMonthlyDepreciationAnnualManagementFee(yearMonth, balanceTracker));
 
 		// Standard cash-flows.
 		List<JournalEntry> standardJournalEntries = generateJournalEntriesFromCashflows(yearMonth, resource.getCashflows());
@@ -92,24 +95,38 @@ public class ResourceSuperannuationEngine extends ResourceEngine {
 		return false;
 	}
 
-	private JournalEntry createJournalEntryForMonthlyAppreciationShareMarketGrowth(final YearMonth yearMonth, BalanceTracker balanceTracker) {
+	private BigDecimal calculateMonthlyAppreciationShareMarketGrowth(final YearMonth yearMonth, BalanceTracker balanceTracker) {
 		BigDecimal growthRate = shareMarketGrowthRate(yearMonth);
 		BigDecimal monthlyGrowthRate = calculateMonthlyGrowthRateFromAnnualGrowthRate(growthRate);
 		BigDecimal amount = BigDecimal.valueOf(balanceTracker.getResourceFixedAmountPreviousMonth(getResource())).multiply(monthlyGrowthRate);
-		return JournalEntryFactory.create(getResource(), yearMonth, integerOf(amount), CashflowCategory.APPRECIATION_GROWTH_FIXED);
+		return amount;
 	}
+	
+//	private JournalEntry createJournalEntryForMonthlyAppreciationShareMarketGrowth(final YearMonth yearMonth, BalanceTracker balanceTracker) {
+//		BigDecimal growthRate = shareMarketGrowthRate(yearMonth);
+//		BigDecimal monthlyGrowthRate = calculateMonthlyGrowthRateFromAnnualGrowthRate(growthRate);
+//		BigDecimal amount = BigDecimal.valueOf(balanceTracker.getResourceFixedAmountPreviousMonth(getResource())).multiply(monthlyGrowthRate);
+//		return JournalEntryFactory.create(getResource(), yearMonth, integerOf(amount), CashflowCategory.APPRECIATION_GROWTH_FIXED);
+//	}
 
 	private BigDecimal shareMarketGrowthRate(final YearMonth yearMonth) {
 		Optional<ResourceParamDateValue<?>> growthRateOpt = getResource().getResourceParamDateValue(ResourceParamNameEnum.SUPER_GROWTH_RATE, yearMonth);
 		return (BigDecimal) growthRateOpt.get().getValue();
 	}
 
-	private JournalEntry createJournalEntryForMonthlyDepreciationAnnualManagementFee(final YearMonth yearMonth, BalanceTracker balanceTracker) {
+	private BigDecimal calculateMonthlyDepreciationAnnualManagementFee(final YearMonth yearMonth, BalanceTracker balanceTracker) {
 		BigDecimal growthRate = depreciationAnnualManagementFeeRate(yearMonth);
 		BigDecimal monthlyGrowthRate = calculateMonthlyGrowthRateFromAnnualGrowthRate(growthRate);
 		BigDecimal amount = BigDecimal.valueOf(balanceTracker.getResourceFixedAmountPreviousMonth(getResource())).multiply(monthlyGrowthRate);
-		return JournalEntryFactory.create(getResource(), yearMonth, -integerOf(amount), CashflowCategory.DEPRECIATION_MANAGEMENT_FEE);
+		return amount;
 	}
+	
+//	private JournalEntry createJournalEntryForMonthlyDepreciationAnnualManagementFee(final YearMonth yearMonth, BalanceTracker balanceTracker) {
+//		BigDecimal growthRate = depreciationAnnualManagementFeeRate(yearMonth);
+//		BigDecimal monthlyGrowthRate = calculateMonthlyGrowthRateFromAnnualGrowthRate(growthRate);
+//		BigDecimal amount = BigDecimal.valueOf(balanceTracker.getResourceFixedAmountPreviousMonth(getResource())).multiply(monthlyGrowthRate);
+//		return JournalEntryFactory.create(getResource(), yearMonth, -integerOf(amount), CashflowCategory.DEPRECIATION_MANAGEMENT_FEE);
+//	}
 
 	private BigDecimal depreciationAnnualManagementFeeRate(final YearMonth yearMonth) {
 		Optional<ResourceParamDateValue<?>> growthRateOpt = getResource().getResourceParamDateValue(ResourceParamNameEnum.SUPER_MANAGEMENT_FEE_ANNUAL_PERCENTAGE, yearMonth);

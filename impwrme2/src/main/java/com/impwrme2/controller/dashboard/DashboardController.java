@@ -177,6 +177,11 @@ public class DashboardController {
 		Resource householdResource = new ResourceHousehold("Howe Family");
 		householdResource.setStartYearMonth(YearMonth.of(2024, 1));
 
+		Cashflow householdCarExpense = new Cashflow(CashflowCategory.EXPENSE_MISC, "Car", CashflowFrequency.ONE_OFF, Boolean.FALSE);
+		householdResource.addCashflow(householdCarExpense);		
+		CashflowDateRangeValue householdCarExpenseDRV = new CashflowDateRangeValue(householdCarExpense.getCategory().getType(), YearMonth.of(2028, 4), Integer.valueOf(-100000));
+		householdCarExpense.addCashflowDateRangeValue(householdCarExpenseDRV);
+	
 		scenario.addResource(householdResource);
 		
 		// -------

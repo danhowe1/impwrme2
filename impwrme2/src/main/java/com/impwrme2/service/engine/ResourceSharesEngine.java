@@ -44,7 +44,6 @@ public class ResourceSharesEngine extends ResourceEngine {
 	public List<JournalEntry> generateJournalEntries(YearMonth yearMonth, BalanceTracker balanceTracker) {
 
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
-
 		if (yearMonth.isBefore(getResource().getStartYearMonth())) return journalEntries;
 		
 		// Monthly appreciation from share market growth.

@@ -2,11 +2,14 @@ package com.impwrme2.service.journalEntry;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
 import com.impwrme2.model.resource.Resource;
+import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
+import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 
 @Component
 public class BalanceTracker {
@@ -29,11 +32,21 @@ public class BalanceTracker {
 		resourceFixedAmountPreviousMonth = new HashMap<Resource, Integer>();
 		for (Resource resource : resources) {
 			resourceLiquidAmount.put(resource, Integer.valueOf(0));
-			resourceLiquidAmountPreviousMonth.put(resource, Integer.valueOf(0));
 			resourceLiquidDepositAmount.put(resource, Integer.valueOf(0));
-			resourceLiquidDepositAmountPreviousMonth.put(resource, Integer.valueOf(0));
 			resourceFixedAmount.put(resource, Integer.valueOf(0));
-			resourceFixedAmountPreviousMonth.put(resource, Integer.valueOf(0));
+			resourceLiquidAmountPreviousMonth.put(resource, Integer.valueOf(0));
+			
+			// Set the previous months balance to the opening balance.
+			Integer balanceOpeningLiquid = 0;
+			Optional<ResourceParamDateValue<?>> balanceOpeningLiquidOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_LIQUID, resource.getStartYearMonth());
+			if (balanceOpeningLiquidOpt.isPresent()) balanceOpeningLiquid = (Integer) balanceOpeningLiquidOpt.get().getValue();
+			resourceLiquidDepositAmountPreviousMonth.put(resource, balanceOpeningLiquid);
+			
+			// Set the previous months balance to the opening balance.
+			Integer balanceOpeningFixed = 0;
+			Optional<ResourceParamDateValue<?>> balanceOpeningFixedOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_FIXED, resource.getStartYearMonth());
+			if (balanceOpeningFixedOpt.isPresent()) balanceOpeningFixed = (Integer) balanceOpeningFixedOpt.get().getValue();
+			resourceFixedAmountPreviousMonth.put(resource, balanceOpeningFixed);
 		}
 	}
 	
