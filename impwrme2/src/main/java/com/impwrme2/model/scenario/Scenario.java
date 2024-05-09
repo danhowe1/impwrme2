@@ -2,14 +2,20 @@ package com.impwrme2.model.scenario;
 
 import java.io.Serializable;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.impwrme2.model.resource.Resource;
+import com.impwrme2.model.resource.ResourceMortgageExisting;
 import com.impwrme2.model.resource.ResourcePerson;
+import com.impwrme2.model.resource.ResourcePropertyExisting;
+import com.impwrme2.model.resource.ResourcePropertyNew;
 import com.impwrme2.model.resource.ResourceScenario;
+import com.impwrme2.model.resource.ResourceType;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 
 import jakarta.persistence.CascadeType;
@@ -71,6 +77,44 @@ public class Scenario implements Serializable {
 			}
 		}
 		return endYearMonth;
+	}
+	
+	public List<Resource> getListOfAllowedParentResources(ResourceType resourceType) {
+		List<Resource> allowedResources = new ArrayList<Resource>();
+		switch (resourceType) {
+		case MORTGAGE_EXISTING:
+			for (Resource resource : getResources()) {
+				if (resource instanceof ResourcePropertyExisting) {
+					allowedResources.add(resource);
+				}
+			}
+			break;
+		case MORTGAGE_NEW:
+			for (Resource resource : getResources()) {
+				if (resource instanceof ResourcePropertyExisting || 
+					resource instanceof ResourcePropertyNew) {
+					allowedResources.add(resource);
+				}
+			}
+			break;
+		case MORTGAGE_OFFSET_ACCOUNT:
+			for (Resource resource : getResources()) {
+				if (resource instanceof ResourceMortgageExisting) {
+					allowedResources.add(resource);
+				}
+			}
+			break;
+		case SUPERANNUATION:
+			for (Resource resource : getResources()) {
+				if (resource instanceof ResourcePerson) {
+					allowedResources.add(resource);
+				}
+			}
+			break;
+		default:
+			break;
+		}
+		return allowedResources;
 	}
 
 	//-------------------

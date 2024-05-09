@@ -32,16 +32,18 @@
 
 <body>
 	<div th:replace="~{fragments/header :: header}"></div>
-	<div th:if="${flashMessageError}" class="alert alert-danger"
-		role="alert">
-		<p th:text="${flashMessageError}" />
-	</div>
-	<div th:if="${flashMessageSuccess}" class="alert alert-success"
-		role="alert">
-		<p th:text="${flashMessageSuccess}" />
-	</div>
-	<div layout:fragment="content"></div>
+	
+	<div id="mainLayout" class="container">
+	
+		<div th:if="${flashMessageError}" class="alert alert-danger pb-1 mt-3" role="alert">
+			<h6 th:text="${flashMessageError}"></h6>
+		</div>
+		<div th:if="${flashMessageSuccess}" class="alert alert-success pb-1 mt-3" role="alert">
+			<h6 th:text="${flashMessageSuccess}"></h6>
+		</div>
 
+		<div layout:fragment="content"></div>
+	</div>
 </body>
 
 <!--  Bootstrap tooltips (must go after body). -->

@@ -69,18 +69,20 @@
 	<div th:replace="~{fragments/header :: header}"></div>
 
 	<div id="dashboard" class="container">
+	
+		<div th:if="${flashMessageError}" class="alert alert-danger pb-1 mt-3" role="alert">
+			<h6 th:text="${flashMessageError}"></h6>
+		</div>
+		<div th:if="${flashMessageSuccess}" class="alert alert-success pb-1 mt-3" role="alert">
+			<h6 th:text="${flashMessageSuccess}"></h6>
+		</div>
+	
 		<div class="p-2 mt-3 bg-dark-subtle rounded-3">
 			<div th:replace="~{fragments/dashboard/dataDisplay :: dataDisplay}"></div>
 		</div>
 		<div class="p-2 mt-3 bg-dark-subtle rounded-3">
-			<div class="row">
-				<div class="col">
-					<div
-						th:replace="~{fragments/dashboard/resourceNavBar :: resourceNavBar}"></div>
-				</div>
-			</div>
-			<div
-				th:replace="~{fragments/dashboard/resourceElements :: resourceElements}"></div>
+			<div th:replace="~{fragments/dashboard/resourceNavBar :: resourceNavBar}"></div>
+			<div th:replace="~{fragments/dashboard/resourceElements :: resourceElements}"></div>
 		</div>
 	</div>
 </body>

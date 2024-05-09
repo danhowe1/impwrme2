@@ -6,7 +6,7 @@
 
 </head>
 <body>
-	<div id="resourceNavBar"
+	<div id="resourceNavBar" class="row"
 		th:fragment="resourceNavBar">
 
 		<script type="text/javascript" th:inline="javascript">
@@ -51,9 +51,27 @@
 					}
 				});
 			}
+			
+			/* -------------------------------- */
+			/* Document loaded functions START. */
+			/* -------------------------------- */
+
+			$(document).ready(function() {
+
+				// Change of resource type to create.
+				$("select[name=resourceTypeToCreate]").on( "change", function() {
+//					window.location.href=baseUrl +'resource/showCreateForm/' + this.value;
+					window.location.replace(baseUrl +'resource/showCreateForm/' + this.value);
+				});
+			});
+
+			/* ------------------------------ */
+			/* Document loaded functions END. */
+			/* ------------------------------ */
+
 		</script>
 
-		<div id="resourcesTabs">
+		<div class="col" id="resourcesTabs">
 			<ul class="nav nav-tabs">
 				<li class="nav-item"><a class="nav-link" aria-current="page"
 					href="#"
@@ -75,8 +93,15 @@
 							th:attr="onclick=|showResourceElements('${resourceTabItem.resourceId}')|">XXX</a></li>
 					</ul></li>
 			</ul>
+		</div>		
+		<div class="col-auto">
+			<select class="form-select selectpicker" name="resourceTypeToCreate">
+		    	<option selected disabled th:text="#{msg.class.resourceType.label}">XXX</option>
+				<option th:each="resourceType : *{resourceDropdownDto.listOfResourceTypesToCreate}"
+					th:value="${resourceType}" th:text="#{'msg.class.resourceType.value.' + ${resourceType}}"></option>
+			</select>
 		</div>
-
+		
 		<script th:inline="javascript">
 			addEventListenersToResourcesTab();
 			setActiveResourceTab();

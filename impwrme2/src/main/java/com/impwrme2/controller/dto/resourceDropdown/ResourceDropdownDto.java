@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.impwrme2.model.resource.Resource;
+import com.impwrme2.model.resource.ResourcePropertyExisting;
+import com.impwrme2.model.resource.ResourcePropertyNew;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.ResourceType;
 import com.impwrme2.model.scenario.Scenario;
@@ -15,6 +17,7 @@ public class ResourceDropdownDto {
 
 	public ResourceDropdownDto(final Scenario scenario, final ResourceType activeResourceType) {
 		this.activeResourceType = activeResourceType;
+		this.scenario = scenario;
 		initialise(scenario);
 	}
 
@@ -26,13 +29,12 @@ public class ResourceDropdownDto {
 	private final static String RESOURCE_NAV_LABEL_INVESTMENTS = "resourceNavLabelInvestments";
 
 	private final ResourceType activeResourceType;
-	private Long scenarioResourceId;
+	private final Scenario scenario;
 
 	private Map<String, ResourceDropdownTabDto> resourceTabMap = new HashMap<String, ResourceDropdownTabDto>();
 
 	private void initialise(final Scenario scenario) {
 
-		scenarioResourceId = scenario.getResourceScenario().getId();
 		resourceTabMap.put(RESOURCE_NAV_LABEL_FAMILY, new ResourceDropdownTabDto(RESOURCE_NAV_LABEL_FAMILY));
 
 		for (Resource resource : scenario.getResources()) {
@@ -87,6 +89,33 @@ public class ResourceDropdownDto {
 		tab.addResourceTabItem(new ResourceDropdownTabItemDto(resource));
 	}
 
+	public List<String> getListOfResourceTypesToCreate() {
+		boolean propertyExisting = false;
+		boolean propertyNew = false;
+		boolean mortgageOffset = false;
+		for (Resource resource : scenario.getResources()) {
+			if (resource instanceof ResourcePropertyExisting) {
+				propertyExisting = true;
+				mortgageOffset = true;
+			} else if (resource instanceof ResourcePropertyNew) {
+				propertyNew = true;
+				mortgageOffset = true;
+			} 
+		}
+		List<String> resourceTypeNames = new ArrayList<String>();
+		resourceTypeNames.add(ResourceType.CREDIT_CARD.getValue());
+		resourceTypeNames.add(ResourceType.CURRENT_ACCOUNT.getValue());
+		if (propertyExisting) resourceTypeNames.add(ResourceType.MORTGAGE_EXISTING.getValue());
+		if (propertyNew) resourceTypeNames.add(ResourceType.MORTGAGE_NEW.getValue());
+		if (mortgageOffset) resourceTypeNames.add(ResourceType.MORTGAGE_OFFSET_ACCOUNT.getValue());
+		resourceTypeNames.add(ResourceType.PERSON.getValue());
+		resourceTypeNames.add(ResourceType.PROPERTY_EXISTING.getValue());
+		resourceTypeNames.add(ResourceType.PROPERTY_NEW.getValue());
+		resourceTypeNames.add(ResourceType.SHARES.getValue());
+		resourceTypeNames.add(ResourceType.SUPERANNUATION.getValue());
+		return resourceTypeNames;
+	}
+	
 	// -------------------
 	// Getters & setters.
 	// -------------------
@@ -96,7 +125,7 @@ public class ResourceDropdownDto {
 	}
 	
 	public Long getScenarioResourceId() {
-		return scenarioResourceId;
+		return scenario.getResourceScenario().getId();
 	}
 	
 	public List<ResourceDropdownTabDto> getResourceTabs() {
