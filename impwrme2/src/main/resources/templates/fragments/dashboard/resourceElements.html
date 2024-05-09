@@ -22,8 +22,41 @@
 				<div class="col-auto"
 					th:insert="~{fragments/dashboard/cashflows :: cashflows}"></div>
 			</div>
+			
+			<div th:if="${resourceDto.userCanDelete}" class="row">
+				<div class="col-auto mb-1">
+					<form>
+						<a data-bs-toggle="modal" 
+							th:text="#{msg.html.resource.deleteBtn.label(${resourceDto.name})}"
+							th:attr="data-url=''+@{/app/dashboard/resource/delete/} + ${resourceDto.id}+''" 
+							title="Delete this resource" 
+							class="open-DeleteScenarioDialog btn btn-danger" 
+							href="#deleteResourceDialog">Delete</a>
+					</form>
+				</div>
+			</div>
+				
+			<div id="deleteResourceDialog" class="modal fade" tabindex="-1">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h3 id="delModalLabel" th:text="#{msg.html.resource.deleteDialog.header}">DELETE CONFIRMATION</h3>
+						</div>
+						<div class="modal-body">
+							<p class="error-text">
+								<strong th:text="#{msg.html.resource.deleteDialog.text(${resourceDto.name})}">Are you sure you want to delete this resource?</strong>
+							</p>
+							<div class="modal-footer">
+								<a class="btn btn-link" role="button" data-bs-dismiss="modal" th:text="#{msg.html.resource.deleteDialog.cancelBtn}">CANCEL</a>
+								<a id="deleteBtn" class="btn btn-danger" role="button" href="" th:text="#{msg.html.resource.deleteDialog.deleteBtn}">DELETE</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
 		</div>
 
-	</div>
+	</div>	
 </body>
 </html>

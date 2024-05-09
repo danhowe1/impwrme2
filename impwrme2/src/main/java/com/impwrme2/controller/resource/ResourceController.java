@@ -99,7 +99,20 @@ public class ResourceController {
 				savedResource.getName() }, LocaleContextHolder.getLocale());
 		redirectAttributes.addFlashAttribute("flashMessageSuccess", message);
 		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", savedResource.getId());
+		session.removeAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");
 
+		return "redirect:/app/dashboard";
+	}
+	
+	@GetMapping("/delete/{id}")
+	public String delete(@PathVariable Long id, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+		Resource resource = resourceService.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + id));
+		Resource resourceScenario = resource.getScenario().getResourceScenario();
+		scenarioService.deleteResource(resource);
+		String message = messageSource.getMessage("msg.html.global.message.successfullyDeleted", new String[]{ resource.getName() }, LocaleContextHolder.getLocale());
+		redirectAttributes.addFlashAttribute("flashMessageSuccess", message);
+		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", resourceScenario.getId());
+		session.removeAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");
 		return "redirect:/app/dashboard";
 	}
 }

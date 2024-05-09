@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceCreditCard;
+import com.impwrme2.model.resource.ResourceHousehold;
+import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.ResourceType;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParam;
@@ -44,6 +46,10 @@ public class ResourceDtoConverter {
 		resourceDto.setName(resource.getName());
 		resourceDto.setStartYearMonth(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(resource.getStartYearMonth()));
 		resourceDto.setResourceType(resource.getResourceType().getValue());
+		if (resource instanceof ResourceScenario || resource instanceof ResourceHousehold) {
+			resourceDto.setUserCanDelete(false);
+		}
+		
 		for (CashflowCategory cat : resource.getCashflowCategoriesUsersCanCreate()) {
 			resourceDto.addCashflowCategoryUsersCanCreate(cat.getValue());
 		}

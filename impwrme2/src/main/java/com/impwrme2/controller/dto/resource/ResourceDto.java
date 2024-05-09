@@ -20,6 +20,8 @@ public class ResourceDto {
 	@NotEmpty(message = "{msg.validation.resource.resourceType.notEmpty}")
 	private String resourceType;
 
+	private boolean userCanDelete = true;
+	
 	public List<String> cashflowCategoriesUsersCanCreate = new ArrayList<String>();
 
 	public List<String> resourceParamNamesUsersCanCreate = new ArrayList<String>();
@@ -58,6 +60,14 @@ public class ResourceDto {
 
 	public void setResourceType(String resourceType) {
 		this.resourceType = resourceType;
+	}
+
+	public boolean isUserCanDelete() {
+		return userCanDelete;
+	}
+
+	public void setUserCanDelete(boolean userCanDelete) {
+		this.userCanDelete = userCanDelete;
 	}
 
 	public void addCashflowCategoryUsersCanCreate(String cashflowCategorysUsersCanCreate) {
