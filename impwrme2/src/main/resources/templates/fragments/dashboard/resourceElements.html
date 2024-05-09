@@ -55,8 +55,14 @@
 				</div>
 			</div>
 			
+			<script type="text/javascript" th:inline="javascript">
+				document.querySelector('#deleteResourceDialog').addEventListener('show.bs.modal', function(e) {
+					var url = $(e.relatedTarget).data('url');
+					$(e.currentTarget).find('#deleteBtn').attr("href", url);
+				});
+			</script>	
+			
 		</div>
-
-	</div>	
+	</div>		
 </body>
 </html>

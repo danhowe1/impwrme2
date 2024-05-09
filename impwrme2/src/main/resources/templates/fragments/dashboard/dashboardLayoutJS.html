@@ -28,13 +28,6 @@
 		console.log('Message: ' + jqXHR.responseText);
 		window.location.replace(baseUrl);
 	}
-		
-	$(document).ready(function() {
-		$('#deleteResourceDialog').on('show.bs.modal', function(e) {
-			var url = $(e.relatedTarget).data('url');
-			$(e.currentTarget).find('#deleteBtn').attr("href", url);
-		})
-	});
 	
 </script>
 
