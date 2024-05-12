@@ -1,5 +1,9 @@
 @charset "ISO-8859-1";
 
+body.min-vh-100{
+ 	background-image: radial-gradient(#dedbff, #efeeea)!important;
+}
+
 .tooltip-inner {
 	text-align: left;
 }

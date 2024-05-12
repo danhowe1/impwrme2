@@ -1,5 +1,7 @@
 package com.impwrme2.controller.dto.resource;
 
+import com.impwrme2.model.cashflow.CashflowCategory;
+import com.impwrme2.model.cashflow.CashflowFrequency;
 import com.impwrme2.model.resource.ResourceType;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParamType;
@@ -20,7 +22,7 @@ public class ResourceCreateDtoFactory {
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.MORTGAGE_OFFSET_ACCOUNT)) {
 //			return createResourceMortgageOffsetAccount(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.PERSON)) {
-//			return createResourcePerson(scenario);
+			return createResourcePerson(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.PROPERTY_EXISTING)) {
 //			return createResourcePropertyExisting(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.PROPERTY_NEW)) {
@@ -60,6 +62,52 @@ public class ResourceCreateDtoFactory {
 		interestRate.setUserAbleToCreateNewDateValue(false);
 		resourceCreateDto.addResourceParamDto(interestRate);
 
+		return resourceCreateDto;
+	}	
+
+	public static ResourceCreateDto createResourcePerson(Scenario scenario) {
+		ResourceCreateDto resourceCreateDto = new ResourceCreateDto();
+		resourceCreateDto.setScenarioId(scenario.getId());
+		resourceCreateDto.setStartYearMonth(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(scenario.getStartYearMonth()));
+		resourceCreateDto.setResourceType(ResourceType.PERSON.getValue());
+		resourceCreateDto.setListOfAllowedParentResources(scenario.getListOfAllowedParentResources(ResourceType.PERSON));
+
+		ResourceCreateResourceParamWithValueDto birthYearMonth = new ResourceCreateResourceParamWithValueDto();
+		birthYearMonth.setName(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH.getValue());
+		birthYearMonth.setResourceParamType(ResourceParamType.YEAR_MONTH.getValue());
+		birthYearMonth.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(birthYearMonth);
+
+		ResourceCreateResourceParamWithValueDto departureAge = new ResourceCreateResourceParamWithValueDto();
+		departureAge.setName(ResourceParamNameEnum.PERSON_DEPARTURE_AGE.getValue());
+		departureAge.setResourceParamType(ResourceParamType.INTEGER_POSITIVE.getValue());
+		departureAge.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(departureAge);
+		
+		ResourceCreateResourceParamWithValueDto retirementAge = new ResourceCreateResourceParamWithValueDto();
+		retirementAge.setName(ResourceParamNameEnum.PERSON_RETIREMENT_AGE.getValue());
+		retirementAge.setResourceParamType(ResourceParamType.INTEGER_POSITIVE.getValue());
+		retirementAge.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(retirementAge);
+
+		ResourceCreateCashflowWithValueDto income = new ResourceCreateCashflowWithValueDto();
+		income.setCategory(CashflowCategory.INCOME_EMPLOYMENT.getValue());
+		income.setFrequency(CashflowFrequency.MONTHLY.getValue());
+		income.setCpiAffected(true);
+		resourceCreateDto.addCashflowDto(income);
+	
+		ResourceCreateCashflowWithValueDto livingEssential = new ResourceCreateCashflowWithValueDto();
+		livingEssential.setCategory(CashflowCategory.EXPENSE_LIVING_ESSENTIAL.getValue());
+		livingEssential.setFrequency(CashflowFrequency.MONTHLY.getValue());
+		livingEssential.setCpiAffected(true);
+		resourceCreateDto.addCashflowDto(livingEssential);
+	
+		ResourceCreateCashflowWithValueDto livingSplurge = new ResourceCreateCashflowWithValueDto();
+		livingSplurge.setCategory(CashflowCategory.EXPENSE_LIVING_NON_ESSENTIAL.getValue());
+		livingSplurge.setFrequency(CashflowFrequency.MONTHLY.getValue());
+		livingSplurge.setCpiAffected(true);
+		resourceCreateDto.addCashflowDto(livingSplurge);
+	
 		return resourceCreateDto;
 	}	
 }

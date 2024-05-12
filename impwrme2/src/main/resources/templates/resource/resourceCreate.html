@@ -5,81 +5,191 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<div layout:fragment="content" class="container my-5">
-		<form th:action="@{/app/dashboard/resource/save}" th:object="${resourceCreateDto}" method="post" class="was-validated">
-			<h3 th:text="#{msg.class.resourceType.label.new} + ' ' + #{'msg.class.resourceType.value.' + *{resourceType}}">XXX</h3>
-			<input type="hidden" th:field="*{scenarioId}" /> 
-			<input type="hidden" th:field="*{resourceType}" /> 
-			
-			<!-- ----- -->
-			<!-- Name. -->
-			<!-- ----- -->
-			
-			<label class="col-form-label" th:text="#{msg.html.resource.name}"></label>
-			<input type="text" 
-					class="form-control"
-					th:field="*{name}" 
-					required
-					oninput="this.setCustomValidity('')">
-			<p th:if="${#fields.hasErrors('name')}"
-					th:errorclass="error" 
-					th:errors="*{name}"></p>
-			
-			<!-- ----------------- -->
-			<!-- Start year month. -->
-			<!-- ----------------- -->
-			
-			<label class="col-form-label" th:text="#{msg.html.dashboard.resourceParamDateValueEdit.yearMonth.label}"></label>
-			<input type="text" 
-					class="form-control"
-					th:field="*{startYearMonth}" 
-					size="7" 
-					maxLength="7"
-					required
-					pattern="^[0-9]{1,2}.[0-9]{4}"
-					th:placeholder="#{msg.html.global.yearMonth.placeholder}"
-					oninput="this.setCustomValidity('')" 
-					th:title="#{msg.validation.monthYear}">
-			<p th:if="${#fields.hasErrors('startYearMonth')}"
-					th:errorclass="error" 
-					th:errors="*{startYearMonth}"></p>
-			
-			<!-- ----------------- -->
-			<!-- TODO Parent. -->
-			<!-- ----------------- -->
-			
-			<label th:if="*{not ListOfAllowedParentResources.empty}" th:text="#{'msg.html.resource.parent.name'}">Parent</label>
-			<select th:if="*{not ListOfAllowedParentResources.empty}" class="form-control" th:field="*{parentId}" required>
-				<option hidden="hidden" value=""></option>
-				<option th:each="opt : *{ListOfAllowedParentResources}" th:value="${opt.id}" th:text="${opt.name}" th:selected="${opt.id}==*{parentId}"></option>
-			</select>
-			
-			<!-- ---------------- -->
-			<!-- Resource params. -->
-			<!-- ---------------- -->
-			
-			<div th:each="resourceParamDto, paramStat : *{resourceParamDtos}">
-				<input type="hidden" th:field="*{resourceParamDtos[__${paramStat.index}__].name}"/>
-				<input type="hidden" th:field="*{resourceParamDtos[__${paramStat.index}__].resourceParamType}"/>
-				<label th:text="#{'msg.html.resourceParams.name.' + ${resourceParamDto.name} + '.' + *{resourceType}}"></label> 
-				<input type="checkbox" class="visually-hidden" th:field="*{resourceParamDtos[__${paramStat.index}__].userAbleToCreateNewDateValue}" th:checked="*{resourceParamDtos[__${paramStat.index}__].userAbleToCreateNewDateValue}" />
+	<div layout:fragment="content">
+	
+		<div class="p-2 mt-3 bg-light-subtle rounded-3">
+	
+			<form th:action="@{/app/dashboard/resource/save}" th:object="${resourceCreateDto}" method="post" class="was-validated">
+				<input type="hidden" th:field="*{scenarioId}" /> 
+				<input type="hidden" th:field="*{resourceType}" /> 
+
+				<div class="row">
+	
+					<!-- ------ -->
+					<!-- Title. -->
+					<!-- ------ -->
+					
+					<div class="col">
+						<h3 th:text="#{msg.class.resourceType.label.new} + ' ' + #{'msg.class.resourceType.value.' + *{resourceType}}">XXX</h3>
+					</div>	
+				</div>
 				
-				<input type="text" 
-						class="form-control"
-						size="7"
-						required
-						th:pattern="*{resourceParamDtos[__${paramStat.index}__].regex}"
-						th:field="*{resourceParamDtos[__${paramStat.index}__].value}" 
-						oninput="this.setCustomValidity('')"
-						th:title="#{msg.validation.notEmpty}">
-				<p th:if="${#fields.hasErrors('resourceParamDtos[__${paramStat.index}__].value')}"
-					th:errorclass="error" 
-					th:errors="*{resourceParamDtos[__${paramStat.index}__].value}"></p>
-			</div>
+				<div class="row mb-3">
+	
+					<!-- ----- -->
+					<!-- Name. -->
+					<!-- ----- -->
+					
+					<label for="idResourceCreateDtoName" class="col-auto col-form-label-sm" th:text="#{msg.html.resource.name}"></label>
+				    <div class="col-auto">
+						<input id="idResourceCreateDtoName" type="text" 
+								class="form-control form-control-sm"
+								th:field="*{name}" 
+								required
+								oninput="this.setCustomValidity('')">
+						<p th:if="${#fields.hasErrors('name')}"
+								th:errorclass="error" 
+								th:errors="*{name}"></p>
+	    			</div>
+	
+					<!-- ----------------- -->
+					<!-- Start year month. -->
+					<!-- ----------------- -->
+					
+					<label for="idResourceCreateDtoStartYearMonth" class="col-auto col-form-label-sm" th:text="#{msg.html.dashboard.resourceParamDateValueEdit.yearMonth.label}"></label>
+				    <div class="col-auto">
+						<input id="idResourceCreateDtoStartYearMonth" 
+								type="text" 
+								class="form-control form-control-sm"
+								th:field="*{startYearMonth}" 
+								size="7" 
+								maxLength="7"
+								required
+								pattern="^[0-9]{1,2}.[0-9]{4}"
+								th:placeholder="#{msg.html.global.yearMonth.placeholder}"
+								oninput="this.setCustomValidity('')" 
+								th:title="#{msg.validation.monthYear}">
+						<p th:if="${#fields.hasErrors('startYearMonth')}"
+								th:errorclass="error" 
+								th:errors="*{startYearMonth}"></p>
+					</div>
+					
+					<!-- ----------------- -->
+					<!-- TODO Parent. -->
+					<!-- ----------------- -->
+					
+					<label th:if="*{not ListOfAllowedParentResources.empty}" for="idResourceCreateDtoParent" class="col-auto col-form-label-sm" th:text="#{'msg.html.resource.parent.name'}">Parent</label>
+				    <div class="col-auto">
+						<select th:if="*{not ListOfAllowedParentResources.empty}" id="idResourceCreateDtoParent" class="form-control form-control-sm" th:field="*{parentId}" required>
+							<option hidden="hidden" value=""></option>
+							<option th:each="opt : *{ListOfAllowedParentResources}" th:value="${opt.id}" th:text="${opt.name}" th:selected="${opt.id}==*{parentId}"></option>
+						</select>
+					</div>
+					
+				</div>
+													
+				<!-- ---------------- -->
+				<!-- Resource params. -->
+				<!-- ---------------- -->
+	
+				<fieldset>
+					<legend>Parameters</legend>
+						
+					<div class="row mb-3">
+							<div th:each="resourceParamDto, paramStat : *{resourceParamDtos}" class="col-auto">
+								<input type="hidden" th:field="*{resourceParamDtos[__${paramStat.index}__].name}"/>
+								<input type="hidden" th:field="*{resourceParamDtos[__${paramStat.index}__].resourceParamType}"/>
+								<input type="checkbox" class="visually-hidden" th:field="*{resourceParamDtos[__${paramStat.index}__].userAbleToCreateNewDateValue}" th:checked="*{resourceParamDtos[__${paramStat.index}__].userAbleToCreateNewDateValue}" />
+								
+								<!-- ------ -->
+								<!-- Value. -->
+								<!-- ------ -->
 			
-			<button id="saveBtn" class="btn btn-primary" type="submit">Save</button>
-			<a class="btn btn-link" role="button" onclick="window.location.replace('/app/dashboard')">Cancel</a>
-		</form>
+								<label class="col-form-label-sm" th:text="#{'msg.html.resourceParams.name.' + ${resourceParamDto.name} + '.' + *{resourceType}}"></label> 
+								<div>
+									<input type="text" 
+											class="form-control form-control-sm"
+											size="7"
+											required
+											th:pattern="*{resourceParamDtos[__${paramStat.index}__].regex}"
+											th:field="*{resourceParamDtos[__${paramStat.index}__].value}" 
+											oninput="this.setCustomValidity('')"
+											th:title="#{msg.validation.notEmpty}">
+									<p th:if="${#fields.hasErrors('resourceParamDtos[__${paramStat.index}__].value')}"
+										th:errorclass="error" 
+										th:errors="*{resourceParamDtos[__${paramStat.index}__].value}"></p>
+								</div>
+							</div>
+					</div>
+				</fieldset>
+				
+				<!-- ----------- -->
+				<!-- Cash-flows. -->
+				<!-- ----------- -->
+	
+				<fieldset th:each="cashflowDto, cashflowIndex : *{cashflowDtos}" class="row mb-3 align-items-center">
+				    <legend th:text="#{'msg.class.cashflowCategory.' + ${cashflowDto.category}}">Radios</legend>
+
+					<input type="hidden" th:field="*{cashflowDtos[__${cashflowIndex.index}__].category}"/>
+
+					<!-- ---- -->
+					<!-- CPI. -->
+					<!-- ---- -->
+	
+					<label class="col-auto col-form-label-sm" th:text="#{msg.html.dashboard.cashflowTable.th.cpi}"></label>
+					<input class="col-auto form-check-input" type="checkbox" th:field="*{cashflowDtos[__${cashflowIndex.index}__].cpiAffected}" th:checked="*{cashflowDtos[__${cashflowIndex.index}__].cpiAffected}" />
+
+					<!-- ---------- -->
+					<!-- Frequency. -->
+					<!-- ---------- -->
+
+					<label class="col-auto col-form-label-sm" th:text="#{msg.html.dashboard.cashflowTable.th.frequency}"></label>
+					<div class="col-auto">
+						<select class="form-control form-control-sm" th:name="'cashflowDtos[' + ${cashflowIndex.index} + '].frequency'">
+							<option th:each="opt : *{cashflowDtos[__${cashflowIndex.index}__].listOfFrequencies}"
+									th:value="${opt}"
+									th:text="#{'msg.class.cashflowFrequency.' + ${opt}}"
+									th:selected="${opt}==*{cashflowDtos[__${cashflowIndex.index}__].frequency}">
+							</option>
+						</select>
+					</div>
+
+					<!-- --------- -->
+					<!-- End date. -->
+					<!-- --------- -->
+
+					<label class="col-auto col-form-label-sm" th:text="#{msg.html.dashboard.cashflowDateRangeValueEdit.yearMonthEnd.label}"></label>
+
+					<div class="col-auto">
+						<input id="yearMonthEnd" 
+								type="text" 
+								class="form-control form-control-sm"
+								th:field="*{cashflowDtos[__${cashflowIndex.index}__].yearMonthEnd}" 
+								size="7"
+								maxLength="7"
+								pattern="^[0-9]{1,2}.[0-9]{4}"
+								th:placeholder="#{msg.html.global.yearMonth.placeholder}"
+								oninput="this.setCustomValidity('')" 
+								th:title="#{msg.validation.monthYear}">
+						<p th:if="${#fields.hasErrors('cashflowDtos[__${cashflowIndex.index}__].yearMonthEnd')}"
+							th:errorclass="error" th:errors="*{cashflowDtos[__${cashflowIndex.index}__].yearMonthEnd}"></p>
+					</div>
+
+					<!-- ------ -->
+					<!-- Value. -->
+					<!-- ------ -->
+
+					<label class="col-auto col-form-label-sm" th:text="#{msg.html.dashboard.cashflowDateRangeValueEdit.value.label}"></label>
+
+					<div class="col-auto">
+						<input id="value" 
+								type="text" class="form-control form-control-sm"
+								th:field="*{cashflowDtos[__${cashflowIndex.index}__].value}"
+								required
+								size="7"
+								pattern="^-?[0-9]*[0-9]*$"
+								oninput="this.setCustomValidity('')"
+								th:title="#{msg.validation.notEmpty}">
+						<p th:if="${#fields.hasErrors('cashflowDtos[__${cashflowIndex.index}__].value')}" th:errorclass="error"
+							th:errors="*{cashflowDtos[__${cashflowIndex.index}__].value}"></p>					
+					</div>
+					
+				</fieldset>
+											
+				<button id="saveBtn" class="btn btn-primary" type="submit">Save</button>
+				<a class="btn btn-link" role="button" onclick="window.location.replace('/app/dashboard')">Cancel</a>
+			</form>
+		</div>
 	</div>
 </body>
 </html>

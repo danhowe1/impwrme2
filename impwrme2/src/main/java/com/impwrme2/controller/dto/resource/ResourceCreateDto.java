@@ -32,6 +32,9 @@ public class ResourceCreateDto {
 	@Valid
 	private List<ResourceCreateResourceParamWithValueDto> resourceParamDtos = new ArrayList<ResourceCreateResourceParamWithValueDto>();
 
+	@Valid
+	private List<ResourceCreateCashflowWithValueDto> cashflowDtos = new ArrayList<ResourceCreateCashflowWithValueDto>();
+
 	//-------------------
 	// Getters & setters.
 	//-------------------
@@ -87,12 +90,17 @@ public class ResourceCreateDto {
 	public List<ResourceCreateResourceParamWithValueDto> getResourceParamDtos() {
 		return resourceParamDtos;
 	}
-
-//	public void setResourceParamDtos(List<ResourceCreateResourceParamWithValueDto> resourceParamDtos) {
-//		this.resourceParamDtos = resourceParamDtos;
-//	}
 	
 	public void addResourceParamDto(ResourceCreateResourceParamWithValueDto resourceParamDto) {
 		this.resourceParamDtos.add(resourceParamDto);
+	}
+
+
+	public List<ResourceCreateCashflowWithValueDto> getCashflowDtos() {
+		return cashflowDtos;
+	}
+	
+	public void addCashflowDto(ResourceCreateCashflowWithValueDto cashflowDto) {
+		this.cashflowDtos.add(cashflowDto);
 	}
 }

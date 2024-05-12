@@ -6,10 +6,15 @@ import java.time.YearMonth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflow.CashflowCategory;
+import com.impwrme2.model.cashflow.CashflowFrequency;
+import com.impwrme2.model.cashflow.CashflowType;
+import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceCreditCard;
 import com.impwrme2.model.resource.ResourceHousehold;
+import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.ResourceType;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
@@ -64,7 +69,11 @@ public class ResourceDtoConverter {
 		for (ResourceCreateResourceParamWithValueDto resourceParamDto : resourceCreateDto.getResourceParamDtos()) {
 			resource.addResourceParam(resourceCreateResourceParamWithValueDtoToEntity(resource.getStartYearMonth(), resourceParamDto));
 		}
-		// TODO Cashflows...
+		for (ResourceCreateCashflowWithValueDto cashflowDto : resourceCreateDto.getCashflowDtos()) {
+			if (cashflowDto.getValue() != 0) {
+				resource.addCashflow(resourceCreateCashflowWithValueDtoToEntity(resource.getStartYearMonth(), cashflowDto));
+			}
+		}
 		
 		return resource;
 	}
@@ -75,6 +84,9 @@ public class ResourceDtoConverter {
 		switch (ResourceType.valueOf(resourceCreateDto.getResourceType())) {
 		case CREDIT_CARD:
 			resource = new ResourceCreditCard(resourceCreateDto.getName());
+			break;
+		case PERSON:
+			resource = new ResourcePerson(resourceCreateDto.getName());
 			break;
 		default:
 			throw new IllegalStateException("Unknown resource type " + resourceCreateDto.getResourceType());
@@ -136,5 +148,18 @@ public class ResourceDtoConverter {
 			throw new IllegalStateException("Unknown resource param type " + resourceParamDto.getResourceParamType());
 		}
 		return rpdv;
+	}
+
+	private Cashflow resourceCreateCashflowWithValueDtoToEntity(YearMonth yearMonth, ResourceCreateCashflowWithValueDto cashflowDto) {
+		Cashflow cashflow = new Cashflow(CashflowCategory.getCategory(cashflowDto.getCategory()),
+										CashflowFrequency.getCashflowFrequency(cashflowDto.getFrequency()),
+										cashflowDto.isCpiAffected());
+		cashflow.addCashflowDateRangeValue(cashflowDateRangeValueToEntity(yearMonth, cashflowDto));
+		return cashflow;
+	}
+
+	private CashflowDateRangeValue cashflowDateRangeValueToEntity(YearMonth yearMonth, ResourceCreateCashflowWithValueDto cashflowDto) {
+		CashflowType cashflowType = CashflowCategory.getCategory(cashflowDto.getCategory()).getType();
+		return new CashflowDateRangeValue(cashflowType, yearMonth, YearMonthUtils.getYearMonthFromStringInFormatMM_YYYY(cashflowDto.getYearMonthEnd()), cashflowDto.getValue());
 	}
 }
