@@ -19,6 +19,8 @@ import com.impwrme2.model.resource.ResourceMortgage;
 import com.impwrme2.model.resource.ResourceMortgageOffset;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
+import com.impwrme2.model.resource.ResourcePropertyNew;
+import com.impwrme2.model.resource.ResourceSavingsAccount;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.ResourceType;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
@@ -103,6 +105,12 @@ public class ResourceDtoConverter {
 			break;
 		case PROPERTY_EXISTING:
 			resource = new ResourcePropertyExisting(resourceCreateDto.getName());
+			break;
+		case PROPERTY_NEW:
+			resource = new ResourcePropertyNew(resourceCreateDto.getName());
+			break;
+		case SAVINGS_ACCOUNT:
+			resource = new ResourceSavingsAccount(resourceCreateDto.getName());
 			break;
 		default:
 			throw new IllegalStateException("Unknown resource type " + resourceCreateDto.getResourceType());

@@ -52,7 +52,6 @@ public class ResourcePropertyEngine extends ResourceEngine {
 	public List<JournalEntry> generateJournalEntries(YearMonth yearMonth, BalanceTracker balanceTracker) {
 
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
-
 		if (yearMonth.isBefore(getResource().getStartYearMonth())) return journalEntries;
 		if (isSold) return journalEntries;
 

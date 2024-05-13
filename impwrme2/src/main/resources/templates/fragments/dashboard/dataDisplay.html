@@ -150,13 +150,14 @@
 						oTable.destroy();
 						$('#dashboardTable').empty();
 						oTable = $('#dashboardTable').DataTable({
-							dom : 'Brtip',
 							responsive : true,
 							paging : false,
-							searching : false,
 							info : false,
 							ordering : false,
 							buttons : [ 'excel' ],
+							layout: {
+						        topStart: 'buttons'
+						    },
 							scrollX : true,
 							sScrollXInner : "100%",
 							scrollCollapse: true,
@@ -211,12 +212,13 @@
 						oTransactionsTable.destroy();
 						$('#dashboardTransactionsTable').empty();
 						oTransactionsTable = $('#dashboardTransactionsTable').DataTable({
-							dom : 'Brtip',
 							responsive : true,
 							paging : false,
-							searching : false,
 							info : false,
 							buttons : [ 'excel' ],
+							layout: {
+						        topStart: 'buttons'
+						    },
 							scrollX : true,
 							sScrollXInner : "100%",
 							scrollCollapse: true,

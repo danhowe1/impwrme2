@@ -67,6 +67,8 @@ public class ResourceDropdownDto {
 			return RESOURCE_NAV_LABEL_PROPERTY;
 		case PROPERTY_NEW:
 			return RESOURCE_NAV_LABEL_PROPERTY;
+		case SAVINGS_ACCOUNT:
+			return RESOURCE_NAV_LABEL_SAVINGS;
 		case SCENARIO:
 			return RESOURCE_NAV_LABEL_SCENARIO;
 		case SHARES:
@@ -108,6 +110,7 @@ public class ResourceDropdownDto {
 		resourceTypeNames.add(ResourceType.PERSON.getValue());
 		resourceTypeNames.add(ResourceType.PROPERTY_EXISTING.getValue());
 		resourceTypeNames.add(ResourceType.PROPERTY_NEW.getValue());
+		resourceTypeNames.add(ResourceType.SAVINGS_ACCOUNT.getValue());
 		resourceTypeNames.add(ResourceType.SHARES.getValue());
 		resourceTypeNames.add(ResourceType.SUPERANNUATION.getValue());
 		return resourceTypeNames;

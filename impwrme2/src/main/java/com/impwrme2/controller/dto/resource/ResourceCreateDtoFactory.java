@@ -35,9 +35,9 @@ public class ResourceCreateDtoFactory {
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.PROPERTY_EXISTING)) {
 			return createResourcePropertyExisting(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.PROPERTY_NEW)) {
-//			return createResourcePropertyNew(scenario);
+			return createResourcePropertyNew(scenario);
 		}  else if (ResourceType.valueOf(resourceType).equals(ResourceType.SAVINGS_ACCOUNT)) {
-//			return createResourceSavingsAccount(scenario);
+			return createResourceSavingsAccount(scenario);
 		}  else if (ResourceType.valueOf(resourceType).equals(ResourceType.SHARES)) {
 //			return createResourceShares(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.SUPERANNUATION)) {
@@ -209,7 +209,7 @@ public class ResourceCreateDtoFactory {
 
 		ResourceCreateResourceParamWithValueDto openingFixedBalance = new ResourceCreateResourceParamWithValueDto();
 		openingFixedBalance.setName(ResourceParamNameEnum.BALANCE_OPENING_FIXED.getValue());
-		openingFixedBalance.setResourceParamType(ResourceParamType.INTEGER_NEGATIVE.getValue());
+		openingFixedBalance.setResourceParamType(ResourceParamType.INTEGER_POSITIVE.getValue());
 		openingFixedBalance.setUserAbleToCreateNewDateValue(false);
 		resourceCreateDto.addResourceParamDto(openingFixedBalance);
 
@@ -254,6 +254,46 @@ public class ResourceCreateDtoFactory {
 		return resourceCreateDto;
 	}	
 	
+	public ResourceCreateDto createResourcePropertyNew(Scenario scenario) {
+		ResourceCreateDto resourceCreateDto = createResourcePropertyExisting(scenario);
+
+		ResourceCreateCashflowWithValueDto expenseDeposit = new ResourceCreateCashflowWithValueDto();
+		expenseDeposit.setCategory(CashflowCategory.EXPENSE_ASSET_PURCHASE_DEPOSIT.getValue());
+		expenseDeposit.setFrequency(CashflowFrequency.ONE_OFF.getValue());
+		expenseDeposit.setCpiAffected(false);
+		resourceCreateDto.addCashflowDto(expenseDeposit);
+	
+		ResourceCreateCashflowWithValueDto expenseAdditionalPurchaseCosts = new ResourceCreateCashflowWithValueDto();
+		expenseAdditionalPurchaseCosts.setCategory(CashflowCategory.EXPENSE_ASSET_PURCHASE_ADDITIONAL_COSTS.getValue());
+		expenseAdditionalPurchaseCosts.setFrequency(CashflowFrequency.ONE_OFF.getValue());
+		expenseAdditionalPurchaseCosts.setCpiAffected(false);
+		resourceCreateDto.addCashflowDto(expenseAdditionalPurchaseCosts);
+	
+		return resourceCreateDto;
+	}
+	
+	public ResourceCreateDto createResourceSavingsAccount(Scenario scenario) {
+		ResourceCreateDto resourceCreateDto = new ResourceCreateDto();
+		resourceCreateDto.setScenarioId(scenario.getId());
+		resourceCreateDto.setStartYearMonth(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(scenario.getStartYearMonth()));
+		resourceCreateDto.setResourceType(ResourceType.SAVINGS_ACCOUNT.getValue());
+		resourceCreateDto.setListOfAllowedParentResources(scenario.getListOfAllowedParentResources(ResourceType.SAVINGS_ACCOUNT));
+
+		ResourceCreateResourceParamWithValueDto openingLiquidBalance = new ResourceCreateResourceParamWithValueDto();
+		openingLiquidBalance.setName(ResourceParamNameEnum.BALANCE_OPENING_LIQUID.getValue());
+		openingLiquidBalance.setResourceParamType(ResourceParamType.INTEGER_POSITIVE.getValue());
+		openingLiquidBalance.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(openingLiquidBalance);
+		
+		ResourceCreateResourceParamWithValueDto interestRate = new ResourceCreateResourceParamWithValueDto();
+		interestRate.setName(ResourceParamNameEnum.SAVINGS_ACCOUNT_INTEREST_RATE.getValue());
+		interestRate.setResourceParamType(ResourceParamType.BIG_DECIMAL.getValue());
+		interestRate.setUserAbleToCreateNewDateValue(true);
+		resourceCreateDto.addResourceParamDto(interestRate);
+
+		return resourceCreateDto;
+	}	
+
 	private ValueMessagePairDto valueMessagePairDto(final ResourceParamStringValueEnum rpsv) {
 		String message = messageSource.getMessage(rpsv.getMessageCode(), null, LocaleContextHolder.getLocale());
 		ValueMessagePairDto valueMessagePairDto = new ValueMessagePairDto(rpsv.getValue(), message);
