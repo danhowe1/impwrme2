@@ -27,6 +27,7 @@ public enum CashflowCategory {
 	
 	INCOME_EMPLOYMENT(Values.INCOME_EMPLOYMENT, CashflowType.INCOME),
 	INCOME_RENTAL_PROPERTY(Values.INCOME_RENTAL_PROPERTY, CashflowType.INCOME),
+	INCOME_INTEREST(Values.INCOME_INTEREST, CashflowType.INCOME),
 	INCOME_DIVIDENDS(Values.INCOME_DIVIDENDS, CashflowType.INCOME),
 	INCOME_ASSET_SALE(Values.INCOME_ASSET_SALE, CashflowType.INCOME),
 	INCOME_MISC(Values.INCOME_MISC, CashflowType.INCOME),
@@ -109,6 +110,7 @@ public enum CashflowCategory {
 		public static final String INCOME_ASSET_SALE = "INCOME_ASSET_SALE";
 		public static final String INCOME_DIVIDENDS = "INCOME_DIVIDENDS";
 		public static final String INCOME_EMPLOYMENT = "INCOME_EMPLOYMENT";
+		public static final String INCOME_INTEREST = "INCOME_INTEREST";
 		public static final String INCOME_MISC = "INCOME_MISC";
 		public static final String INCOME_RENTAL_PROPERTY = "INCOME_RENTAL_PROPERTY";
 		public static final String WITHDRAWAL_BALANCE = "WITHDRAWAL_BALANCE";

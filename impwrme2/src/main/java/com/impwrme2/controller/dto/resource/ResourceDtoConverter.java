@@ -13,7 +13,9 @@ import com.impwrme2.model.cashflow.CashflowType;
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceCreditCard;
+import com.impwrme2.model.resource.ResourceCurrentAccount;
 import com.impwrme2.model.resource.ResourceHousehold;
+import com.impwrme2.model.resource.ResourceMortgageExisting;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.ResourceType;
@@ -84,6 +86,12 @@ public class ResourceDtoConverter {
 		switch (ResourceType.valueOf(resourceCreateDto.getResourceType())) {
 		case CREDIT_CARD:
 			resource = new ResourceCreditCard(resourceCreateDto.getName());
+			break;
+		case CURRENT_ACCOUNT:
+			resource = new ResourceCurrentAccount(resourceCreateDto.getName());
+			break;
+		case MORTGAGE_EXISTING:
+			resource = new ResourceMortgageExisting(resourceCreateDto.getName());
 			break;
 		case PERSON:
 			resource = new ResourcePerson(resourceCreateDto.getName());

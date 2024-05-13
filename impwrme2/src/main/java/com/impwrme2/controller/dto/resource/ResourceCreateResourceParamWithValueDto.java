@@ -1,6 +1,10 @@
 package com.impwrme2.controller.dto.resource;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.impwrme2.controller.dto.DtoUtils;
+import com.impwrme2.controller.dto.resourceParamDateValue.ValueMessagePairDto;
 import com.impwrme2.model.resourceParam.ResourceParamType;
 
 import jakarta.validation.constraints.NotEmpty;
@@ -19,7 +23,9 @@ public class ResourceCreateResourceParamWithValueDto {
 
 	@NotEmpty(message = "{msg.validation.resourceParamDateValue.value.notEmpty}")
     private String value = "";
-	
+
+	private List<ValueMessagePairDto> listOfValueMessagePairs = new ArrayList<ValueMessagePairDto>();
+
 	//-------------------
 	// Getters & setters.
 	//-------------------
@@ -58,5 +64,13 @@ public class ResourceCreateResourceParamWithValueDto {
 
 	public String getRegex() {
 		return DtoUtils.resourceParamValueRegex(ResourceParamType.getResourceParamType(resourceParamType));
+	}
+
+	public List<ValueMessagePairDto> getListOfValueMessagePairs() {
+		return listOfValueMessagePairs;
+	}
+
+	public void addValueMessagePair(final ValueMessagePairDto valueMessagePairDto) {
+		this.listOfValueMessagePairs.add(valueMessagePairDto);
 	}
 }

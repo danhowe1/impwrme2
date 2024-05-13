@@ -36,6 +36,9 @@ public class ResourceController {
 	MessageSource messageSource;
 	
 	@Autowired
+	ResourceCreateDtoFactory resourceCreateDtoFactory;
+	
+	@Autowired
 	private ResourceDtoConverter resourceDtoConverter;
 
 	@Autowired
@@ -63,7 +66,7 @@ public class ResourceController {
 		}
 
 		// Add default DTO to the model.
-		model.addAttribute("resourceCreateDto", ResourceCreateDtoFactory.createResourceCreateDto(currentScenario, resourceType));
+		model.addAttribute("resourceCreateDto", resourceCreateDtoFactory.createResourceCreateDto(currentScenario, resourceType));
 		
 		// Send the user to the resource edit page.
 		return "resource/resourceCreate";

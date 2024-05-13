@@ -64,9 +64,9 @@
 								th:errors="*{startYearMonth}"></p>
 					</div>
 					
-					<!-- ----------------- -->
-					<!-- TODO Parent. -->
-					<!-- ----------------- -->
+					<!-- ------- -->
+					<!-- Parent. -->
+					<!-- ------- -->
 					
 					<label th:if="*{not ListOfAllowedParentResources.empty}" for="idResourceCreateDtoParent" class="col-auto col-form-label-sm" th:text="#{'msg.html.resource.parent.name'}">Parent</label>
 				    <div class="col-auto">
@@ -86,33 +86,45 @@
 					<legend>Parameters</legend>
 						
 					<div class="row mb-3">
-							<div th:each="resourceParamDto, paramStat : *{resourceParamDtos}" class="col-auto">
-								<input type="hidden" th:field="*{resourceParamDtos[__${paramStat.index}__].name}"/>
-								<input type="hidden" th:field="*{resourceParamDtos[__${paramStat.index}__].resourceParamType}"/>
-								<input type="checkbox" class="visually-hidden" th:field="*{resourceParamDtos[__${paramStat.index}__].userAbleToCreateNewDateValue}" th:checked="*{resourceParamDtos[__${paramStat.index}__].userAbleToCreateNewDateValue}" />
-								
-								<!-- ------ -->
-								<!-- Value. -->
-								<!-- ------ -->
-			
-								<label class="col-form-label-sm" th:text="#{'msg.html.resourceParams.name.' + ${resourceParamDto.name} + '.' + *{resourceType}}"></label> 
-								<div>
-									<input type="text" 
-											class="form-control form-control-sm"
-											size="7"
-											required
-											th:pattern="*{resourceParamDtos[__${paramStat.index}__].regex}"
-											th:field="*{resourceParamDtos[__${paramStat.index}__].value}" 
-											oninput="this.setCustomValidity('')"
-											th:title="#{msg.validation.notEmpty}">
-									<p th:if="${#fields.hasErrors('resourceParamDtos[__${paramStat.index}__].value')}"
-										th:errorclass="error" 
-										th:errors="*{resourceParamDtos[__${paramStat.index}__].value}"></p>
-								</div>
+						<div th:each="resourceParamDto, paramStat : *{resourceParamDtos}" class="col-auto">
+							<input type="hidden" th:field="*{resourceParamDtos[__${paramStat.index}__].name}"/>
+							<input type="hidden" th:field="*{resourceParamDtos[__${paramStat.index}__].resourceParamType}"/>
+							<input type="checkbox" class="visually-hidden" th:field="*{resourceParamDtos[__${paramStat.index}__].userAbleToCreateNewDateValue}" th:checked="*{resourceParamDtos[__${paramStat.index}__].userAbleToCreateNewDateValue}" />
+							
+							<!-- ------ -->
+							<!-- Value. -->
+							<!-- ------ -->
+		
+							<label class="col-form-label-sm" th:text="#{'msg.html.resourceParams.name.' + ${resourceParamDto.name} + '.' + *{resourceType}}"></label> 
+							<div>
+								<input th:unless="*{resourceParamDtos[__${paramStat.index}__].resourceParamType == 'STRING'}" type="text" 
+										class="form-control form-control-sm"
+										size="7"
+										required
+										th:pattern="*{resourceParamDtos[__${paramStat.index}__].regex}"
+										th:field="*{resourceParamDtos[__${paramStat.index}__].value}" 
+										oninput="this.setCustomValidity('')"
+										th:title="#{msg.validation.notEmpty}">
+									
+								<select th:if="*{resourceParamDtos[__${paramStat.index}__].resourceParamType == 'STRING'}" 
+										th:name="${'resourceParamDtos[' + paramStat.index + '].value'}"
+										class="form-select form-select-sm selectpicker"
+										required>
+ 							    	<option selected hidden="hidden" disabled></option>								
+									<option th:each="opt : *{resourceParamDtos[__${paramStat.index}__].listOfValueMessagePairs}"
+											th:value="${opt.value}"
+											th:text="${opt.message}"
+											th:selected="${opt.value}==*{resourceParamDtos[__${paramStat.index}__].value}"></option>
+								</select>		
+
+								<p th:if="${#fields.hasErrors('resourceParamDtos[__${paramStat.index}__].value')}"
+									th:errorclass="error" 
+									th:errors="*{resourceParamDtos[__${paramStat.index}__].value}"></p>
 							</div>
+						</div>
 					</div>
 				</fieldset>
-				
+			
 				<!-- ----------- -->
 				<!-- Cash-flows. -->
 				<!-- ----------- -->
@@ -181,7 +193,7 @@
 								oninput="this.setCustomValidity('')"
 								th:title="#{msg.validation.notEmpty}">
 						<p th:if="${#fields.hasErrors('cashflowDtos[__${cashflowIndex.index}__].value')}" th:errorclass="error"
-							th:errors="*{cashflowDtos[__${cashflowIndex.index}__].value}"></p>					
+							th:errors="*{cashflowDtos[__${cashflowIndex.index}__].value}"></p>				
 					</div>
 					
 				</fieldset>
