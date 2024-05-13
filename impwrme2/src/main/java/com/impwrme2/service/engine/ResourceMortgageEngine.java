@@ -9,7 +9,7 @@ import java.util.Optional;
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.journalEntry.JournalEntry;
 import com.impwrme2.model.resource.Resource;
-import com.impwrme2.model.resource.ResourceMortgageExisting;
+import com.impwrme2.model.resource.ResourceMortgage;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
@@ -22,7 +22,7 @@ public class ResourceMortgageEngine extends ResourceEngine {
 	private Integer totalMonthsRemaining = 0;
 	private boolean payOutDateReached = false;
 	
-	public ResourceMortgageEngine(final ResourceMortgageExisting resource, final BalanceTracker balanceTracker) {
+	public ResourceMortgageEngine(final ResourceMortgage resource, final BalanceTracker balanceTracker) {
 		super(resource, balanceTracker);
 		balanceOpeningFixed = (Integer)  resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_OPENING_FIXED, resource.getStartYearMonth()).get().getValue();
 		Integer monthsRemaining = (Integer)  resource.getResourceParamDateValue(ResourceParamNameEnum.MORTGAGE_REMAINING_MONTHS, resource.getStartYearMonth()).get().getValue();
@@ -62,7 +62,7 @@ public class ResourceMortgageEngine extends ResourceEngine {
 			payOutDateReached = true;
 		}
 		
-		if (mortgageType.getValue().equals(ResourceMortgageExisting.MORTGAGE_REPAYMENT_INTEREST_ONLY)) {
+		if (mortgageType.getValue().equals(ResourceMortgage.MORTGAGE_REPAYMENT_INTEREST_ONLY)) {
 			// Alter the months remaining for interest only loans.
 			totalMonthsRemaining--;			
 			if (totalMonthsRemaining == 0) {
@@ -104,7 +104,7 @@ public class ResourceMortgageEngine extends ResourceEngine {
 			if (additionalPayments > 0) {
 				journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -additionalPayments, CashflowCategory.WITHDRAWAL_BALANCE));
 			}
-		} else if (mortgageType.getValue().equals(ResourceMortgageExisting.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST)) {
+		} else if (mortgageType.getValue().equals(ResourceMortgage.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST)) {
 			Integer principalAndInterestPreOffset = calculatePrincipalAndInterestPreOffset(yearMonth);
 			principalExpense = principalAndInterestPreOffset - interestExpense;
 			
@@ -137,7 +137,7 @@ public class ResourceMortgageEngine extends ResourceEngine {
 	}
 
 	private boolean isPayOutMonth(final ResourceParamDateValue<String> mortgageType, final YearMonth yearMonth) {
-		if (mortgageType.getValue().equals(ResourceMortgageExisting.MORTGAGE_REPAYMENT_PAY_OUT) &&
+		if (mortgageType.getValue().equals(ResourceMortgage.MORTGAGE_REPAYMENT_PAY_OUT) &&
 			mortgageType.getYearMonth().equals(yearMonth)) {
 			payOutDateReached = true;
 			return true;

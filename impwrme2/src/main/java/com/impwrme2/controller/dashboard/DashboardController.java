@@ -29,7 +29,7 @@ import com.impwrme2.model.cashflow.CashflowFrequency;
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceHousehold;
-import com.impwrme2.model.resource.ResourceMortgageExisting;
+import com.impwrme2.model.resource.ResourceMortgage;
 import com.impwrme2.model.resource.ResourceMortgageOffset;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
@@ -512,7 +512,7 @@ public class DashboardController {
 		// Griffin Street Mortgage.
 		// ------------------------
 		
-		Resource griffinStMortgage = new ResourceMortgageExisting("Griffin Street Variable");
+		Resource griffinStMortgage = new ResourceMortgage("Griffin Street Variable");
 		griffinStMortgage.setStartYearMonth(YearMonth.of(2024, 1));
 		
 		griffinSt.addChild(griffinStMortgage);
@@ -546,7 +546,7 @@ public class DashboardController {
 		ResourceParamString griffinStMortgageStatus = new ResourceParamString(ResourceParamNameEnum.MORTGAGE_REPAYMENT_TYPE);
 		griffinStMortgageStatus.setUserAbleToCreateNewDateValue(true);
 		griffinStMortgage.addResourceParam(griffinStMortgageStatus);
-		ResourceParamDateValueString griffinStMortgageStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourceMortgageExisting.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST);
+		ResourceParamDateValueString griffinStMortgageStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourceMortgage.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST);
 		griffinStMortgageStatus.addResourceParamDateValue(griffinStMortgageStatusVal);		
 
 		scenario.addResource(griffinStMortgage);
@@ -629,7 +629,7 @@ public class DashboardController {
 		// Addison Road Mortgage 1.
 		// ------------------------
 		
-		Resource addisonRdMortgage = new ResourceMortgageExisting("Addison Road Variable");
+		Resource addisonRdMortgage = new ResourceMortgage("Addison Road Variable");
 		addisonRdMortgage.setStartYearMonth(YearMonth.of(2024, 1));
 		
 		addisonRd.addChild(addisonRdMortgage);
@@ -663,7 +663,7 @@ public class DashboardController {
 		ResourceParamString addisonRdMortgageStatus = new ResourceParamString(ResourceParamNameEnum.MORTGAGE_REPAYMENT_TYPE);
 		addisonRdMortgageStatus.setUserAbleToCreateNewDateValue(true);
 		addisonRdMortgage.addResourceParam(addisonRdMortgageStatus);
-		ResourceParamDateValueString addisonRdMortgageStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourceMortgageExisting.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST);
+		ResourceParamDateValueString addisonRdMortgageStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourceMortgage.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST);
 		addisonRdMortgageStatus.addResourceParamDateValue(addisonRdMortgageStatusVal);		
 
 		scenario.addResource(addisonRdMortgage);
@@ -689,7 +689,7 @@ public class DashboardController {
 		// Addison Road Mortgage 2.
 		// ------------------------
 		
-		Resource addisonRd2Mortgage = new ResourceMortgageExisting("Addison Road Fixed");
+		Resource addisonRd2Mortgage = new ResourceMortgage("Addison Road Fixed");
 		addisonRd2Mortgage.setStartYearMonth(YearMonth.of(2024, 1));
 		
 		addisonRd.addChild(addisonRd2Mortgage);
@@ -723,7 +723,7 @@ public class DashboardController {
 		ResourceParamString addisonRd2MortgageStatus = new ResourceParamString(ResourceParamNameEnum.MORTGAGE_REPAYMENT_TYPE);
 		addisonRd2MortgageStatus.setUserAbleToCreateNewDateValue(true);
 		addisonRd2Mortgage.addResourceParam(addisonRd2MortgageStatus);
-		ResourceParamDateValueString addisonRd2MortgageStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourceMortgageExisting.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST);
+		ResourceParamDateValueString addisonRd2MortgageStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourceMortgage.MORTGAGE_REPAYMENT_PRINCIPAL_AND_INTEREST);
 		addisonRd2MortgageStatus.addResourceParamDateValue(addisonRd2MortgageStatusVal);		
 
 		scenario.addResource(addisonRd2Mortgage);

@@ -13,8 +13,7 @@ public enum ResourceType {
 	SUPERANNUATION(Values.SUPERANNUATION),
 	SHARES(Values.SHARES),
 	CURRENT_ACCOUNT(Values.CURRENT_ACCOUNT),
-	MORTGAGE_EXISTING(Values.MORTGAGE_EXISTING),
-	MORTGAGE_NEW(Values.MORTGAGE_NEW),
+	MORTGAGE(Values.MORTGAGE),
 	UNALLOCATED(Values.UNALLOCATED),
 
 	SCENARIO(Values.SCENARIO),
@@ -36,8 +35,7 @@ public enum ResourceType {
 		public static final String CREDIT_CARD = "CREDIT_CARD";
 		public static final String CURRENT_ACCOUNT = "CURRENT_ACCOUNT";
 		public static final String HOUSEHOLD = "HOUSEHOLD";
-		public static final String MORTGAGE_EXISTING = "MORTGAGE_EXISTING";
-		public static final String MORTGAGE_NEW = "MORTGAGE_NEW";
+		public static final String MORTGAGE = "MORTGAGE";
 		public static final String MORTGAGE_OFFSET_ACCOUNT = "MORTGAGE_OFFSET_ACCOUNT";
 		public static final String PERSON = "PERSON";
 		public static final String PROPERTY_EXISTING = "PROPERTY_EXISTING";

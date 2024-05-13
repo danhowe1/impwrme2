@@ -57,9 +57,7 @@ public class ResourceDropdownDto {
 			return RESOURCE_NAV_LABEL_SAVINGS;
 		case HOUSEHOLD:
 			return RESOURCE_NAV_LABEL_FAMILY;
-		case MORTGAGE_EXISTING:
-			return RESOURCE_NAV_LABEL_LOANS;
-		case MORTGAGE_NEW:
+		case MORTGAGE:
 			return RESOURCE_NAV_LABEL_LOANS;
 		case MORTGAGE_OFFSET_ACCOUNT:
 			return RESOURCE_NAV_LABEL_SAVINGS;
@@ -105,8 +103,7 @@ public class ResourceDropdownDto {
 		List<String> resourceTypeNames = new ArrayList<String>();
 		resourceTypeNames.add(ResourceType.CREDIT_CARD.getValue());
 		resourceTypeNames.add(ResourceType.CURRENT_ACCOUNT.getValue());
-		if (propertyExisting) resourceTypeNames.add(ResourceType.MORTGAGE_EXISTING.getValue());
-		if (propertyNew) resourceTypeNames.add(ResourceType.MORTGAGE_NEW.getValue());
+		if (propertyExisting || propertyNew) resourceTypeNames.add(ResourceType.MORTGAGE.getValue());
 		if (mortgageOffset) resourceTypeNames.add(ResourceType.MORTGAGE_OFFSET_ACCOUNT.getValue());
 		resourceTypeNames.add(ResourceType.PERSON.getValue());
 		resourceTypeNames.add(ResourceType.PROPERTY_EXISTING.getValue());

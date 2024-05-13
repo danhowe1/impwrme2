@@ -10,7 +10,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.impwrme2.model.resource.Resource;
-import com.impwrme2.model.resource.ResourceMortgageExisting;
+import com.impwrme2.model.resource.ResourceMortgage;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
 import com.impwrme2.model.resource.ResourcePropertyNew;
@@ -82,24 +82,16 @@ public class Scenario implements Serializable {
 	public List<Resource> getListOfAllowedParentResources(ResourceType resourceType) {
 		List<Resource> allowedResources = new ArrayList<Resource>();
 		switch (resourceType) {
-		case MORTGAGE_EXISTING:
+		case MORTGAGE:
 			for (Resource resource : getResources()) {
-				if (resource instanceof ResourcePropertyExisting) {
-					allowedResources.add(resource);
-				}
-			}
-			break;
-		case MORTGAGE_NEW:
-			for (Resource resource : getResources()) {
-				if (resource instanceof ResourcePropertyExisting || 
-					resource instanceof ResourcePropertyNew) {
+				if (resource instanceof ResourcePropertyExisting || resource instanceof ResourcePropertyNew) {
 					allowedResources.add(resource);
 				}
 			}
 			break;
 		case MORTGAGE_OFFSET_ACCOUNT:
 			for (Resource resource : getResources()) {
-				if (resource instanceof ResourceMortgageExisting) {
+				if (resource instanceof ResourceMortgage) {
 					allowedResources.add(resource);
 				}
 			}

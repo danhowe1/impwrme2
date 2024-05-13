@@ -26,16 +26,14 @@ public class ResourceCreateDtoFactory {
 			return createResourceCurrentAccount(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.CREDIT_CARD)) {
 			return createResourceCreditCard(scenario);
-		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.MORTGAGE_EXISTING)) {
-			return createResourceMortgageExisting(scenario);
-		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.MORTGAGE_NEW)) {
-//			return createResourceMortgageNew(scenario);
+		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.MORTGAGE)) {
+			return createResourceMortgage(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.MORTGAGE_OFFSET_ACCOUNT)) {
-//			return createResourceMortgageOffsetAccount(scenario);
+			return createResourceMortgageOffsetAccount(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.PERSON)) {
 			return createResourcePerson(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.PROPERTY_EXISTING)) {
-//			return createResourcePropertyExisting(scenario);
+			return createResourcePropertyExisting(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.PROPERTY_NEW)) {
 //			return createResourcePropertyNew(scenario);
 		}  else if (ResourceType.valueOf(resourceType).equals(ResourceType.SAVINGS_ACCOUNT)) {
@@ -144,12 +142,12 @@ public class ResourceCreateDtoFactory {
 		return resourceCreateDto;
 	}	
 
-	public ResourceCreateDto createResourceMortgageExisting(Scenario scenario) {
+	public ResourceCreateDto createResourceMortgage(Scenario scenario) {
 		ResourceCreateDto resourceCreateDto = new ResourceCreateDto();
 		resourceCreateDto.setScenarioId(scenario.getId());
 		resourceCreateDto.setStartYearMonth(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(scenario.getStartYearMonth()));
-		resourceCreateDto.setResourceType(ResourceType.MORTGAGE_EXISTING.getValue());
-		resourceCreateDto.setListOfAllowedParentResources(scenario.getListOfAllowedParentResources(ResourceType.MORTGAGE_EXISTING));
+		resourceCreateDto.setResourceType(ResourceType.MORTGAGE.getValue());
+		resourceCreateDto.setListOfAllowedParentResources(scenario.getListOfAllowedParentResources(ResourceType.MORTGAGE));
 
 		ResourceCreateResourceParamWithValueDto openingFixedBalance = new ResourceCreateResourceParamWithValueDto();
 		openingFixedBalance.setName(ResourceParamNameEnum.BALANCE_OPENING_FIXED.getValue());
@@ -186,6 +184,76 @@ public class ResourceCreateDtoFactory {
 		return resourceCreateDto;
 	}	
 
+	public ResourceCreateDto createResourceMortgageOffsetAccount(Scenario scenario) {
+		ResourceCreateDto resourceCreateDto = new ResourceCreateDto();
+		resourceCreateDto.setScenarioId(scenario.getId());
+		resourceCreateDto.setStartYearMonth(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(scenario.getStartYearMonth()));
+		resourceCreateDto.setResourceType(ResourceType.MORTGAGE_OFFSET_ACCOUNT.getValue());
+		resourceCreateDto.setListOfAllowedParentResources(scenario.getListOfAllowedParentResources(ResourceType.MORTGAGE_OFFSET_ACCOUNT));
+
+		ResourceCreateResourceParamWithValueDto openingLiquidBalance = new ResourceCreateResourceParamWithValueDto();
+		openingLiquidBalance.setName(ResourceParamNameEnum.BALANCE_OPENING_LIQUID.getValue());
+		openingLiquidBalance.setResourceParamType(ResourceParamType.INTEGER_POSITIVE.getValue());
+		openingLiquidBalance.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(openingLiquidBalance);
+
+		return resourceCreateDto;
+	}	
+
+	public ResourceCreateDto createResourcePropertyExisting(Scenario scenario) {
+		ResourceCreateDto resourceCreateDto = new ResourceCreateDto();
+		resourceCreateDto.setScenarioId(scenario.getId());
+		resourceCreateDto.setStartYearMonth(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(scenario.getStartYearMonth()));
+		resourceCreateDto.setResourceType(ResourceType.PROPERTY_EXISTING.getValue());
+		resourceCreateDto.setListOfAllowedParentResources(scenario.getListOfAllowedParentResources(ResourceType.PROPERTY_EXISTING));
+
+		ResourceCreateResourceParamWithValueDto openingFixedBalance = new ResourceCreateResourceParamWithValueDto();
+		openingFixedBalance.setName(ResourceParamNameEnum.BALANCE_OPENING_FIXED.getValue());
+		openingFixedBalance.setResourceParamType(ResourceParamType.INTEGER_NEGATIVE.getValue());
+		openingFixedBalance.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(openingFixedBalance);
+
+		ResourceCreateResourceParamWithValueDto propertyStatus = new ResourceCreateResourceParamWithValueDto();
+		propertyStatus.setName(ResourceParamNameEnum.PROPERTY_STATUS.getValue());
+		propertyStatus.setResourceParamType(ResourceParamType.STRING.getValue());
+		propertyStatus.setUserAbleToCreateNewDateValue(true);
+		propertyStatus.addValueMessagePair(valueMessagePairDto(ResourceParamStringValueEnum.PROPERTY_STATUS_LIVING_IN));
+		propertyStatus.addValueMessagePair(valueMessagePairDto(ResourceParamStringValueEnum.PROPERTY_STATUS_RENTED));
+		resourceCreateDto.addResourceParamDto(propertyStatus);
+
+		ResourceCreateResourceParamWithValueDto saleCommission = new ResourceCreateResourceParamWithValueDto();
+		saleCommission.setName(ResourceParamNameEnum.PROPERTY_ASSET_SALE_COMMISSION.getValue());
+		saleCommission.setResourceParamType(ResourceParamType.BIG_DECIMAL.getValue());
+		saleCommission.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(saleCommission);
+
+		ResourceCreateResourceParamWithValueDto saleFixed = new ResourceCreateResourceParamWithValueDto();
+		saleFixed.setName(ResourceParamNameEnum.PROPERTY_ASSET_SALE_FIXED.getValue());
+		saleFixed.setResourceParamType(ResourceParamType.INTEGER_NEGATIVE.getValue());
+		saleFixed.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(saleFixed);
+
+		ResourceCreateCashflowWithValueDto income = new ResourceCreateCashflowWithValueDto();
+		income.setCategory(CashflowCategory.INCOME_RENTAL_PROPERTY.getValue());
+		income.setFrequency(CashflowFrequency.MONTHLY.getValue());
+		income.setCpiAffected(true);
+		resourceCreateDto.addCashflowDto(income);
+	
+		ResourceCreateCashflowWithValueDto expenseAssetOwnership = new ResourceCreateCashflowWithValueDto();
+		expenseAssetOwnership.setCategory(CashflowCategory.EXPENSE_ASSET_OWNERSHIP.getValue());
+		expenseAssetOwnership.setFrequency(CashflowFrequency.MONTHLY.getValue());
+		expenseAssetOwnership.setCpiAffected(true);
+		resourceCreateDto.addCashflowDto(expenseAssetOwnership);
+	
+		ResourceCreateCashflowWithValueDto expenseRental = new ResourceCreateCashflowWithValueDto();
+		expenseRental.setCategory(CashflowCategory.EXPENSE_RENTAL_PROPERTY.getValue());
+		expenseRental.setFrequency(CashflowFrequency.MONTHLY.getValue());
+		expenseRental.setCpiAffected(true);
+		resourceCreateDto.addCashflowDto(expenseRental);
+	
+		return resourceCreateDto;
+	}	
+	
 	private ValueMessagePairDto valueMessagePairDto(final ResourceParamStringValueEnum rpsv) {
 		String message = messageSource.getMessage(rpsv.getMessageCode(), null, LocaleContextHolder.getLocale());
 		ValueMessagePairDto valueMessagePairDto = new ValueMessagePairDto(rpsv.getValue(), message);

@@ -10,8 +10,8 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 @Entity
-@DiscriminatorValue(ResourceType.Values.MORTGAGE_EXISTING)
-public class ResourceMortgageExisting extends Resource {
+@DiscriminatorValue(ResourceType.Values.MORTGAGE)
+public class ResourceMortgage extends Resource {
 
 	private static final long serialVersionUID = -2859351843058300669L;
 
@@ -22,17 +22,17 @@ public class ResourceMortgageExisting extends Resource {
 	/**
 	 * Protected constructor required for Hibernate only.
 	 */
-	protected ResourceMortgageExisting() {
+	protected ResourceMortgage() {
 		super();
 	}
 	
-	public ResourceMortgageExisting(final String name) {
+	public ResourceMortgage(final String name) {
 		super(name);
 	}
 
 	@Override
 	public ResourceType getResourceType() {
-		return ResourceType.MORTGAGE_EXISTING;
+		return ResourceType.MORTGAGE;
 	}
 
 	@Override
