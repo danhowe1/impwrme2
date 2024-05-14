@@ -96,6 +96,9 @@ public class JournalEntryService {
 			// Handle the case where the liquid deposit amount is greater than the max preferred or allowed.
 			currentMonthsProcessedJournalEntries.addAll(generateJournalEntriesForAutoWithdrawalsOnMaxLimits(resourceEngines));
 			
+			// Handle the case where the liquid deposit amount is less than the min preferred or allowed.
+			currentMonthsProcessedJournalEntries.addAll(generateJournalEntriesForAutoDepositsOnMinLimits(resourceEngines));
+			
 			// Generate users Withdrawals.
 			List<JournalEntry> currentMonthsUserWithdrawals = processUserWithdrawals(currentMonthsUnprocessedJournalEntries);
 			currentMonthsProcessedJournalEntries.addAll(currentMonthsUserWithdrawals);
@@ -235,17 +238,23 @@ public class JournalEntryService {
 		return journalEntries;
 	}
 
-//	private Optional<Integer> calculateAutoWithdrawalIfMaxResourceBalanceExceeded(final IResourceEngine resourceEngine) {
-//		Integer maxLimit = Math.min(resourceEngine.getBalanceLiquidLegalMax(currentYearMonth, balanceTracker), resourceEngine.getBalanceLiquidPreferredMax(currentYearMonth, balanceTracker));
-//		Integer withdrawalAmount = Math.max(0, balanceTracker.getResourceLiquidDepositAmount(resourceEngine.getResource()) - maxLimit);
-//		// TODO Once previous month for balance tracker picks up opening balance then can remove currentYearMonth check...
-////		if (withdrawalAmount > 0 && currentYearMonth.isAfter(resourceEngine.getResource().getStartYearMonth())) {
-//		if (withdrawalAmount > 0) {
-//			return Optional.of(withdrawalAmount);
-//		}
-//		return Optional.empty();
-//	}
-	
+	/**
+	 * This can occur if the minimum liquid balance has been increased to be above the existing liquid deposit amount.
+	 * @param resourceEngines Engines to check.
+	 * @return A list of auto deposits.
+	 */
+	private List<JournalEntry> generateJournalEntriesForAutoDepositsOnMinLimits(final List<IResourceEngine> resourceEngines) {
+		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
+		for (IResourceEngine resourceEngine : resourceEngines) {
+			Integer minLimit = Math.max(resourceEngine.getBalanceLiquidLegalMin(currentYearMonth), resourceEngine.getBalanceLiquidPreferredMin(currentYearMonth));
+			Integer depositAmount = Math.max(0, minLimit - balanceTracker.getResourceLiquidDepositAmount(resourceEngine.getResource()));
+			if (depositAmount > 0) {
+				journalEntries.add(createAutoDeposit(resourceEngine, depositAmount));
+			}		
+		}
+		return journalEntries;
+	}
+
 	private List<JournalEntry> processNonDepositsAndNonWithdrawals(List<JournalEntry> unprocessedJournalEntries) {
 		List<JournalEntry> processedJournalEntries = new ArrayList<JournalEntry>();
 		for (JournalEntry journalEntry : unprocessedJournalEntries) {
@@ -263,8 +272,12 @@ public class JournalEntryService {
 				balanceTracker.subtractFromPotBalance(journalEntry.getAmount());
 				processedJournalEntries.add(journalEntry);
 				break;
-			case DEPRECIATION:
+			case DEPRECIATION_FIXED:
 				balanceTracker.subtractFromResourceFixedAmount(journalEntry.getResource(), journalEntry.getAmount());
+				processedJournalEntries.add(journalEntry);
+				break;
+			case DEPRECIATION_LIQUID:
+				balanceTracker.subtractFromResourceLiquidDepositAmount(journalEntry.getResource(), journalEntry.getAmount());
 				processedJournalEntries.add(journalEntry);
 				break;
 			case INCOME:
@@ -343,7 +356,8 @@ public class JournalEntryService {
 				} else {
 					balanceMin = resourceEngine.getBalanceLiquidLegalMin(currentYearMonth);
 				}
-				withdrawalAmount = withdrawalAmount - balanceMin;
+				
+				withdrawalAmount = Math.max(0, withdrawalAmount - balanceMin);
 				withdrawalAmount = Math.min(withdrawalAmount, balanceTracker.getPotBalance() * -1);
 				withdrawalAmount = Math.min(withdrawalAmount, balanceTracker.getResourceLiquidDepositAmount(resourceEngine.getResource()));
 				if (withdrawalAmount != 0) {
@@ -437,6 +451,12 @@ public class JournalEntryService {
 			resourceUnallocated.setStartYearMonth(currentYearMonth);
 		}
 		return resourceUnallocated;
+	}
+
+	private JournalEntry createAutoDeposit(final IResourceEngine resourceEngine, final Integer amount) {
+		balanceTracker.subtractFromPotBalance(Math.abs(amount));
+		balanceTracker.addToResourceLiquidDepositAmount(resourceEngine.getResource(), Math.abs(amount));
+		return JournalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, Math.abs(amount), CashflowCategory.JE_AUTO_DEPOSIT);	
 	}
 
 	private JournalEntry createAutoWithdrawal(final IResourceEngine resourceEngine, final Integer amount) {

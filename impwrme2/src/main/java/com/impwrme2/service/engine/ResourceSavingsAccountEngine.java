@@ -31,26 +31,17 @@ public class ResourceSavingsAccountEngine extends ResourceEngine {
 	}
 
 	@Override
-	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(final BalanceTracker balanceTracker) {
-		return getBalanceLiquidLegalMaxIfNotSpecified(balanceTracker);
-	}
-
-	@Override
-	public Integer getBalanceLiquidPreferredMinIfNotSpecified() {
-		return Integer.valueOf(0);
-	}
-
-	@Override
 	public List<JournalEntry> generateJournalEntries(YearMonth yearMonth, BalanceTracker balanceTracker) {
 
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
+		if (yearMonth.isBefore(getResource().getStartYearMonth())) return journalEntries;
 
 		// Monthly interest.
 		BigDecimal interestRate = interestRate(yearMonth);
 		BigDecimal monthlyInterestRate = calculateMonthlyGrowthRateFromAnnualGrowthRate(interestRate);
 		BigDecimal monthlyInterestAmount = BigDecimal.valueOf(balanceTracker.getResourceLiquidBalancePreviousMonth(getResource())).multiply(monthlyInterestRate);
-		if (!monthlyInterestAmount.equals(BigDecimal.ZERO)) {
-			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, integerOf(monthlyInterestAmount), CashflowCategory.INCOME_INTEREST));
+		if (monthlyInterestAmount.intValue() > 0) {
+			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, integerOf(monthlyInterestAmount), CashflowCategory.APPRECIATION_INTEREST_LIQUID));
 		}
 		
 		// Standard cash-flows.

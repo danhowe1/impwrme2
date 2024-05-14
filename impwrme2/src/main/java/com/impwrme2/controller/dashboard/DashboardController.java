@@ -85,7 +85,7 @@ public class DashboardController {
 			if (0 == scenarios.size()) {
 				currentResource = populateInitialTestScenario(userId).getSortedResources().first();
 			} else if (scenarios.size() == 1) {
-				currentResource = scenarios.get(0).getSortedResources().first();
+				currentResource = scenarios.get(0).getResourceScenario();
 			} else {
 				return "forward:/app/scenario/list";
 			}

@@ -8,7 +8,8 @@ public enum CashflowType {
 	APPRECIATION_FIXED(Values.APPRECIATION_FIXED),
 	APPRECIATION_LIQUID(Values.APPRECIATION_LIQUID),
 	DEPOSIT(Values.DEPOSIT),
-	DEPRECIATION(Values.DEPRECIATION),
+	DEPRECIATION_FIXED(Values.DEPRECIATION_FIXED),
+	DEPRECIATION_LIQUID(Values.DEPRECIATION_LIQUID),
 	WITHDRAWAL(Values.WITHDRAWAL),
 	EXPENSE(Values.EXPENSE),
 	INCOME(Values.INCOME),
@@ -25,7 +26,8 @@ public enum CashflowType {
 		public static final String APPRECIATION_FIXED = "APPRECIATION_FIXED";
 		public static final String APPRECIATION_LIQUID = "APPRECIATION_LIQUID";
 		public static final String DEPOSIT = "DEPOSIT";
-		public static final String DEPRECIATION = "DEPRECIATION";
+		public static final String DEPRECIATION_FIXED = "DEPRECIATION_FIXED";
+		public static final String DEPRECIATION_LIQUID = "DEPRECIATION_LIQUID";
 		public static final String WITHDRAWAL = "WITHDRAWAL";
 		public static final String EXPENSE = "EXPENSE";
 		public static final String INCOME = "INCOME";

@@ -73,16 +73,32 @@ public abstract class ResourceEngine implements IResourceEngine {
 		if (rpdvOpt.isPresent()) {
 			return (Integer) rpdvOpt.get().getValue();
 		}
-		return getBalanceLiquidPreferredMaxIfNotSpecified(balanceTracker);
+		return getBalanceLiquidPreferredMaxIfNotSpecified(yearMonth, balanceTracker);
 	}
 
 	@Override
 	public final Integer getBalanceLiquidPreferredMin(YearMonth yearMonth) {
 		Optional<ResourceParamDateValue<?>> rpdvOpt = resource.getResourceParamDateValue(ResourceParamNameEnum.BALANCE_LIQUID_PREFERRED_MIN, yearMonth);
 		if (rpdvOpt.isPresent()) {
-			return (Integer) rpdvOpt.get().getValue();
+			Integer preferredMin = (Integer) rpdvOpt.get().getValue();
+			Integer legalMin = getBalanceLiquidLegalMin(yearMonth);
+			if (preferredMin < legalMin) {
+				// Can't have preferred min less than legal min.
+				preferredMin = legalMin;
+			}
+			return preferredMin;
 		}
-		return getBalanceLiquidPreferredMinIfNotSpecified();
+		return getBalanceLiquidPreferredMinIfNotSpecified(yearMonth);
+	}
+
+	@Override
+	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(final YearMonth yearMonth, final BalanceTracker balanceTracker) {
+		return getBalanceLiquidLegalMax(yearMonth, balanceTracker);
+	}
+
+	@Override
+	public final Integer getBalanceLiquidPreferredMinIfNotSpecified(final YearMonth yearMonth) {
+		return getBalanceLiquidLegalMin(yearMonth);
 	}
 
 	@Override

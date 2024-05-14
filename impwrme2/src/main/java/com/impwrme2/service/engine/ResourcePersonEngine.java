@@ -36,15 +36,15 @@ public class ResourcePersonEngine extends ResourceEngine {
 		return Integer.valueOf(0);
 	}
 
-	@Override
-	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(final BalanceTracker balanceTracker) {
-		return Integer.valueOf(0);
-	}
-
-	@Override
-	public Integer getBalanceLiquidPreferredMinIfNotSpecified() {
-		return Integer.valueOf(0);
-	}
+//	@Override
+//	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(final BalanceTracker balanceTracker) {
+//		return Integer.valueOf(0);
+//	}
+//
+//	@Override
+//	public Integer getBalanceLiquidPreferredMinIfNotSpecified() {
+//		return Integer.valueOf(0);
+//	}
 
 	@Override
 	public List<JournalEntry> generateJournalEntries(YearMonth yearMonth, BalanceTracker balanceTracker) {

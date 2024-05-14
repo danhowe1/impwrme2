@@ -15,9 +15,9 @@ public interface IResourceEngine extends Comparable<IResourceEngine> {
 	public Integer getBalanceLiquidLegalMin(final YearMonth yearMonth);
 	public Integer getBalanceLiquidLegalMinIfNotSpecified();
 	public Integer getBalanceLiquidPreferredMax(final YearMonth yearMonth, final BalanceTracker balanceTracker);
-	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(final BalanceTracker balanceTracker);
+	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(final YearMonth yearMonth, final BalanceTracker balanceTracker);
 	public Integer getBalanceLiquidPreferredMin(final YearMonth yearMonth);
-	public Integer getBalanceLiquidPreferredMinIfNotSpecified();
+	public Integer getBalanceLiquidPreferredMinIfNotSpecified(final YearMonth yearMonth);
 //	public List<Cashflow> getCashflowsToProcess(final YearMonth yearMonth);
 	public List<JournalEntry> generateJournalEntries(final YearMonth yearMonth, final BalanceTracker balanceTracker);
 }

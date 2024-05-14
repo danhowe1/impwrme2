@@ -1,5 +1,7 @@
 package com.impwrme2.service.engine;
 
+import java.time.YearMonth;
+
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceMortgageOffset;
 import com.impwrme2.service.journalEntry.BalanceTracker;
@@ -21,14 +23,14 @@ public class ResourceMortgageOffsetEngine extends ResourceEngine {
 	}
 
 	@Override
-	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(BalanceTracker balanceTracker) {
+	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(final YearMonth yearMonth, final BalanceTracker balanceTracker) {
 		return calculatePreferredMax(balanceTracker);
 	}
 
-	@Override
-	public Integer getBalanceLiquidPreferredMinIfNotSpecified() {
-		return Integer.valueOf(0);
-	}
+//	@Override
+//	public Integer getBalanceLiquidPreferredMinIfNotSpecified() {
+//		return Integer.valueOf(0);
+//	}
 
 	private Integer calculatePreferredMax(final BalanceTracker balanceTracker) {
 		// Set to mortgage balance.
