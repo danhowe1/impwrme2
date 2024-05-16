@@ -22,6 +22,8 @@ import com.impwrme2.model.resource.ResourcePropertyExisting;
 import com.impwrme2.model.resource.ResourcePropertyNew;
 import com.impwrme2.model.resource.ResourceSavingsAccount;
 import com.impwrme2.model.resource.ResourceScenario;
+import com.impwrme2.model.resource.ResourceShares;
+import com.impwrme2.model.resource.ResourceSuperannuation;
 import com.impwrme2.model.resource.ResourceType;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParam;
@@ -111,6 +113,12 @@ public class ResourceDtoConverter {
 			break;
 		case SAVINGS_ACCOUNT:
 			resource = new ResourceSavingsAccount(resourceCreateDto.getName());
+			break;
+		case SHARES:
+			resource = new ResourceShares(resourceCreateDto.getName());
+			break;
+		case SUPERANNUATION:
+			resource = new ResourceSuperannuation(resourceCreateDto.getName());
 			break;
 		default:
 			throw new IllegalStateException("Unknown resource type " + resourceCreateDto.getResourceType());

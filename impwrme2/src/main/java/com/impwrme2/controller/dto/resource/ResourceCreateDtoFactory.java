@@ -39,9 +39,9 @@ public class ResourceCreateDtoFactory {
 		}  else if (ResourceType.valueOf(resourceType).equals(ResourceType.SAVINGS_ACCOUNT)) {
 			return createResourceSavingsAccount(scenario);
 		}  else if (ResourceType.valueOf(resourceType).equals(ResourceType.SHARES)) {
-//			return createResourceShares(scenario);
+			return createResourceShares(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.SUPERANNUATION)) {
-//			return createResourceSuperannuation(scenario);
+			return createResourceSuperannuation(scenario);
 		}
 		throw new IllegalStateException("Unknown resource type " + resourceType + ".");
 	}
@@ -291,6 +291,76 @@ public class ResourceCreateDtoFactory {
 		interestRate.setUserAbleToCreateNewDateValue(true);
 		resourceCreateDto.addResourceParamDto(interestRate);
 
+		return resourceCreateDto;
+	}	
+
+	public ResourceCreateDto createResourceShares(Scenario scenario) {
+		ResourceCreateDto resourceCreateDto = new ResourceCreateDto();
+		resourceCreateDto.setScenarioId(scenario.getId());
+		resourceCreateDto.setStartYearMonth(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(scenario.getStartYearMonth()));
+		resourceCreateDto.setResourceType(ResourceType.SHARES.getValue());
+		resourceCreateDto.setListOfAllowedParentResources(scenario.getListOfAllowedParentResources(ResourceType.SHARES));
+
+		ResourceCreateResourceParamWithValueDto openingLiquidBalance = new ResourceCreateResourceParamWithValueDto();
+		openingLiquidBalance.setName(ResourceParamNameEnum.BALANCE_OPENING_LIQUID.getValue());
+		openingLiquidBalance.setResourceParamType(ResourceParamType.INTEGER_POSITIVE.getValue());
+		openingLiquidBalance.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(openingLiquidBalance);
+		
+		ResourceCreateResourceParamWithValueDto dividendYield = new ResourceCreateResourceParamWithValueDto();
+		dividendYield.setName(ResourceParamNameEnum.SHARES_DIVIDEND_YIELD.getValue());
+		dividendYield.setResourceParamType(ResourceParamType.BIG_DECIMAL.getValue());
+		dividendYield.setUserAbleToCreateNewDateValue(true);
+		resourceCreateDto.addResourceParamDto(dividendYield);
+
+		ResourceCreateResourceParamWithValueDto dividendProcessing = new ResourceCreateResourceParamWithValueDto();
+		dividendProcessing.setName(ResourceParamNameEnum.SHARES_DIVIDEND_PROCESSING.getValue());
+		dividendProcessing.setResourceParamType(ResourceParamType.STRING.getValue());
+		dividendProcessing.setUserAbleToCreateNewDateValue(true);
+		dividendProcessing.addValueMessagePair(valueMessagePairDto(ResourceParamStringValueEnum.SHARES_DIVIDEND_PROCESSING_REINVEST));
+		dividendProcessing.addValueMessagePair(valueMessagePairDto(ResourceParamStringValueEnum.SHARES_DIVIDEND_PROCESSING_TAKE_AS_INCOME));
+		resourceCreateDto.addResourceParamDto(dividendProcessing);
+
+		return resourceCreateDto;
+	}	
+
+	public ResourceCreateDto createResourceSuperannuation(Scenario scenario) {
+		ResourceCreateDto resourceCreateDto = new ResourceCreateDto();
+		resourceCreateDto.setScenarioId(scenario.getId());
+		resourceCreateDto.setStartYearMonth(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(scenario.getStartYearMonth()));
+		resourceCreateDto.setResourceType(ResourceType.SUPERANNUATION.getValue());
+		resourceCreateDto.setListOfAllowedParentResources(scenario.getListOfAllowedParentResources(ResourceType.SUPERANNUATION));
+
+		ResourceCreateResourceParamWithValueDto openingFixedBalance = new ResourceCreateResourceParamWithValueDto();
+		openingFixedBalance.setName(ResourceParamNameEnum.BALANCE_OPENING_FIXED.getValue());
+		openingFixedBalance.setResourceParamType(ResourceParamType.INTEGER_POSITIVE.getValue());
+		openingFixedBalance.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(openingFixedBalance);
+		
+		ResourceCreateResourceParamWithValueDto preservationAge = new ResourceCreateResourceParamWithValueDto();
+		preservationAge.setName(ResourceParamNameEnum.SUPER_PRESERVATION_AGE.getValue());
+		preservationAge.setResourceParamType(ResourceParamType.INTEGER_POSITIVE.getValue());
+		preservationAge.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(preservationAge);
+
+		ResourceCreateResourceParamWithValueDto growthRate = new ResourceCreateResourceParamWithValueDto();
+		growthRate.setName(ResourceParamNameEnum.SUPER_GROWTH_RATE.getValue());
+		growthRate.setResourceParamType(ResourceParamType.BIG_DECIMAL.getValue());
+		growthRate.setUserAbleToCreateNewDateValue(true);
+		resourceCreateDto.addResourceParamDto(growthRate);
+
+		ResourceCreateResourceParamWithValueDto mgmtFeeAnnualPercentage = new ResourceCreateResourceParamWithValueDto();
+		mgmtFeeAnnualPercentage.setName(ResourceParamNameEnum.SUPER_MANAGEMENT_FEE_ANNUAL_PERCENTAGE.getValue());
+		mgmtFeeAnnualPercentage.setResourceParamType(ResourceParamType.BIG_DECIMAL.getValue());
+		mgmtFeeAnnualPercentage.setUserAbleToCreateNewDateValue(true);
+		resourceCreateDto.addResourceParamDto(mgmtFeeAnnualPercentage);
+
+		ResourceCreateCashflowWithValueDto adminFee = new ResourceCreateCashflowWithValueDto();
+		adminFee.setCategory(CashflowCategory.DEPRECIATION_ADMIN_FEE.getValue());
+		adminFee.setFrequency(CashflowFrequency.MONTHLY.getValue());
+		adminFee.setCpiAffected(true);
+		resourceCreateDto.addCashflowDto(adminFee);
+	
 		return resourceCreateDto;
 	}	
 
