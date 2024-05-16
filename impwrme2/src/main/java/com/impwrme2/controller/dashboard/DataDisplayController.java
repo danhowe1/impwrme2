@@ -85,14 +85,13 @@ public class DataDisplayController {
 		List<String[][]> columnDefinitions = new ArrayList<String[][]>();
 		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Date" }, { "pattern", "" }, { "type", "string" } });
 		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Total" }, { "pattern", "" }, { "type", "number" } });
+		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Style" }, { "role", "style" }, { "type", "string" } });
+		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Toooltip" }, { "role", "tooltip" }, { "type", "string" } });
 		
 		for (String resourceName : filteredResourceNames) {
 			columnDefinitions.add(new String[][] { { "id", "" }, { "label", resourceName }, { "pattern", "" }, { "type", "number" } });
 		}
 		
-		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Style" }, { "role", "style" }, { "type", "string" } });
-		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Toooltip" }, { "role", "tooltip" }, { "type", "string" } });
-
 		JsonArray columns = new JsonArray();
 		for (String[][] columnDefinition : columnDefinitions) {
 			JsonObject cell = new JsonObject();
@@ -131,22 +130,32 @@ public class DataDisplayController {
 					cellTotal.addProperty("v", dateResourceToAmountMap.get(currentYearMonth.toString()));
 					cells.add(cellTotal);
 	
-					for (String resourceName : filteredResourceNames) {
-						JsonObject cell = new JsonObject();
-						cell.addProperty("v", dateResourceToAmountMap.get(currentYearMonth.toString() + "-" + resourceName));
-						cells.add(cell);
+					String milestoneMsg = "";
+					if (displayFilter.isTimePeriodAnnually()) {
+						milestoneMsg = journalEntryResponse.getMilestoneMessage(currentYearMonth.getYear());							
+					} else {
+						milestoneMsg = journalEntryResponse.getMilestoneMessage(currentYearMonth);														
 					}
 					
 					JsonObject cellStyle = new JsonObject();
-					cellStyle.addProperty("v", "");					
-//					cellStyle.addProperty("v", "point { size: 12; shape-type: star; fill-color: #a52714; }");
+					if (!milestoneMsg.equals("")) {
+						cellStyle.addProperty("v", "point { size: 10; shape-type: star; fill-color: #a52714; }");							
+					} else {
+						cellStyle.addProperty("v", "");
+					}
 					cells.add(cellStyle);
 	
 					JsonObject cellTooltip = new JsonObject();
+					cellTooltip.addProperty("v", milestoneMsg);
 //					cellTooltip.addProperty("v", "Griffin St sold for $4,500,000");
-					cellTooltip.addProperty("v", "");					
 					cells.add(cellTooltip);
-	
+
+					for (String resourceName : filteredResourceNames) {
+						JsonObject cell = new JsonObject();
+						cell.addProperty("v", dateResourceToAmountMap.get(currentYearMonth.toString() + "-" + resourceName));
+						cells.add(cell);					
+					}
+
 					row.add("c", cells);
 					jsonRows.add(row);				
 				}
@@ -158,6 +167,8 @@ public class DataDisplayController {
 
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String result = gson.toJson(dataTable);
+		
+		System.out.println(result);
 		
 		return result;
 	}

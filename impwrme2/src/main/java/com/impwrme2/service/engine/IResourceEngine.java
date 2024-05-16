@@ -4,6 +4,7 @@ import java.time.YearMonth;
 import java.util.List;
 
 import com.impwrme2.model.journalEntry.JournalEntry;
+import com.impwrme2.model.milestone.Milestone;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.service.journalEntry.BalanceTracker;
 
@@ -20,4 +21,5 @@ public interface IResourceEngine extends Comparable<IResourceEngine> {
 	public Integer getBalanceLiquidPreferredMinIfNotSpecified(final YearMonth yearMonth);
 //	public List<Cashflow> getCashflowsToProcess(final YearMonth yearMonth);
 	public List<JournalEntry> generateJournalEntries(final YearMonth yearMonth, final BalanceTracker balanceTracker);
+	public List<Milestone> getMilestones();
 }

@@ -161,6 +161,10 @@ public class JournalEntryService {
 			balanceTracker.processEndOfMonth();
 			currentYearMonth = currentYearMonth.plusMonths(1);
 		}
+		
+		for (IResourceEngine resourceEngine : resourceEngines) {
+			journalEntryResponse.addMilestones(resourceEngine.getMilestones());
+		}
 
 		Collections.sort(totalJournalEntries);
 		return totalJournalEntries;

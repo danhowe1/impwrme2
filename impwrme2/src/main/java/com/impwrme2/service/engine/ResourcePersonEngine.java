@@ -9,6 +9,7 @@ import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.journalEntry.JournalEntry;
+import com.impwrme2.model.milestone.MilestoneType;
 import com.impwrme2.model.resource.ResourcePerson;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.service.journalEntry.BalanceTracker;
@@ -48,6 +49,9 @@ public class ResourcePersonEngine extends ResourceEngine {
 
 	@Override
 	public List<JournalEntry> generateJournalEntries(YearMonth yearMonth, BalanceTracker balanceTracker) {
+		if (yearMonth.equals(retirementDate)) {
+			addMilestone(yearMonth, MilestoneType.PERSON_RETIREMENT_AGE, getResource().getName(), String.valueOf(retirementAge));
+		}
 		final List<Cashflow> cashflowsToProcess = new ArrayList<Cashflow>(getResource().getCashflows());
 		cashflowsToProcess.removeIf(value -> retirementDateReached(yearMonth) && employmentStartDateIsBeforeRetirementAge(value, yearMonth));
 		return generateJournalEntriesFromCashflows(yearMonth, cashflowsToProcess);

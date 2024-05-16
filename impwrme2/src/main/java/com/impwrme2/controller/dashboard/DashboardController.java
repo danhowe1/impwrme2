@@ -457,10 +457,10 @@ public class DashboardController {
 		ResourceParamDateValueString griffinStStatusVal = new ResourceParamDateValueString(YearMonth.of(2024, 1), false, ResourcePropertyExisting.PROPERTY_STATUS_RENTED);
 		griffinStStatus.addResourceParamDateValue(griffinStStatusVal);		
 
-		ResourceParamDateValueString griffinStStatus2Val = new ResourceParamDateValueString(YearMonth.of(2024, 2), false, ResourcePropertyExisting.PROPERTY_STATUS_LIVING_IN);
+		ResourceParamDateValueString griffinStStatus2Val = new ResourceParamDateValueString(YearMonth.of(2024, 2), true, ResourcePropertyExisting.PROPERTY_STATUS_LIVING_IN);
 		griffinStStatus.addResourceParamDateValue(griffinStStatus2Val);		
 
-		ResourceParamDateValueString griffinStStatus3Val = new ResourceParamDateValueString(YearMonth.of(2025, 11), false, ResourcePropertyExisting.PROPERTY_STATUS_SOLD);
+		ResourceParamDateValueString griffinStStatus3Val = new ResourceParamDateValueString(YearMonth.of(2025, 11), true, ResourcePropertyExisting.PROPERTY_STATUS_SOLD);
 		griffinStStatus.addResourceParamDateValue(griffinStStatus3Val);		
 
 		// Griffin Street EXPENSE_ASSET_OWNERSHIP.

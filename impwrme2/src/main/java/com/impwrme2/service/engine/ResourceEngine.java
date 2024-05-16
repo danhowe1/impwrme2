@@ -13,6 +13,8 @@ import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflow.CashflowFrequency;
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.journalEntry.JournalEntry;
+import com.impwrme2.model.milestone.Milestone;
+import com.impwrme2.model.milestone.MilestoneType;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
@@ -27,6 +29,8 @@ public abstract class ResourceEngine implements IResourceEngine {
 	private static final double POWER_OF_ONE_TWELFTH = BigDecimal.ONE.divide(new BigDecimal("12"), SCALE_10_ROUNDING_HALF_EVEN).doubleValue();
 
 	protected final Resource resource;
+	
+	private List<Milestone> milestones = new ArrayList<Milestone>();
 	
 	/**
 	 * No-args constructor required for Spring instantiation.
@@ -167,5 +171,14 @@ public abstract class ResourceEngine implements IResourceEngine {
 
 	protected Integer integerOf(BigDecimal decimal) {
 		return decimal.setScale(0, RoundingMode.HALF_UP).intValue();
+	}
+	
+	protected void addMilestone(YearMonth yearMonth, MilestoneType milestoneType, String... args) {
+		milestones.add(new Milestone(getResource(), yearMonth, milestoneType, args));
+	}
+	
+	@Override
+	public List<Milestone> getMilestones() {
+		return milestones;
 	}
 }

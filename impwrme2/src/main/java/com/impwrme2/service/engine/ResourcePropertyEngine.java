@@ -9,6 +9,8 @@ import java.util.Optional;
 import com.impwrme2.model.cashflow.Cashflow;
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.journalEntry.JournalEntry;
+import com.impwrme2.model.milestone.Milestone;
+import com.impwrme2.model.milestone.MilestoneType;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
 import com.impwrme2.model.resource.ResourcePropertyNew;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
@@ -109,6 +111,7 @@ public class ResourcePropertyEngine extends ResourceEngine {
 			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, -saleAmount, CashflowCategory.DEPRECIATION_SALE));
 			journalEntries.add(createJournalEntryForExpenseSaleCommission(yearMonth, balanceTracker));
 			journalEntries.add(createJournalEntryForExpenseSaleFixed(yearMonth, balanceTracker));
+			addMilestone(yearMonth, MilestoneType.PROPERTY_SALE, getResource().getName(), String.valueOf(Milestone.NUMBER_FORMAT.format(saleAmount)));
 		}
 
 		return journalEntries;
