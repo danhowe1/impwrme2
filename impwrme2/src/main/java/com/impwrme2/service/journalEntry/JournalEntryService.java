@@ -7,10 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Service;
 
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.cashflow.CashflowType;
@@ -24,33 +22,32 @@ import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 import com.impwrme2.model.scenario.Scenario;
 import com.impwrme2.service.engine.IResourceEngine;
 
-@Service
 public class JournalEntryService {
 	
 	private ResourceUnallocated resourceUnallocated;
+	private final Scenario scenario;
 	private YearMonth currentYearMonth;
-
-	@Autowired
-	private JournalEntryResponse journalEntryResponse;
-
-	@Autowired
 	private BalanceTracker balanceTracker;
+	private JournalEntryResponse journalEntryResponse;
+	private final MessageSource messageSource;
+
+	public JournalEntryService(final Scenario scenario, final MessageSource messageSource) {
+		this.scenario = scenario;
+		this.messageSource = messageSource;
+		balanceTracker = new BalanceTracker(scenario.getResources());
+		currentYearMonth = scenario.getStartYearMonth();
+	}
 	
-	@Autowired
-	private MessageSource messageSource;
-
-	public JournalEntryResponse run(final Scenario scenario) {
-
-		journalEntryResponse.setJournalEntries(generateJournalEntries(scenario));
+	public JournalEntryResponse run() {
+		journalEntryResponse = new JournalEntryResponse(messageSource);
+		journalEntryResponse.setJournalEntries(generateJournalEntries());
 		return journalEntryResponse;
 	}
 
-	private List<JournalEntry> generateJournalEntries(final Scenario scenario) {
+	private List<JournalEntry> generateJournalEntries() {
 
 		// Set up initial state.
-		balanceTracker.initialise(scenario.getResources());
 		List<IResourceEngine> resourceEngines = getResourceEngines(scenario);
-		currentYearMonth = scenario.getStartYearMonth();
 		YearMonth END_DATE = scenario.calculateEndYearMonth();
 		List<JournalEntry> totalJournalEntries = new ArrayList<JournalEntry>();
 

@@ -5,13 +5,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.stereotype.Component;
-
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
 
-@Component
 public class BalanceTracker {
 
 	private Integer potBalance;
@@ -22,7 +19,7 @@ public class BalanceTracker {
 	private Map<Resource, Integer> resourceFixedAmount;
 	private Map<Resource, Integer> resourceFixedAmountPreviousMonth;
 
-	public void initialise(final Set<Resource> resources) {
+	public BalanceTracker(final Set<Resource> resources) {
 		potBalance = 0;
 		resourceLiquidAmount = new HashMap<Resource, Integer>();
 		resourceLiquidAmountPreviousMonth = new HashMap<Resource, Integer>();

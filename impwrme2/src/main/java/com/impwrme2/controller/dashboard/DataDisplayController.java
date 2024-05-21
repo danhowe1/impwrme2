@@ -52,9 +52,6 @@ public class DataDisplayController {
 	private ResourceService resourceService;
 
 	@Autowired
-	private JournalEntryService journalEntryService;
-	
-	@Autowired
 	private MessageSource messageSource;
 
 	@GetMapping(value = "/getChartData", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -86,7 +83,7 @@ public class DataDisplayController {
 		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Date" }, { "pattern", "" }, { "type", "string" } });
 		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Total" }, { "pattern", "" }, { "type", "number" } });
 		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Style" }, { "role", "style" }, { "type", "string" } });
-		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Toooltip" }, { "role", "tooltip" }, { "type", "string" } });
+		columnDefinitions.add(new String[][] { { "id", "" }, { "label", "Tooltip" }, { "role", "tooltip" }, { "type", "string" } });
 		
 		for (String resourceName : filteredResourceNames) {
 			columnDefinitions.add(new String[][] { { "id", "" }, { "label", resourceName }, { "pattern", "" }, { "type", "number" } });
@@ -96,9 +93,14 @@ public class DataDisplayController {
 		for (String[][] columnDefinition : columnDefinitions) {
 			JsonObject cell = new JsonObject();
 			for (int i = 0; i < columnDefinition.length; i++) {
-				cell.addProperty(columnDefinition[i][0], columnDefinition[i][1]);
+				cell.addProperty(columnDefinition[i][0], columnDefinition[i][1]);	
 			}
-			columns.add(cell);
+			
+			JsonObject pProperty = new JsonObject();
+	        pProperty.addProperty("html", true);
+	        cell.add("p", pProperty);
+
+	        columns.add(cell);
 		}
 		return columns;
 	}
@@ -147,7 +149,6 @@ public class DataDisplayController {
 	
 					JsonObject cellTooltip = new JsonObject();
 					cellTooltip.addProperty("v", milestoneMsg);
-//					cellTooltip.addProperty("v", "Griffin St sold for $4,500,000");
 					cells.add(cellTooltip);
 
 					for (String resourceName : filteredResourceNames) {
@@ -164,12 +165,9 @@ public class DataDisplayController {
 		}
 		
 		dataTable.add("rows", jsonRows);
-
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
+        Gson gson = builder.setPrettyPrinting().create();        
 		String result = gson.toJson(dataTable);
-		
-		System.out.println(result);
-		
 		return result;
 	}
 
@@ -332,7 +330,7 @@ public class DataDisplayController {
 			Resource sessionResource = resourceService.findById(resourceId).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + resourceId));
 			Scenario scenario = scenarioService.findByIdAndUserId(sessionResource.getScenario().getId(), user.getUserInfo().getSubject()).get();
 
-			journalEntryResponse = journalEntryService.run(scenario);
+			journalEntryResponse = new JournalEntryService(scenario, messageSource).run();
 			session.setAttribute("SESSION_JOURNAL_ENTRY_RESPONSE", journalEntryResponse);
 		}
 		return journalEntryResponse;

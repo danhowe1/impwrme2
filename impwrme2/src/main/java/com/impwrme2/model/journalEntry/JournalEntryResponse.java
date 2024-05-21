@@ -6,20 +6,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Component;
 
 import com.impwrme2.model.milestone.Milestone;
 
-@Component
 public class JournalEntryResponse implements Serializable {
 
 	private static final long serialVersionUID = -8364314557845566906L;
 	
-	@Autowired
-	MessageSource messageSource;
+	public JournalEntryResponse(final MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+	
+	private final MessageSource messageSource;
 	
 	private List<JournalEntry> journalEntries;
 	
@@ -76,11 +76,11 @@ public class JournalEntryResponse implements Serializable {
 	private String makeMessage(final YearMonth yearMonth, final List<Milestone> milestones) {
 		StringBuffer sb = new StringBuffer("");
 		if (milestones.size() > 0) {
-			sb.append(yearMonth.getMonth().getValue() + "-" + yearMonth.getYear() + " : ");
+			sb.append("<B>" + yearMonth.getYear() + "-" + yearMonth.getMonth().getValue() + "</B>");
 			for (Milestone milestone : milestones) {
-				sb.append(messageSource.getMessage("msg.milestone." + milestone.getMilestoneType().getValue(), milestone.getMessageArgs(), LocaleContextHolder.getLocale()));
+				sb.append("<P>" + messageSource.getMessage("msg.milestone." + milestone.getMilestoneType().getValue(), milestone.getMessageArgs(), LocaleContextHolder.getLocale()));
 			}
-		}
+		}		
 		return sb.toString();
 	}
 }

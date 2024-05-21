@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.journalEntry.JournalEntry;
+import com.impwrme2.model.milestone.Milestone;
+import com.impwrme2.model.milestone.MilestoneType;
 import com.impwrme2.model.resource.ResourceSuperannuation;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValue;
@@ -16,12 +18,13 @@ import com.impwrme2.service.journalEntry.JournalEntryFactory;
 
 public class ResourceSuperannuationEngine extends ResourceEngine {
 
+	private final Integer preservationAge;
 	private final YearMonth preservationDate;
 	private boolean payOutDateReached = false;
 	
 	public ResourceSuperannuationEngine(final ResourceSuperannuation resource, final BalanceTracker balanceTracker) {
 		super(resource, balanceTracker);
-		Integer preservationAge = (Integer)  resource.getResourceParamDateValue(ResourceParamNameEnum.SUPER_PRESERVATION_AGE, resource.getStartYearMonth()).get().getValue();
+		preservationAge = (Integer)  resource.getResourceParamDateValue(ResourceParamNameEnum.SUPER_PRESERVATION_AGE, resource.getStartYearMonth()).get().getValue();
 		YearMonth birthYearMonth = (YearMonth)  resource.getParent().getResourceParamDateValue(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH, resource.getStartYearMonth()).get().getValue();
 		preservationDate = birthYearMonth.plusYears(preservationAge);
 	}
@@ -36,21 +39,15 @@ public class ResourceSuperannuationEngine extends ResourceEngine {
 		return Integer.valueOf(0);
 	}
 
-//	@Override
-//	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(BalanceTracker balanceTracker) {
-//		return Integer.valueOf(0);
-//	}
-//
-//	@Override
-//	public Integer getBalanceLiquidPreferredMinIfNotSpecified() {
-//		return Integer.valueOf(0);
-//	}
-
 	@Override
 	public List<JournalEntry> generateJournalEntries(YearMonth yearMonth, BalanceTracker balanceTracker) {
 
 		List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
 		if (yearMonth.isBefore(getResource().getStartYearMonth())) return journalEntries;
+		if (yearMonth.equals(preservationDate)) {
+			addMilestone(yearMonth, MilestoneType.SUPER_PRESERVATION_AGE, getResource().getName(), String.valueOf(preservationAge), Milestone.NUMBER_FORMAT.format(balanceTracker.getResourceAssetValue(getResource())));
+		}
+
 		if (payOutDateReached) return journalEntries;
 		
 		// Monthly appreciation from share market growth.

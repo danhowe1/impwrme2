@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.journalEntry.JournalEntry;
+import com.impwrme2.model.milestone.MilestoneType;
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceMortgage;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
@@ -125,6 +126,10 @@ public class ResourceMortgageEngine extends ResourceEngine {
 		
 		if (interestExpense < 0 && !payOutDateReached) {
 			journalEntries.add(JournalEntryFactory.create(getResource(), yearMonth, interestExpense, CashflowCategory.EXPENSE_INTEREST));
+		}
+		
+		if (payOutDateReached) {
+			addMilestone(yearMonth, MilestoneType.MORTGAGE_PAYOUT_DATE, getResource().getName());	
 		}
 		
 		return journalEntries;

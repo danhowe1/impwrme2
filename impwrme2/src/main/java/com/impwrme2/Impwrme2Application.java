@@ -9,5 +9,4 @@ public class Impwrme2Application {
 	public static void main(String[] args) {
 		SpringApplication.run(Impwrme2Application.class, args);
 	}
-
 }
