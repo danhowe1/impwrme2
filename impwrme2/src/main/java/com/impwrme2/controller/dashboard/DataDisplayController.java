@@ -409,7 +409,6 @@ public class DataDisplayController {
 	private Map<String, Integer> getClosingBalances (final List<JournalEntry> journalEntries, final UIDisplayFilter displayFilter) {
 		Map<String, Integer> journalEntryDateResourceToAmountMap = new TreeMap<String, Integer>();
 		for (JournalEntry journalEntry : journalEntries) {
-//			if (!displayFilter.isTimePeriodAnnually() || journalEntry.getDate().getMonth().getValue() == 12) {
 				if (journalEntry.getAmount().intValue() != 0 && !displayFilter.isBreakdownAggregate()) {
 					Integer currentResourceValue = journalEntryDateResourceToAmountMap.get(dateResourceKey(journalEntry));
 					if (null == currentResourceValue) {
@@ -424,7 +423,6 @@ public class DataDisplayController {
 				} else {
 					journalEntryDateResourceToAmountMap.put(dateTotalKey(journalEntry), journalEntry.getAmount() + currentTotalValue);
 				}
-//			}
 		}
 		return journalEntryDateResourceToAmountMap;
 	}
