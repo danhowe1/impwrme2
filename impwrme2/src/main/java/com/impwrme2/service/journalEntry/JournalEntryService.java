@@ -15,6 +15,8 @@ import com.impwrme2.model.cashflow.CashflowType;
 import com.impwrme2.model.journalEntry.JournalEntry;
 import com.impwrme2.model.journalEntry.JournalEntryResponse;
 import com.impwrme2.model.resource.Resource;
+import com.impwrme2.model.resource.ResourceCurrentAccount;
+import com.impwrme2.model.resource.ResourceMortgageOffset;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.ResourceUnallocated;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
@@ -61,18 +63,18 @@ public class JournalEntryService {
 				if (currentYearMonth.equals(resourceEngine.getResource().getStartYearMonth())) {
 					// Generate opening balances if required.
 					currentMonthsProcessedJournalEntries.addAll(generateJournalEntryOpeningBalances(resourceEngine.getResource()));
-				} else {
-					// Contribute months opening balance to the pot.
-					Integer balanceLiquidOpeningAmount = balanceTracker.getResourceLiquidAmount(resourceEngine.getResource());
-					if (balanceLiquidOpeningAmount > 0) {
-						balanceTracker.addToPotBalance(balanceLiquidOpeningAmount);
-						balanceTracker.subtractFromResourceLiquidAmount(resourceEngine.getResource(), balanceLiquidOpeningAmount);
-					} else if (balanceLiquidOpeningAmount < 0) {
-						balanceTracker.subtractFromPotBalance(balanceLiquidOpeningAmount);
-						balanceTracker.addToResourceLiquidAmount(resourceEngine.getResource(), balanceLiquidOpeningAmount);						
-					}
 				}
-				
+
+				// Contribute months opening balance to the pot.
+				Integer balanceLiquidOpeningAmount = balanceTracker.getResourceLiquidAmount(resourceEngine.getResource());
+				if (balanceLiquidOpeningAmount > 0) {
+					balanceTracker.addToPotBalance(balanceLiquidOpeningAmount);
+					balanceTracker.subtractFromResourceLiquidAmount(resourceEngine.getResource(), balanceLiquidOpeningAmount);
+				} else if (balanceLiquidOpeningAmount < 0) {
+					balanceTracker.subtractFromPotBalance(balanceLiquidOpeningAmount);
+					balanceTracker.addToResourceLiquidAmount(resourceEngine.getResource(), balanceLiquidOpeningAmount);						
+				}
+
 				//Get this resources raw journal entries.
 				currentMonthsUnprocessedJournalEntries.addAll(resourceEngine.generateJournalEntries(currentYearMonth, balanceTracker));
 				
@@ -209,8 +211,13 @@ public class JournalEntryService {
 		journalEntries.add(JournalEntryFactory.create(resource, currentYearMonth, balanceOpeningLiquid + balanceOpeningFixed, CashflowCategory.JE_BALANCE_OPENING_ASSET_VALUE));
 		
 		if (balanceOpeningLiquid.intValue() > 0) {
-			// If there are savings in the account then we assume that these have been explicitly deposited by the user.
-			balanceTracker.addToResourceLiquidDepositAmount(resource, balanceOpeningLiquid);
+			if (resource instanceof ResourceCurrentAccount || resource instanceof ResourceMortgageOffset) {
+				// For current accounts and mortgage offset accounts we assume the balance is available to the pot.
+				balanceTracker.addToResourceLiquidAmount(resource, balanceOpeningLiquid);				
+			} else {
+				// For all other liquid accounts we assume that these have been explicitly deposited by the user.
+				balanceTracker.addToResourceLiquidDepositAmount(resource, balanceOpeningLiquid);
+			}
 			balanceTracker.addToResourceFixedAmount(resource, balanceOpeningFixed);
 		} else if (balanceOpeningLiquid.intValue() < 0) {
 			// If this is debt then just put the amount straight into the pot. We assume the user wants to pay this off asap.
@@ -315,14 +322,11 @@ public class JournalEntryService {
 			for (JournalEntry journalEntry : unprocessedJournalEntries) {
 				if (journalEntry.getResource().equals(resourceEngine.getResource())) {
 					if (journalEntry.getCategory().getType().equals(CashflowType.DEPOSIT)) {
-//						Integer depositAvailable = balanceTracker.getResourceLiquidDepositAmount(journalEntry.getResource());
-						// Can't take out more than the pot balance.
-						Integer depositAvailable = Math.max(0, balanceTracker.getPotBalance());
-						// Reduce the deposit amount if necessary.
-						Integer depositAmount = Math.min(journalEntry.getAmount(), depositAvailable);
-						// Can't deposit an amount that would exceed the legal liquid balance.
-						Integer balanceLiquidLegalMax = resourceEngine.getBalanceLiquidLegalMaxIfNotSpecified(balanceTracker);
-						Integer maxDepositAmount = balanceLiquidLegalMax - balanceTracker.getResourceLiquidBalance(journalEntry.getResource());
+						Integer depositAmount = journalEntry.getAmount();
+						// Can't deposit an amount that would exceed the preferred or legal liquid balance.
+						Integer balanceLiquidMax = Math.min(resourceEngine.getBalanceLiquidPreferredMax(currentYearMonth, balanceTracker), 
+								resourceEngine.getBalanceLiquidLegalMax(currentYearMonth, balanceTracker));
+						Integer maxDepositAmount = balanceLiquidMax - balanceTracker.getResourceLiquidBalance(journalEntry.getResource());
 						depositAmount = Math.min(depositAmount, maxDepositAmount);
 						
 						// Deposit amount available may be different to the user requested amount so create new one.

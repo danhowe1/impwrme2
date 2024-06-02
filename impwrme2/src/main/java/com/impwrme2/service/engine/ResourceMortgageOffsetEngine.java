@@ -43,6 +43,6 @@ public class ResourceMortgageOffsetEngine extends ResourceEngine {
 				preferredMaxBalance = preferredMaxBalance - balanceTracker.getResourceLiquidBalance(resource);
 			}
 		}
-		return preferredMaxBalance;
+		return Math.max(0, preferredMaxBalance);
 	}
 }
