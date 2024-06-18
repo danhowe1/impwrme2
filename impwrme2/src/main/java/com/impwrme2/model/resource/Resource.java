@@ -96,16 +96,6 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 	@SortNatural
 	private List<Cashflow> cashflows = new ArrayList<Cashflow>();
 
-//	@Override
-//	public ResourceScenario getResourceScenario() {
-//		if (this instanceof ResourceScenario) return (ResourceScenario) this;
-//		Resource resource = this;
-//		while (!(resource instanceof ResourceScenario)) {
-//			resource = this.getParent();
-//		}
-//		return (ResourceScenario) resource;
-//	};
-
 	@Override
 	public String getPrioritisationWithinResourceType() {
 		return "";
@@ -186,6 +176,10 @@ public abstract class Resource implements IResource, Comparable<Resource>, Seria
 		return name;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+	
 	public YearMonth getStartYearMonth() {
 		return startYearMonth;
 	}

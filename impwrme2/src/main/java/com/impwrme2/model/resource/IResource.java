@@ -10,7 +10,6 @@ import com.impwrme2.model.resourceParam.enums.ResourceParamStringValueEnum;
 public interface IResource {
 
 	public ResourceType getResourceType();
-//	public ResourceScenario getResourceScenario();
 	public String getPrioritisationWithinResourceType();
 	public List<CashflowCategory> getCashflowCategoriesUsersCanCreate();
 	public List<ResourceParam<?>> getResourceParamsUsersCanCreate();

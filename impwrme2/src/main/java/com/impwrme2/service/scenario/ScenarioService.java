@@ -2,6 +2,7 @@ package com.impwrme2.service.scenario;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -11,14 +12,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.scenario.Scenario;
+import com.impwrme2.model.scenario.ScenarioYearBalance;
 import com.impwrme2.repository.scenario.ScenarioRepository;
+
+import jakarta.persistence.EntityManager;
 
 @Service
 public class ScenarioService {
 
 	@Autowired
+	EntityManager entityManager;
+	
+	@Autowired
 	private ScenarioRepository scenarioRepository;
-
+	
 	@Autowired
 	private MessageSource messageSource;
 	
@@ -42,6 +49,21 @@ public class ScenarioService {
 	}
 
 	@Transactional(readOnly = false)
+	public Scenario repopulateYearBalances(Scenario scenario, String userId, Set<ScenarioYearBalance> yearBalances) {
+		if (null != scenario.getId() && !scenario.getUserId().equals(userId)) {
+			throw new UnsupportedOperationException(messageSource.getMessage("msg.validation.unauthorisedAccess", null, LocaleContextHolder.getLocale()));			
+		} else {
+			scenario.getYearBalances().clear();
+			Scenario scenario2 = scenarioRepository.save(scenario);
+			entityManager.flush();			
+			for (ScenarioYearBalance syb : yearBalances) {
+				scenario2.addYearBalance(syb);
+			}
+			return scenarioRepository.save(scenario2);
+		}
+	}
+
+	@Transactional(readOnly = false)
 	public void delete(Scenario scenario, String userId) {
 		if (scenario.getUserId().equals(userId)) {
 			scenarioRepository.delete(scenario);
@@ -55,7 +77,7 @@ public class ScenarioService {
 	 * why this delete appears here and not in the ResourceService.
 	 * @param resource The resource to be deleted.
 	 */
-	@Transactional
+	@Transactional(readOnly = false)
 	public void deleteResource(Resource resource) {
 		Scenario scenario = resource.getScenario();
 		scenario.removeResource(resource);

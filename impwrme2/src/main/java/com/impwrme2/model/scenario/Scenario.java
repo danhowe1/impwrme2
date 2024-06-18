@@ -64,6 +64,9 @@ public class Scenario implements Serializable {
 	@OneToMany(mappedBy = "scenario", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	private Set<Resource> resources = new HashSet<Resource>();
 
+	@OneToMany(mappedBy = "scenario", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+	private Set<ScenarioYearBalance> yearBalances = new HashSet<ScenarioYearBalance>();
+
 	public YearMonth calculateEndYearMonth() {
 		YearMonth endYearMonth = YearMonth.now();
 		for (Resource resource : getResources()) {
@@ -109,6 +112,15 @@ public class Scenario implements Serializable {
 		return allowedResources;
 	}
 
+	public Integer getYearBalance(Integer year) {
+		for (ScenarioYearBalance yearBalance : getYearBalances()) {
+			if (yearBalance.getYear().equals(year)) {
+				return yearBalance.getBalance();
+			}
+		}
+		return null;
+	}
+		
 	//-------------------
 	// Getters & setters.
 	//-------------------
@@ -171,6 +183,16 @@ public class Scenario implements Serializable {
 		
 		resources.remove(resource);
 		resource.setScenario(null);
+		return this;
+	}
+
+	public Set<ScenarioYearBalance> getYearBalances() {
+		return yearBalances;
+	}
+
+	public Scenario addYearBalance(ScenarioYearBalance yearBalance) {
+		yearBalances.add(yearBalance);
+		yearBalance.setScenario(this);
 		return this;
 	}
 }

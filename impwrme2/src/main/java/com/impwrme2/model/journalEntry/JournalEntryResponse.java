@@ -3,13 +3,18 @@ package com.impwrme2.model.journalEntry;
 import java.io.Serializable;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 
 import com.impwrme2.model.milestone.Milestone;
+import com.impwrme2.model.scenario.ScenarioYearBalance;
 
 public class JournalEntryResponse implements Serializable {
 
@@ -25,6 +30,23 @@ public class JournalEntryResponse implements Serializable {
 	
 	private List<Milestone> milestones = new ArrayList<Milestone>();
 
+	private Map<Integer, Integer> yearToLiquidBalanceMap = new HashMap<Integer, Integer>();
+	
+	public void amendYearToLiquidBalance(final YearMonth yearMonth, final Integer amount) {
+		if (yearMonth.getMonthValue() != 12) return;
+		Integer year = Integer.valueOf(yearMonth.getYear());
+		Integer currentBalance = yearToLiquidBalanceMap.get(year);
+		if (null == currentBalance) {
+			yearToLiquidBalanceMap.put(year, amount);
+		} else {
+			yearToLiquidBalanceMap.put(year, currentBalance + amount);			
+		}
+	}
+
+	// --------------------
+	// Getters and setters.
+	// --------------------
+	
 	public List<JournalEntry> getJournalEntries() {
 		return journalEntries;
 	}
@@ -40,22 +62,6 @@ public class JournalEntryResponse implements Serializable {
 	public List<Milestone> getMilestones() {
 		return milestones;
 	}
-	
-//	public String getMilestoneMessage(String resourceName, YearMonth yearMonth) {
-//		List<Milestone> filteredList = milestones
-//				.stream()
-//				.filter(milestone -> milestone.getResource().getName().equals(resourceName) && milestone.getYearMonth().equals(yearMonth))
-//				.collect(Collectors.toList());
-//		return makeMessage(filteredList);
-//	}
-//
-//	public String getMilestoneMessage(String resourceName, Integer year) {
-//		List<Milestone> filteredList = milestones
-//				.stream()
-//				.filter(milestone -> milestone.getResource().getName().equals(resourceName) && milestone.getYearMonth().getYear() == year)
-//				.collect(Collectors.toList());
-//		return makeMessage(filteredList);
-//	}
 	
 	public String getMilestoneMessage(YearMonth yearMonth) {
 		List<Milestone> filteredList = milestones
@@ -82,5 +88,13 @@ public class JournalEntryResponse implements Serializable {
 			}
 		}		
 		return sb.toString();
+	}
+
+	public Set<ScenarioYearBalance> getScenarioYearBalances() {
+		Set<ScenarioYearBalance> ybs = new HashSet<ScenarioYearBalance>();
+		for (Map.Entry<Integer, Integer> yearBalance : yearToLiquidBalanceMap.entrySet()) {
+			ybs.add(new ScenarioYearBalance(yearBalance.getKey(), yearBalance.getValue()));
+	    }
+		return ybs;
 	}
 }

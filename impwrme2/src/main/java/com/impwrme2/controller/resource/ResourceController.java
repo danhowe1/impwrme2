@@ -1,7 +1,5 @@
 package com.impwrme2.controller.resource;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -50,20 +48,9 @@ public class ResourceController {
 	@GetMapping(value = { "/showCreateForm/{resourceType}" })
 	public String showCreateForm(@PathVariable String resourceType, @AuthenticationPrincipal OidcUser user, Model model, HttpSession session) {
 
-		String userId = user.getUserInfo().getSubject();
-		Scenario currentScenario;
-		Long currentScenarioId = (Long) session.getAttribute("SESSION_CURRENT_SCENARIO_ID");
-		if (null == currentScenarioId) {
-			List<Scenario> scenarios = scenarioService.findByUserId(userId);
-			if (scenarios.size() == 1) {
-				currentScenario = scenarios.get(0);
-				session.setAttribute("SESSION_CURRENT_SCENARIO_ID", currentScenario.getId());
-			} else {
-				return "forward:/app/scenario/list";
-			}
-		} else {
-			currentScenario = scenarioService.findByIdAndUserId(currentScenarioId, userId).orElseThrow(() -> new IllegalArgumentException("Invalid scenario id:" + currentScenarioId));			
-		}
+		Long currentResourceId = (Long) session.getAttribute("SESSION_CURRENT_RESOURCE_ID");
+		Resource currentResource = resourceService.findById(currentResourceId).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + currentResourceId));
+		Scenario currentScenario = currentResource.getScenario();
 
 		// Add default DTO to the model.
 		model.addAttribute("resourceCreateDto", resourceCreateDtoFactory.createResourceCreateDto(currentScenario, resourceType));

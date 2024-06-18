@@ -439,12 +439,14 @@ public class JournalEntryService {
 		for (IResourceEngine resourceEngine : resourceEngines) {
 			Integer balanceLiquid = balanceTracker.getResourceLiquidBalance(resourceEngine.getResource());
 			journalEntries.add(JournalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, balanceLiquid, CashflowCategory.JE_BALANCE_CLOSING_LIQUID));	
+			journalEntryResponse.amendYearToLiquidBalance(currentYearMonth, balanceLiquid);
 			Integer assetValue = balanceTracker.getResourceAssetValue(resourceEngine.getResource());
 			journalEntries.add(JournalEntryFactory.create(resourceEngine.getResource(), currentYearMonth, assetValue, CashflowCategory.JE_BALANCE_CLOSING_ASSET_VALUE));	
 		}
 		if (balanceTracker.getPotBalance() != 0) {
 			journalEntries.add(JournalEntryFactory.create(getResourceUnallocated(), currentYearMonth, balanceTracker.getPotBalance(), CashflowCategory.JE_BALANCE_CLOSING_LIQUID));				
 			journalEntries.add(JournalEntryFactory.create(getResourceUnallocated(), currentYearMonth, balanceTracker.getPotBalance(), CashflowCategory.JE_BALANCE_CLOSING_ASSET_VALUE));
+			journalEntryResponse.amendYearToLiquidBalance(currentYearMonth, balanceTracker.getPotBalance());
 		}
 		return journalEntries;
 	}

@@ -1,5 +1,6 @@
 package com.impwrme2.model.cashflowDateRangeValue;
 
+import java.io.Serializable;
 import java.time.YearMonth;
 
 import com.impwrme2.model.YearMonthIntegerAttributeConverter;
@@ -21,7 +22,9 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "cashflow_date_range_value", uniqueConstraints = @UniqueConstraint(columnNames = {"year_month_start", "cashflow_id"}))
-public class CashflowDateRangeValue {
+public class CashflowDateRangeValue implements Serializable {
+
+	private static final long serialVersionUID = -981665699113015945L;
 
 	/**
 	 * Protected constructor required for Hibernate only.

@@ -107,7 +107,11 @@ public class DataDisplayController {
 	
 	private String generateJsonChartData(final OidcUser user, final UIDisplayFilter displayFilter, final HttpSession session) {
 
-		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(user, session);
+		JournalEntryResponse journalEntryResponse = (JournalEntryResponse) session.getAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");		
+		if (null == journalEntryResponse) {
+			journalEntryResponse = generateJournalEntryResponse(user, session);
+		}
+		
 		List<JournalEntry> filteredClosingBalances = getFilteredClosingBalances(journalEntryResponse.getJournalEntries(), displayFilter);
 		Map<String, Integer> dateResourceToAmountMap = getClosingBalances(filteredClosingBalances, displayFilter);
 		SortedSet<String> filteredResourceNames = getFilteredResourceNames(filteredClosingBalances ,displayFilter);
@@ -173,7 +177,11 @@ public class DataDisplayController {
 
 	private String generateJsonTableData(final OidcUser user, final UIDisplayFilter displayFilter, final HttpSession session) {
 
-		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(user, session);
+		JournalEntryResponse journalEntryResponse = (JournalEntryResponse) session.getAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");		
+		if (null == journalEntryResponse) {
+			journalEntryResponse = generateJournalEntryResponse(user, session);
+		}
+
 		List<JournalEntry> filteredClosingBalances = getFilteredClosingBalances(journalEntryResponse.getJournalEntries(), displayFilter);
 		Map<String, Integer> dateResourceToAmountMap = getClosingBalances(filteredClosingBalances, displayFilter);
 		SortedSet<String> filteredResourceNames = getFilteredResourceNames(filteredClosingBalances ,displayFilter);
@@ -246,7 +254,11 @@ public class DataDisplayController {
 	
 	private String generateJsonTransactionsTableData(final OidcUser user, final UIDisplayFilter displayFilter, final HttpSession session) {
 
-		JournalEntryResponse journalEntryResponse = getOrCreateJournalEntries(user, session);
+		JournalEntryResponse journalEntryResponse = (JournalEntryResponse) session.getAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");		
+		if (null == journalEntryResponse) {
+			journalEntryResponse = generateJournalEntryResponse(user, session);
+		}
+
 		List<JournalEntry> filteredTransactions = getFilteredTransactions(journalEntryResponse.getJournalEntries(), displayFilter);
 		Map<String, Integer> dateTransactionsToAmountMap = populateDateTransactionsToAmountMap(filteredTransactions, displayFilter);
 
@@ -322,17 +334,17 @@ public class DataDisplayController {
 
 		return result;
 	}
-	
-	private JournalEntryResponse getOrCreateJournalEntries(final OidcUser user, final HttpSession session) {
-		JournalEntryResponse journalEntryResponse = (JournalEntryResponse) session.getAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");		
-		if (null == journalEntryResponse) {
-			Long resourceId = (Long) session.getAttribute("SESSION_CURRENT_RESOURCE_ID");
-			Resource sessionResource = resourceService.findById(resourceId).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + resourceId));
-			Scenario scenario = scenarioService.findByIdAndUserId(sessionResource.getScenario().getId(), user.getUserInfo().getSubject()).get();
 
-			journalEntryResponse = new JournalEntryService(scenario, messageSource).run();
-			session.setAttribute("SESSION_JOURNAL_ENTRY_RESPONSE", journalEntryResponse);
-		}
+	private JournalEntryResponse generateJournalEntryResponse(final OidcUser user, final HttpSession session) {
+		Long resourceId = (Long) session.getAttribute("SESSION_CURRENT_RESOURCE_ID");
+		Resource sessionResource = resourceService.findById(resourceId).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + resourceId));
+		Scenario scenario = scenarioService.findByIdAndUserId(sessionResource.getScenario().getId(), user.getUserInfo().getSubject()).get();
+
+		JournalEntryResponse journalEntryResponse = new JournalEntryService(scenario, messageSource).run();
+
+		scenarioService.repopulateYearBalances(scenario, user.getUserInfo().getSubject(), journalEntryResponse.getScenarioYearBalances());
+
+		session.setAttribute("SESSION_JOURNAL_ENTRY_RESPONSE", journalEntryResponse);
 		return journalEntryResponse;
 	}
 	
