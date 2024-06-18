@@ -9,7 +9,9 @@
 	<div id="resourceDisplay"
 		th:fragment="resourceDisplay">
 
-		<h5 th:text="${resourceDto.name}">XXX</h5>
+		<h6 style="display : inline" th:if="${resourceDto.parentName}" th:text="#{'msg.class.resourceType.value.' + ${resourceDto.resourceType}} + ' (' + ${resourceDto.parentName} + ') : '">XXX</h6>
+		<h6 style="display : inline" th:unless="${resourceDto.parentName}" th:text="#{'msg.class.resourceType.value.' + ${resourceDto.resourceType}} + ' : '">XXX</h6>
+		<h4 style="display : inline" th:text="${resourceDto.name}">XXX</h4>
 
 	</div>
 </body>

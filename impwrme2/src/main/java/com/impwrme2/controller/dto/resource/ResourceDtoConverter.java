@@ -57,6 +57,9 @@ public class ResourceDtoConverter {
 		ResourceDto resourceDto = new ResourceDto();
 		resourceDto.setId(resource.getId());
 		resourceDto.setName(resource.getName());
+		if (null != resource.getParent()) {
+			resourceDto.setParentName(resource.getParent().getName());
+		}
 		resourceDto.setStartYearMonth(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(resource.getStartYearMonth()));
 		resourceDto.setResourceType(resource.getResourceType().getValue());
 		if (resource instanceof ResourceScenario || resource instanceof ResourceHousehold) {

@@ -13,6 +13,8 @@ public class ResourceDto {
 	@NotEmpty(message = "{msg.validation.resource.name.notEmpty}")
 	private String name;
 
+	private String parentName;
+	
 	@NotEmpty(message = "{msg.validation.resource.startDate.notEmpty}")
 	@Pattern(regexp = "^[0-9]{1,2}.[0-9]{4}", message = "Start date must be in format MM YYYY")
 	private String startYearMonth;
@@ -44,6 +46,14 @@ public class ResourceDto {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getParentName() {
+		return parentName;
+	}
+
+	public void setParentName(String parentName) {
+		this.parentName = parentName;
 	}
 
 	public String getStartYearMonth() {
