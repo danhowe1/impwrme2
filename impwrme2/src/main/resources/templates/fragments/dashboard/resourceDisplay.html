@@ -9,11 +9,54 @@
 	<div id="resourceDisplay"
 		th:fragment="resourceDisplay">
 
-		<h6 style="display : inline" th:if="${resourceDto.parentName}" th:text="#{'msg.class.resourceType.value.' + ${resourceDto.resourceType}} + ' (' + ${resourceDto.parentName} + ') : '">XXX</h6>
-		<h6 style="display : inline" th:unless="${resourceDto.parentName}" th:text="#{'msg.class.resourceType.value.' + ${resourceDto.resourceType}} + ' : '">XXX</h6>
-		<h4 style="display : inline" th:text="${resourceDto.name}">XXX</h4>
+		<script type="text/javascript" th:inline="javascript">
+			function toggleParamResourceNameDisplay(resourceId) {
+				let readOnlyId = document.getElementById('resourceNameReadOnlyId' + resourceId);
+				let writeId = document.getElementById('resourceNameWriteId' + resourceId);
+				if (writeId.style.display === 'none') {
+					readOnlyId.style.display = 'none';
+					writeId.style.display = '';
+					document.getElementById('resourceName' + resourceId).focus();
+					document.getElementById('resourceName' + resourceId).select();
+				} else {
+					readOnlyId.style.display = '';
+					writeId.style.display = 'none';		
+				}
+			}
+		</script>
 
+		<div class="row align-items-center">
+		
+			<div class="col-auto">
+				<h6 style="display : inline" th:if="${resourceDto.parentName}" th:text="#{'msg.class.resourceType.value.' + ${resourceDto.resourceType}} + ' (' + ${resourceDto.parentName} + ') : '">XXX</h6>
+				<h6 style="display : inline" th:unless="${resourceDto.parentName}" th:text="#{'msg.class.resourceType.value.' + ${resourceDto.resourceType}} + ' : '">XXX</h6>
+			</div>
+
+			<div class="col-auto">
+				<h4 th:id="'resourceNameReadOnlyId' + ${resourceDto.id}" 
+					th:attr="onclick='toggleParamResourceNameDisplay(\'' + ${resourceDto.id}+  '\');'" 
+					th:text="${resourceDto.name}" 
+					onmouseover="" 
+					style="cursor: pointer;">
+				</h4>
+			</div>
+
+			<div th:id="'resourceNameWriteId' + ${resourceDto.id}" style="display: none;">
+				<div class="col-auto">
+					<form id="formParamResourceName" class="was-validated" th:action="@{/app/dashboard/resource/updateResourceName}" method="post">
+		
+						<input type="text" th:value="${resourceDto.name}" class="form-control" th:id="'resourceName' + ${resourceDto.id}" name="resourceName" required>
+						
+						<input type="hidden" id="resourceId" name="resourceId" th:value="${resourceDto.id}">
+						<button onclick="document.getElementById('formParamResourceName').submit();" class="btn btn-success btn-sm" role="button"><i class="bi bi-check"></i></button>
+						<a  th:attr="onclick='toggleParamResourceNameDisplay(\'' + ${resourceDto.id} +  '\');'" class="btn btn-danger btn-sm" role="button"><i class="bi bi-x"></i></a>
+					</form>
+				</div>
+			</div>
+		</div>
+				
 	</div>
+
 </body>
 
 

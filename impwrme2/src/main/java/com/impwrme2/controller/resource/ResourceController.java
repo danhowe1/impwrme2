@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.impwrme2.controller.dto.resource.ResourceCreateDto;
@@ -71,6 +72,7 @@ public class ResourceController {
 
 		String userId = user.getUserInfo().getSubject();
 		Resource resource = resourceDtoConverter.resourceCreateDtoToEntity(resourceCreateDto, userId);
+//		return saveResource(resource, model, redirectAttributes, session);
 
 		Resource savedResource;
 		try {
@@ -94,6 +96,32 @@ public class ResourceController {
 		return "redirect:/app/dashboard";
 	}
 	
+	@PostMapping("/updateResourceName")
+	public String updateResourceName(@RequestParam("resourceId") Long id, @RequestParam("resourceName") String resourceName,@AuthenticationPrincipal OidcUser user, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+		Resource resource = resourceService.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + id));
+		resource.setName(resourceName);
+		Resource savedResource;
+		try {
+			savedResource = resourceService.save(resource);
+		} catch (RuntimeException e) {
+			String message = messageSource.getMessage("msg.html.resource.errorOnSaveUnknownReason", new String[]{
+					resource.getName() }, LocaleContextHolder.getLocale());
+			if (e instanceof DataIntegrityViolationException) {
+				message = messageSource.getMessage("msg.html.resource.errorOnSaveResourceNameAlreadyExists", new String[]{
+						resource.getName() }, LocaleContextHolder.getLocale());
+			}
+			redirectAttributes.addFlashAttribute("flashMessageError", message);
+			return "redirect:/app/dashboard";
+		}
+		String message = messageSource.getMessage("msg.html.global.message.successfullySaved", new String[]{
+				savedResource.getName() }, LocaleContextHolder.getLocale());
+		redirectAttributes.addFlashAttribute("flashMessageSuccess", message);
+		session.setAttribute("SESSION_CURRENT_RESOURCE_ID", savedResource.getId());
+		session.removeAttribute("SESSION_JOURNAL_ENTRY_RESPONSE");
+
+		return "redirect:/app/dashboard";
+	}
+		
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable Long id, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
 		Resource resource = resourceService.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid resource id:" + id));

@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,13 +42,17 @@ public class ScenarioService {
 
 	@Transactional(readOnly = false)
 	public Scenario save(Scenario scenario, String userId) {
-		if (null != scenario.getId() && !scenario.getUserId().equals(userId)) {
-			throw new UnsupportedOperationException(messageSource.getMessage("msg.validation.unauthorisedAccess", null, LocaleContextHolder.getLocale()));			
+		if (duplicateScenarioName(scenario, userId)) {
+			throw new DataIntegrityViolationException(messageSource.getMessage("msg.html.scenario.errorOnSaveScenarioNameAlreadyExists", 
+					new String[] {scenario.getName() }, LocaleContextHolder.getLocale()));
+		} else if (null != scenario.getId() && !scenario.getUserId().equals(userId)) {
+			throw new UnsupportedOperationException(messageSource.getMessage("msg.validation.unauthorisedAccess", 
+					null, LocaleContextHolder.getLocale()));			
 		} else {
 			return scenarioRepository.save(scenario);
 		}
 	}
-
+	
 	@Transactional(readOnly = false)
 	public Scenario repopulateYearBalances(Scenario scenario, String userId, Set<ScenarioYearBalance> yearBalances) {
 		if (null != scenario.getId() && !scenario.getUserId().equals(userId)) {
@@ -83,5 +88,18 @@ public class ScenarioService {
 		scenario.removeResource(resource);
 		@SuppressWarnings("unused")
 		Scenario savedScenario = scenarioRepository.save(scenario);
+	}
+
+	private boolean duplicateScenarioName(Scenario scenario, String userId) {
+		List<Scenario> existingScenarios = findByUserId(userId);
+		for (Scenario existingScenario : existingScenarios) {
+			if (scenario.getName().equals(existingScenario.getName())) {
+				if (null == scenario.getId() ||
+					!existingScenario.getId().equals(scenario.getId())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }
