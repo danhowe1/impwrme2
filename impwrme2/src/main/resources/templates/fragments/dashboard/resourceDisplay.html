@@ -10,48 +10,51 @@
 		th:fragment="resourceDisplay">
 
 		<script type="text/javascript" th:inline="javascript">
-			function toggleParamResourceNameDisplay(resourceId) {
-				let readOnlyId = document.getElementById('resourceNameReadOnlyId' + resourceId);
-				let writeId = document.getElementById('resourceNameWriteId' + resourceId);
+			function toggleParamResourceNameDisplay() {
+				let readOnlyId = document.getElementById('resourceNameReadOnlyId');
+				let writeId = document.getElementById('resourceNameWriteId');
+				let resourceNameBtnsId = document.getElementById('resourceNameBtnsId');
 				if (writeId.style.display === 'none') {
 					readOnlyId.style.display = 'none';
 					writeId.style.display = '';
-					document.getElementById('resourceName' + resourceId).focus();
-					document.getElementById('resourceName' + resourceId).select();
+					resourceNameBtnsId.style.display = '';
+					document.getElementById('resourceName').focus();
+					document.getElementById('resourceName').select();
 				} else {
 					readOnlyId.style.display = '';
 					writeId.style.display = 'none';		
+					resourceNameBtnsId.style.display = 'none';
 				}
 			}
 		</script>
 
-		<div class="row align-items-center">
+		<div class="row pt-2 ps-2 align-items-center">
 		
-			<div class="col-auto">
-				<h6 style="display : inline" th:if="${resourceDto.parentName}" th:text="#{'msg.class.resourceType.value.' + ${resourceDto.resourceType}} + ' (' + ${resourceDto.parentName} + ') : '">XXX</h6>
-				<h6 style="display : inline" th:unless="${resourceDto.parentName}" th:text="#{'msg.class.resourceType.value.' + ${resourceDto.resourceType}} + ' : '">XXX</h6>
+			<div class="col-auto p-1">
+				<h6 th:if="${resourceDto.parentName}" th:text="#{'msg.class.resourceType.value.' + ${resourceDto.resourceType}} + ' (' + ${resourceDto.parentName} + ') :'">XXX</h6>
+				<h6 th:unless="${resourceDto.parentName}" th:text="#{'msg.class.resourceType.value.' + ${resourceDto.resourceType}} + ' :'">XXX</h6>
 			</div>
 
-			<div class="col-auto">
-				<h4 th:id="'resourceNameReadOnlyId' + ${resourceDto.id}" 
-					th:attr="onclick='toggleParamResourceNameDisplay(\'' + ${resourceDto.id}+  '\');'" 
+			<div class="col-auto px-1" th:id="resourceNameReadOnlyId">
+				<h4 th:attr="onclick='toggleParamResourceNameDisplay();'" 
 					th:text="${resourceDto.name}" 
 					onmouseover="" 
+					data-bs-toggle="tooltip"
+					th:attrappend="data-bs-title=#{msg.html.resource.name.edit}"
 					style="cursor: pointer;">
 				</h4>
 			</div>
 
-			<div th:id="'resourceNameWriteId' + ${resourceDto.id}" style="display: none;">
-				<div class="col-auto">
-					<form id="formParamResourceName" class="was-validated" th:action="@{/app/dashboard/resource/updateResourceName}" method="post">
-		
-						<input type="text" th:value="${resourceDto.name}" class="form-control" th:id="'resourceName' + ${resourceDto.id}" name="resourceName" required>
-						
-						<input type="hidden" id="resourceId" name="resourceId" th:value="${resourceDto.id}">
-						<button onclick="document.getElementById('formParamResourceName').submit();" class="btn btn-success btn-sm" role="button"><i class="bi bi-check"></i></button>
-						<a  th:attr="onclick='toggleParamResourceNameDisplay(\'' + ${resourceDto.id} +  '\');'" class="btn btn-danger btn-sm" role="button"><i class="bi bi-x"></i></a>
-					</form>
-				</div>
+			<div class="col-auto" th:id="resourceNameWriteId" style="display: none;">
+				<form th:id="formResourceName" class="was-validated" th:action="@{/app/dashboard/resource/updateResourceName}" method="post">
+					<input type="text" th:value="${resourceDto.name}" class="form-control" th:id="resourceName" name="resourceName" required>
+					<input type="hidden" id="resourceId" name="resourceId" th:value="${resourceDto.id}">
+				</form>
+			</div>
+			
+			<div class="col-auto" th:id="resourceNameBtnsId" style="display: none;">
+				<button onclick="document.getElementById('formResourceName').submit();" class="btn btn-success btn-sm" role="button"><i class="bi bi-check"></i></button>
+				<a  th:attr="onclick='toggleParamResourceNameDisplay();'" class="btn btn-danger btn-sm" role="button"><i class="bi bi-x"></i></a>
 			</div>
 		</div>
 				
