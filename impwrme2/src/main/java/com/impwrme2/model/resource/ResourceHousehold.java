@@ -31,6 +31,9 @@ public class ResourceHousehold extends Resource {
 
 	@Override
 	public List<CashflowCategory> getCashflowCategoriesUsersCanCreate() {
-		return List.of(CashflowCategory.EXPENSE_HOLIDAYS, CashflowCategory.EXPENSE_RENT);
+		return List.of(CashflowCategory.EXPENSE_HOLIDAYS, 
+				CashflowCategory.EXPENSE_RENT,
+				CashflowCategory.EXPENSE_MISC, 
+				CashflowCategory.INCOME_MISC);
 	}
 }

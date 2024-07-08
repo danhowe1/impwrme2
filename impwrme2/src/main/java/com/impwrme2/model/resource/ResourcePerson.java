@@ -34,6 +34,8 @@ public class ResourcePerson extends Resource {
 		return List.of(CashflowCategory.EXPENSE_HOLIDAYS, 
 				CashflowCategory.EXPENSE_LIVING_ESSENTIAL, 
 				CashflowCategory.EXPENSE_LIVING_NON_ESSENTIAL, 
-				CashflowCategory.EXPENSE_MISC, CashflowCategory.INCOME_EMPLOYMENT);
+				CashflowCategory.EXPENSE_MISC, 
+				CashflowCategory.INCOME_EMPLOYMENT,
+				CashflowCategory.INCOME_MISC);
 	}
 }
