@@ -128,8 +128,10 @@ public class ScenarioDeepCopy {
 			return new ResourceMortgage(existingResource.getName());
 		} else if (existingResource.getResourceType().equals(ResourceType.MORTGAGE_OFFSET_ACCOUNT)) {
 			return new ResourceMortgageOffset(existingResource.getName());
-		} else if (existingResource.getResourceType().equals(ResourceType.PERSON)) {
-			return new ResourcePerson(existingResource.getName());
+		} else if (existingResource.getResourceType().equals(ResourceType.PERSON_ADULT)) {
+			return new ResourcePersonAdult(existingResource.getName());
+		} else if (existingResource.getResourceType().equals(ResourceType.PERSON_CHILD)) {
+			return new ResourcePersonChild(existingResource.getName());
 		} else if (existingResource.getResourceType().equals(ResourceType.PROPERTY_EXISTING)) {
 			return new ResourcePropertyExisting(existingResource.getName());
 		} else if (existingResource.getResourceType().equals(ResourceType.PROPERTY_NEW)) {

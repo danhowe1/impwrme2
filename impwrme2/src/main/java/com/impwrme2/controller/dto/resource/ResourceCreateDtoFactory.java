@@ -30,8 +30,10 @@ public class ResourceCreateDtoFactory {
 			return createResourceMortgage(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.MORTGAGE_OFFSET_ACCOUNT)) {
 			return createResourceMortgageOffsetAccount(scenario);
-		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.PERSON)) {
-			return createResourcePerson(scenario);
+		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.PERSON_ADULT)) {
+			return createResourcePersonAdult(scenario);
+		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.PERSON_CHILD)) {
+			return createResourcePersonChild(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.PROPERTY_EXISTING)) {
 			return createResourcePropertyExisting(scenario);
 		} else if (ResourceType.valueOf(resourceType).equals(ResourceType.PROPERTY_NEW)) {
@@ -96,12 +98,12 @@ public class ResourceCreateDtoFactory {
 		return resourceCreateDto;
 	}	
 
-	public ResourceCreateDto createResourcePerson(Scenario scenario) {
+	public ResourceCreateDto createResourcePersonAdult(Scenario scenario) {
 		ResourceCreateDto resourceCreateDto = new ResourceCreateDto();
 		resourceCreateDto.setScenarioId(scenario.getId());
 		resourceCreateDto.setStartYearMonth(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(scenario.getStartYearMonth()));
-		resourceCreateDto.setResourceType(ResourceType.PERSON.getValue());
-		resourceCreateDto.setListOfAllowedParentResources(scenario.getListOfAllowedParentResources(ResourceType.PERSON));
+		resourceCreateDto.setResourceType(ResourceType.PERSON_ADULT.getValue());
+		resourceCreateDto.setListOfAllowedParentResources(scenario.getListOfAllowedParentResources(ResourceType.PERSON_ADULT));
 
 		ResourceCreateResourceParamWithValueDto birthYearMonth = new ResourceCreateResourceParamWithValueDto();
 		birthYearMonth.setName(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH.getValue());
@@ -116,7 +118,7 @@ public class ResourceCreateDtoFactory {
 		resourceCreateDto.addResourceParamDto(departureAge);
 		
 		ResourceCreateResourceParamWithValueDto retirementAge = new ResourceCreateResourceParamWithValueDto();
-		retirementAge.setName(ResourceParamNameEnum.PERSON_RETIREMENT_AGE.getValue());
+		retirementAge.setName(ResourceParamNameEnum.PERSON_ADULT_RETIREMENT_AGE.getValue());
 		retirementAge.setResourceParamType(ResourceParamType.INTEGER_POSITIVE.getValue());
 		retirementAge.setUserAbleToCreateNewDateValue(false);
 		resourceCreateDto.addResourceParamDto(retirementAge);
@@ -127,6 +129,40 @@ public class ResourceCreateDtoFactory {
 		income.setCpiAffected(true);
 		resourceCreateDto.addCashflowDto(income);
 	
+		ResourceCreateCashflowWithValueDto livingEssential = new ResourceCreateCashflowWithValueDto();
+		livingEssential.setCategory(CashflowCategory.EXPENSE_LIVING_ESSENTIAL.getValue());
+		livingEssential.setFrequency(CashflowFrequency.MONTHLY.getValue());
+		livingEssential.setCpiAffected(true);
+		resourceCreateDto.addCashflowDto(livingEssential);
+	
+		ResourceCreateCashflowWithValueDto livingSplurge = new ResourceCreateCashflowWithValueDto();
+		livingSplurge.setCategory(CashflowCategory.EXPENSE_LIVING_NON_ESSENTIAL.getValue());
+		livingSplurge.setFrequency(CashflowFrequency.MONTHLY.getValue());
+		livingSplurge.setCpiAffected(true);
+		resourceCreateDto.addCashflowDto(livingSplurge);
+	
+		return resourceCreateDto;
+	}	
+
+	public ResourceCreateDto createResourcePersonChild(Scenario scenario) {
+		ResourceCreateDto resourceCreateDto = new ResourceCreateDto();
+		resourceCreateDto.setScenarioId(scenario.getId());
+		resourceCreateDto.setStartYearMonth(YearMonthUtils.getStringInFormatMM_YYYYFromYearMonth(scenario.getStartYearMonth()));
+		resourceCreateDto.setResourceType(ResourceType.PERSON_CHILD.getValue());
+		resourceCreateDto.setListOfAllowedParentResources(scenario.getListOfAllowedParentResources(ResourceType.PERSON_CHILD));
+
+		ResourceCreateResourceParamWithValueDto birthYearMonth = new ResourceCreateResourceParamWithValueDto();
+		birthYearMonth.setName(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH.getValue());
+		birthYearMonth.setResourceParamType(ResourceParamType.YEAR_MONTH.getValue());
+		birthYearMonth.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(birthYearMonth);
+
+		ResourceCreateResourceParamWithValueDto departureAge = new ResourceCreateResourceParamWithValueDto();
+		departureAge.setName(ResourceParamNameEnum.PERSON_DEPARTURE_AGE.getValue());
+		departureAge.setResourceParamType(ResourceParamType.INTEGER_POSITIVE.getValue());
+		departureAge.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(departureAge);
+		
 		ResourceCreateCashflowWithValueDto livingEssential = new ResourceCreateCashflowWithValueDto();
 		livingEssential.setCategory(CashflowCategory.EXPENSE_LIVING_ESSENTIAL.getValue());
 		livingEssential.setFrequency(CashflowFrequency.MONTHLY.getValue());

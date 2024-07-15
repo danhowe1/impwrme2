@@ -17,7 +17,8 @@ import com.impwrme2.model.resource.ResourceCurrentAccount;
 import com.impwrme2.model.resource.ResourceHousehold;
 import com.impwrme2.model.resource.ResourceMortgage;
 import com.impwrme2.model.resource.ResourceMortgageOffset;
-import com.impwrme2.model.resource.ResourcePerson;
+import com.impwrme2.model.resource.ResourcePersonAdult;
+import com.impwrme2.model.resource.ResourcePersonChild;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
 import com.impwrme2.model.resource.ResourcePropertyNew;
 import com.impwrme2.model.resource.ResourceSavingsAccount;
@@ -105,8 +106,11 @@ public class ResourceDtoConverter {
 		case MORTGAGE_OFFSET_ACCOUNT:
 			resource = new ResourceMortgageOffset(resourceCreateDto.getName());
 			break;
-		case PERSON:
-			resource = new ResourcePerson(resourceCreateDto.getName());
+		case PERSON_ADULT:
+			resource = new ResourcePersonAdult(resourceCreateDto.getName());
+			break;
+		case PERSON_CHILD:
+			resource = new ResourcePersonChild(resourceCreateDto.getName());
 			break;
 		case PROPERTY_EXISTING:
 			resource = new ResourcePropertyExisting(resourceCreateDto.getName());

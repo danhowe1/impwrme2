@@ -31,7 +31,7 @@ import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceHousehold;
 import com.impwrme2.model.resource.ResourceMortgage;
 import com.impwrme2.model.resource.ResourceMortgageOffset;
-import com.impwrme2.model.resource.ResourcePerson;
+import com.impwrme2.model.resource.ResourcePersonAdult;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
 import com.impwrme2.model.resource.ResourceScenario;
 import com.impwrme2.model.resource.ResourceShares;
@@ -188,7 +188,7 @@ public class DashboardController {
 		// Amanda.
 		// -------
 		
-		Resource amandaResource = new ResourcePerson("Amanda");
+		Resource amandaResource = new ResourcePersonAdult("Amanda");
 		amandaResource.setStartYearMonth(YearMonth.of(2024, 1));
 
 		ResourceParamYearMonth birthYearMonth = new ResourceParamYearMonth(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH);
@@ -201,7 +201,7 @@ public class DashboardController {
 		ResourceParamDateValueIntegerPositive deprtureAgeVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(100));
 		departureAge.addResourceParamDateValue(deprtureAgeVal);
 
-		ResourceParamIntegerPositive retirementAge = new ResourceParamIntegerPositive(ResourceParamNameEnum.PERSON_RETIREMENT_AGE);
+		ResourceParamIntegerPositive retirementAge = new ResourceParamIntegerPositive(ResourceParamNameEnum.PERSON_ADULT_RETIREMENT_AGE);
 		amandaResource.addResourceParam(retirementAge);
 		ResourceParamDateValueIntegerPositive retirementAgeVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(45));
 		retirementAge.addResourceParamDateValue(retirementAgeVal);
@@ -286,7 +286,7 @@ public class DashboardController {
 		// Dan.
 		// ----
 		
-		Resource danResource = new ResourcePerson("Dan");
+		Resource danResource = new ResourcePersonAdult("Dan");
 		danResource.setStartYearMonth(YearMonth.of(2024, 1));
 
 		ResourceParamYearMonth danBirthYearMonth = new ResourceParamYearMonth(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH);
@@ -299,7 +299,7 @@ public class DashboardController {
 		ResourceParamDateValueIntegerPositive danDeprtureAgeVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(100));
 		danDepartureAge.addResourceParamDateValue(danDeprtureAgeVal);
 
-		ResourceParamIntegerPositive danRetirementAge = new ResourceParamIntegerPositive(ResourceParamNameEnum.PERSON_RETIREMENT_AGE);
+		ResourceParamIntegerPositive danRetirementAge = new ResourceParamIntegerPositive(ResourceParamNameEnum.PERSON_ADULT_RETIREMENT_AGE);
 		danResource.addResourceParam(danRetirementAge);
 		ResourceParamDateValueIntegerPositive danRetirementAgeVal = new ResourceParamDateValueIntegerPositive(YearMonth.of(2024, 1), false, Integer.valueOf(45));
 		danRetirementAge.addResourceParamDateValue(danRetirementAgeVal);

@@ -10,20 +10,20 @@ import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.journalEntry.JournalEntry;
 import com.impwrme2.model.milestone.MilestoneType;
-import com.impwrme2.model.resource.ResourcePerson;
+import com.impwrme2.model.resource.ResourcePersonAdult;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.service.journalEntry.BalanceTracker;
 
-public class ResourcePersonEngine extends ResourceEngine {
+public class ResourcePersonAdultEngine extends ResourceEngine {
 
 	private final YearMonth birthYearMonth;
 	private final Integer retirementAge;
 	private final YearMonth retirementDate;
 	
-	public ResourcePersonEngine(ResourcePerson resource, final BalanceTracker balanceTracker) {
+	public ResourcePersonAdultEngine(ResourcePersonAdult resource, final BalanceTracker balanceTracker) {
 		super(resource, balanceTracker);
 		birthYearMonth = (YearMonth)  resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH, resource.getStartYearMonth()).get().getValue();
-		retirementAge = (Integer)  resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_RETIREMENT_AGE, resource.getStartYearMonth()).get().getValue();
+		retirementAge = (Integer)  resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_ADULT_RETIREMENT_AGE, resource.getStartYearMonth()).get().getValue();
 		retirementDate = birthYearMonth.plusYears(retirementAge);
 	}
 
@@ -36,16 +36,6 @@ public class ResourcePersonEngine extends ResourceEngine {
 	public Integer getBalanceLiquidLegalMinIfNotSpecified() {
 		return Integer.valueOf(0);
 	}
-
-//	@Override
-//	public Integer getBalanceLiquidPreferredMaxIfNotSpecified(final BalanceTracker balanceTracker) {
-//		return Integer.valueOf(0);
-//	}
-//
-//	@Override
-//	public Integer getBalanceLiquidPreferredMinIfNotSpecified() {
-//		return Integer.valueOf(0);
-//	}
 
 	@Override
 	public List<JournalEntry> generateJournalEntries(YearMonth yearMonth, BalanceTracker balanceTracker) {

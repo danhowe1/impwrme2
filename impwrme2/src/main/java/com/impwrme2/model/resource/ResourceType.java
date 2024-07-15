@@ -18,7 +18,8 @@ public enum ResourceType {
 
 	SCENARIO(Values.SCENARIO),
 	HOUSEHOLD(Values.HOUSEHOLD),
-	PERSON(Values.PERSON),
+	PERSON_ADULT(Values.PERSON_ADULT),
+	PERSON_CHILD(Values.PERSON_CHILD),
 	PROPERTY_EXISTING(Values.PROPERTY_EXISTING),
 	PROPERTY_NEW(Values.PROPERTY_NEW);
 
@@ -37,7 +38,8 @@ public enum ResourceType {
 		public static final String HOUSEHOLD = "HOUSEHOLD";
 		public static final String MORTGAGE = "MORTGAGE";
 		public static final String MORTGAGE_OFFSET_ACCOUNT = "MORTGAGE_OFFSET_ACCOUNT";
-		public static final String PERSON = "PERSON";
+		public static final String PERSON_ADULT = "PERSON_ADULT";
+		public static final String PERSON_CHILD = "PERSON_CHILD";
 		public static final String PROPERTY_EXISTING = "PROPERTY_EXISTING";
 		public static final String PROPERTY_NEW = "PROPERTY_NEW";
 		public static final String SAVINGS_ACCOUNT = "SAVINGS_ACCOUNT";

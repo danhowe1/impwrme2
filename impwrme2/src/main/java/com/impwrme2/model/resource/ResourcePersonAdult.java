@@ -8,25 +8,25 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 @Entity
-@DiscriminatorValue(ResourceType.Values.PERSON)
-public class ResourcePerson extends Resource {
+@DiscriminatorValue(ResourceType.Values.PERSON_ADULT)
+public class ResourcePersonAdult extends Resource {
 
 	private static final long serialVersionUID = -3109504020949719141L;
 
 	/**
 	 * Protected constructor required for Hibernate only.
 	 */
-	protected ResourcePerson() {
+	protected ResourcePersonAdult() {
 		super();
 	}
 	
-	public ResourcePerson(final String name) {
+	public ResourcePersonAdult(final String name) {
 		super(name);
 	}
 
 	@Override
 	public ResourceType getResourceType() {
-		return ResourceType.PERSON;
+		return ResourceType.PERSON_ADULT;
 	}
 
 	@Override

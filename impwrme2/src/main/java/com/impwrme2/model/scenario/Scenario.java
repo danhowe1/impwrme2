@@ -11,7 +11,7 @@ import java.util.TreeSet;
 
 import com.impwrme2.model.resource.Resource;
 import com.impwrme2.model.resource.ResourceMortgage;
-import com.impwrme2.model.resource.ResourcePerson;
+import com.impwrme2.model.resource.ResourcePersonAdult;
 import com.impwrme2.model.resource.ResourcePropertyExisting;
 import com.impwrme2.model.resource.ResourcePropertyNew;
 import com.impwrme2.model.resource.ResourceScenario;
@@ -70,7 +70,7 @@ public class Scenario implements Serializable {
 	public YearMonth calculateEndYearMonth() {
 		YearMonth endYearMonth = YearMonth.now();
 		for (Resource resource : getResources()) {
-			if (resource instanceof ResourcePerson) {
+			if (resource instanceof ResourcePersonAdult) {
 				YearMonth birthYearMonth = (YearMonth) resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_BIRTH_YEAR_MONTH, resource.getStartYearMonth()).get().getValue();
 				Integer departureAge = (Integer) resource.getResourceParamDateValue(ResourceParamNameEnum.PERSON_DEPARTURE_AGE, resource.getStartYearMonth()).get().getValue();
 				YearMonth endDate = birthYearMonth.plusYears(departureAge);
@@ -101,7 +101,7 @@ public class Scenario implements Serializable {
 			break;
 		case SUPERANNUATION:
 			for (Resource resource : getResources()) {
-				if (resource instanceof ResourcePerson) {
+				if (resource instanceof ResourcePersonAdult) {
 					allowedResources.add(resource);
 				}
 			}
