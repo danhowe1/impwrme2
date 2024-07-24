@@ -1,4 +1,4 @@
-package com.impwrme2.controller.resource;
+package com.impwrme2.controller.scenario;
 
 import java.util.List;
 
