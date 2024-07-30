@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.impwrme2.model.cashflow.CashflowCategory;
 import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
 import com.impwrme2.model.resourceParam.ResourceParam;
 import com.impwrme2.model.resourceParam.ResourceParamBigDecimal;
@@ -38,6 +39,12 @@ public class ResourcePropertyExisting extends Resource {
 		return ResourceType.PROPERTY_EXISTING;
 	}
 	
+	@Override
+	public List<CashflowCategory> getCashflowCategoriesUsersCanCreate() {
+		return List.of(CashflowCategory.EXPENSE_MISC, 
+				CashflowCategory.INCOME_MISC);
+	}
+
 	@Override
 	public List<ResourceParam<?>> getResourceParamsUsersCanCreate() {
 		ResourceParamBigDecimal housingMarketGrowthRate = new ResourceParamBigDecimal(ResourceParamNameEnum.PROPERTY_HOUSING_MARKET_GROWTH_RATE);
