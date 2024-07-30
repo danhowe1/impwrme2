@@ -1,7 +1,5 @@
 package com.impwrme2.controller.dashboard;
 
-import java.math.BigDecimal;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.Locale;
 
@@ -23,30 +21,7 @@ import com.impwrme2.controller.dto.resourceDropdown.ResourceDropdownDto;
 import com.impwrme2.controller.dto.resourceParam.ResourceParamCreateDto;
 import com.impwrme2.controller.dto.resourceParam.ResourceParamDtoConverter;
 import com.impwrme2.controller.dto.resourceParamDateValue.ResourceParamDateValueDto;
-import com.impwrme2.model.cashflow.Cashflow;
-import com.impwrme2.model.cashflow.CashflowCategory;
-import com.impwrme2.model.cashflow.CashflowFrequency;
-import com.impwrme2.model.cashflowDateRangeValue.CashflowDateRangeValue;
 import com.impwrme2.model.resource.Resource;
-import com.impwrme2.model.resource.ResourceHousehold;
-import com.impwrme2.model.resource.ResourceMortgage;
-import com.impwrme2.model.resource.ResourceMortgageOffset;
-import com.impwrme2.model.resource.ResourcePersonAdult;
-import com.impwrme2.model.resource.ResourcePropertyExisting;
-import com.impwrme2.model.resource.ResourceScenario;
-import com.impwrme2.model.resource.ResourceShares;
-import com.impwrme2.model.resource.ResourceSuperannuation;
-import com.impwrme2.model.resource.enums.ResourceParamNameEnum;
-import com.impwrme2.model.resourceParam.ResourceParamBigDecimal;
-import com.impwrme2.model.resourceParam.ResourceParamIntegerNegative;
-import com.impwrme2.model.resourceParam.ResourceParamIntegerPositive;
-import com.impwrme2.model.resourceParam.ResourceParamString;
-import com.impwrme2.model.resourceParam.ResourceParamYearMonth;
-import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueBigDecimal;
-import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerNegative;
-import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueIntegerPositive;
-import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueString;
-import com.impwrme2.model.resourceParamDateValue.ResourceParamDateValueYearMonth;
 import com.impwrme2.model.scenario.Scenario;
 import com.impwrme2.service.resource.ResourceService;
 import com.impwrme2.service.scenario.ScenarioService;
@@ -82,9 +57,7 @@ public class DashboardController {
 		Long currentResourceId = (Long) session.getAttribute("SESSION_CURRENT_RESOURCE_ID");
 		if (null == currentResourceId) {
 			List<Scenario> scenarios = scenarioService.findByUserId(userId);
-			if (0 == scenarios.size()) {
-				currentResource = populateInitialTestScenario(userId).getSortedResources().first();
-			} else if (scenarios.size() == 1) {
+			if (1 == scenarios.size()) {
 				currentResource = scenarios.get(0).getResourceScenario();
 			} else {
 				return "forward:/app/scenario/list";
@@ -122,10 +95,10 @@ public class DashboardController {
 		model.addAttribute("cashflowDateRangeValueDto", new CashflowDateRangeValueDto());
 	}
 
-	private Scenario populateInitialTestScenario(String userId) {
-		Scenario scenario = getInitialTestScenario(userId);
-		return scenarioService.save(scenario, userId);
-	}
+//	private Scenario populateInitialTestScenario(String userId) {
+//		Scenario scenario = getInitialTestScenario(userId);
+//		return scenarioService.save(scenario, userId);
+//	}
 
 	private UIDisplayFilter getDisplayFilterFromSession(final Scenario scenario, final HttpSession session) {
 		UIDisplayFilter displayFilter = (UIDisplayFilter) session.getAttribute("SESSION_DISPLAY_FILTER");
@@ -141,6 +114,7 @@ public class DashboardController {
 		return displayFilter;
 	}
 
+	/*
 	private Scenario getInitialTestScenario(String userId) {
 
 		// -----------------
@@ -857,4 +831,5 @@ public class DashboardController {
 
 		return scenario;
 	}
+	*/
 }

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{fragments/mainLayout}">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<script type="text/javascript" th:inline="javascript">
+	$(document).ready(function() {
+        $("#idScenarioCreateMinDtoName").focus();
+	});
+</script>
+
+</head>
+<body>
+	<div layout:fragment="content">
+	
+		<div class="p-2 mt-3 bg-light-subtle rounded-3">
+	
+			<form th:action="@{/app/scenario/createMinFormSave}" th:object="${scenarioCreateMinDto}" method="post" class="was-validated">
+
+				<div class="row">
+	
+					<!-- ------ -->
+					<!-- Title. -->
+					<!-- ------ -->
+					
+					<div class="col">
+						<h3 th:text="#{msg.class.scenario.label.new}">XXX</h3>
+					</div>	
+				</div>
+				
+				<div class="row mb-3">
+	
+					<!-- -------------- -->
+					<!-- Scenario name. -->
+					<!-- -------------- -->
+					
+					<label for="idScenarioCreateMinDtoName" class="col-2 col-form-label-sm mb-1 text-end" th:text="#{msg.class.scenario.name}"></label>
+				    <div class="col-6 mb-1">
+						<input id="idScenarioCreateMinDtoName" type="text" 
+								class="form-control form-control-sm"
+								th:field="*{name}" 
+								required
+								oninput="this.setCustomValidity('')">
+						<p th:if="${#fields.hasErrors('name')}"
+								th:errorclass="error" 
+								th:errors="*{name}"></p>
+	    			</div>
+	
+					<!-- ----------------- -->
+					<!-- Start year month. -->
+					<!-- ----------------- -->
+					
+					<label for="idScenarioCreateMinDtoStartYearMonth" class="col-2 col-form-label-sm mb-1 text-end" th:text="#{msg.class.scenario.startYearMonth}"></label>
+				    <div class="col-2 mb-1">
+						<input id="idScenarioCreateMinDtoStartYearMonth" 
+								type="text" 
+								class="form-control form-control-sm"
+								th:field="*{startYearMonth}" 
+								size="7" 
+								maxLength="7"
+								required
+								pattern="^[0-9]{1,2}.[0-9]{4}"
+								th:placeholder="#{msg.html.global.yearMonth.placeholder}"
+								oninput="this.setCustomValidity('')" 
+								th:title="#{msg.validation.monthYear}">
+						<p th:if="${#fields.hasErrors('startYearMonth')}"
+								th:errorclass="error" 
+								th:errors="*{startYearMonth}"></p>
+					</div>
+				</div>
+													
+				<div class="row mb-3">
+	
+					<!-- ------------ -->
+					<!-- Person name. -->
+					<!-- ------------ -->
+					
+					<label for="idScenarioCreateMinDtoPersonName" class="col-2 col-form-label-sm mb-1 text-end" th:text="#{msg.class.scenarioCreateMin.personName}"></label>
+				    <div class="col-2 mb-1">
+						<input id="idScenarioCreateMinDtoPersonName" type="text" 
+								class="form-control form-control-sm"
+								th:field="*{personName}" 
+								required
+								oninput="this.setCustomValidity('')">
+						<p th:if="${#fields.hasErrors('personName')}"
+								th:errorclass="error" 
+								th:errors="*{personName}"></p>
+	    			</div>
+	
+					<!-- ----------------- -->
+					<!-- Birth year month. -->
+					<!-- ----------------- -->
+					
+					<label for="idScenarioCreateMinDtoBirthYearMonth" class="col-2 col-form-label-sm mb-1 text-end" th:text="#{msg.class.scenarioCreateMin.birthYearMonth}"></label>
+				    <div class="col-2 mb-1">
+						<input id="idScenarioCreateMinDtoBirthYearMonth" 
+								type="text" 
+								class="form-control form-control-sm"
+								th:field="*{birthYearMonth}" 
+								size="7" 
+								maxLength="7"
+								required
+								pattern="^[0-9]{1,2}.[0-9]{4}"
+								th:placeholder="#{msg.html.global.yearMonth.placeholder}"
+								oninput="this.setCustomValidity('')" 
+								th:title="#{msg.validation.monthYear}">
+						<p th:if="${#fields.hasErrors('birthYearMonth')}"
+								th:errorclass="error" 
+								th:errors="*{birthYearMonth}"></p>
+					</div>
+					
+					<!-- --------------- -->
+					<!-- Retirement age. -->
+					<!-- --------------- -->
+					
+					<label for="idScenarioCreateMinDtoRetirementAge" class="col-2 col-form-label-sm mb-1 text-end" th:text="#{msg.class.scenarioCreateMin.retirementAge}"></label>
+					<div class="col-auto mb-1">
+						<input id="idScenarioCreateMinDtoRetirementAge" 
+								type="text" class="form-control form-control-sm"
+								th:field="*{retirementAge}"
+								required
+								size="3"
+								maxlength="2"
+								pattern="^\d{1,2}$"
+								oninput="this.setCustomValidity('')"
+								th:title="#{msg.validation.notEmpty}">
+						<p th:if="${#fields.hasErrors('retirementAge')}"
+								th:errorclass="error" 
+								th:errors="*{retirementAge}"></p>
+					</div>
+				</div>
+													
+				<div class="row mb-3">
+										
+					<!-- ------------------------ -->
+					<!-- Monthly living expenses. -->
+					<!-- ------------------------ -->
+					
+					<label for="idScenarioCreateMinDtoMonthlyLivingExpenses" class="col-2 col-form-label-sm mb-1 text-end" th:text="#{msg.class.scenarioCreateMin.monthlyLivingExpenses}"></label>
+					<div class="col-3 mb-1">
+						<input id="idScenarioCreateMinDtoMonthlyLivingExpenses" 
+								type="text" class="form-control form-control-sm"
+								th:field="*{monthlyLivingExpenses}"
+								required
+								size="7"
+								pattern="^[+]?\d+(\.\d+)?$"
+								oninput="this.setCustomValidity('')"
+								th:title="#{msg.validation.notEmpty}">
+						<p th:if="${#fields.hasErrors('monthlyLivingExpenses')}"
+								th:errorclass="error" 
+								th:errors="*{monthlyLivingExpenses}"></p>
+					</div>
+										
+					<!-- -------------------------- -->
+					<!-- Monthly employment income. -->
+					<!-- -------------------------- -->
+					
+					<label for="idScenarioCreateMinDtoMonthlyEmploymentIncome" class="col-3 col-form-label-sm mb-1 text-end" th:text="#{msg.class.scenarioCreateMin.monthlyEmploymentIncome}"></label>
+					<div class="col-4 mb-1">
+						<input id="idScenarioCreateMinDtoMonthlyEmploymentIncome" 
+								type="text" class="form-control form-control-sm"
+								th:field="*{monthlyEmploymentIncome}"
+								size="7"
+								pattern="^[+]?\d+(\.\d+)?$"
+								oninput="this.setCustomValidity('')">
+						<p th:if="${#fields.hasErrors('monthlyEmploymentIncome')}"
+								th:errorclass="error" 
+								th:errors="*{monthlyEmploymentIncome}"></p>
+					</div>
+										
+				</div>
+																								
+				<button id="saveBtn" class="btn btn-primary" type="submit">Save</button>
+				<a class="btn btn-link" role="button" onclick="window.location.replace('/app/scenario/list')">Cancel</a>
+			</form>
+		</div>
+	</div>
+</body>
+</html>
