@@ -292,6 +292,8 @@ public class ResourceCreateDtoFactory {
 	
 	public ResourceCreateDto createResourcePropertyNew(Scenario scenario) {
 		ResourceCreateDto resourceCreateDto = createResourcePropertyExisting(scenario);
+		resourceCreateDto.setResourceType(ResourceType.PROPERTY_NEW.getValue());
+		resourceCreateDto.setListOfAllowedParentResources(scenario.getListOfAllowedParentResources(ResourceType.PROPERTY_NEW));
 
 		ResourceCreateCashflowWithValueDto expenseDeposit = new ResourceCreateCashflowWithValueDto();
 		expenseDeposit.setCategory(CashflowCategory.EXPENSE_ASSET_PURCHASE_DEPOSIT.getValue());
