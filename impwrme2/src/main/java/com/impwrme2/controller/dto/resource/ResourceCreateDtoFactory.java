@@ -295,18 +295,18 @@ public class ResourceCreateDtoFactory {
 		resourceCreateDto.setResourceType(ResourceType.PROPERTY_NEW.getValue());
 		resourceCreateDto.setListOfAllowedParentResources(scenario.getListOfAllowedParentResources(ResourceType.PROPERTY_NEW));
 
-		ResourceCreateCashflowWithValueDto expenseDeposit = new ResourceCreateCashflowWithValueDto();
-		expenseDeposit.setCategory(CashflowCategory.EXPENSE_ASSET_PURCHASE_DEPOSIT.getValue());
-		expenseDeposit.setFrequency(CashflowFrequency.ONE_OFF.getValue());
-		expenseDeposit.setCpiAffected(false);
-		resourceCreateDto.addCashflowDto(expenseDeposit);
-	
-		ResourceCreateCashflowWithValueDto expenseAdditionalPurchaseCosts = new ResourceCreateCashflowWithValueDto();
-		expenseAdditionalPurchaseCosts.setCategory(CashflowCategory.EXPENSE_ASSET_PURCHASE_ADDITIONAL_COSTS.getValue());
-		expenseAdditionalPurchaseCosts.setFrequency(CashflowFrequency.ONE_OFF.getValue());
-		expenseAdditionalPurchaseCosts.setCpiAffected(false);
-		resourceCreateDto.addCashflowDto(expenseAdditionalPurchaseCosts);
-	
+		ResourceCreateResourceParamWithValueDto purchaseDeposit = new ResourceCreateResourceParamWithValueDto();
+		purchaseDeposit.setName(ResourceParamNameEnum.PROPERTY_ASSET_PURCHASE_DEPOSIT.getValue());
+		purchaseDeposit.setResourceParamType(ResourceParamType.INTEGER_NEGATIVE.getValue());
+		purchaseDeposit.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(purchaseDeposit);
+
+		ResourceCreateResourceParamWithValueDto purchaseAdditionalCosts = new ResourceCreateResourceParamWithValueDto();
+		purchaseAdditionalCosts.setName(ResourceParamNameEnum.PROPERTY_ASSET_PURCHASE_ADDITIONAL_COSTS.getValue());
+		purchaseAdditionalCosts.setResourceParamType(ResourceParamType.INTEGER_NEGATIVE.getValue());
+		purchaseAdditionalCosts.setUserAbleToCreateNewDateValue(false);
+		resourceCreateDto.addResourceParamDto(purchaseAdditionalCosts);
+
 		return resourceCreateDto;
 	}
 	
