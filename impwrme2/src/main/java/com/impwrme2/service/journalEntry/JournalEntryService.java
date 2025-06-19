@@ -430,6 +430,12 @@ public class JournalEntryService {
 						break;
 					}					
 				}
+				else if (balanceToAttain < existingBalance) {
+					// Fix 2025-06-19. Case where min resource balance is reduced.
+					Integer amountToRetrieve = existingBalance - balanceToAttain;
+					balanceTracker.addToPotBalance(amountToRetrieve);
+					balanceTracker.subtractFromResourceLiquidAmount(resourceEngine.getResource(), amountToRetrieve);
+				}
 			}
 		}
 	}
