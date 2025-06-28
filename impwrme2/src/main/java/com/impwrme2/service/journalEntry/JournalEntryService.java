@@ -420,7 +420,9 @@ public class JournalEntryService {
 				} else if (legalOrPreferred.equals("Legal Max")) {
 					balanceToAttain = resourceEngine.getBalanceLiquidLegalMax(currentYearMonth, balanceTracker);
 				}
-				Integer existingBalance = balanceTracker.getResourceLiquidBalance(resourceEngine.getResource());
+				// Fix 2025-06-28. Don't pull the deposits into the pot. Deposits have been put in the resource specifically by a user deposit.
+//				Integer existingBalance = balanceTracker.getResourceLiquidBalance(resourceEngine.getResource());
+				Integer existingBalance = balanceTracker.getResourceLiquidAmount(resourceEngine.getResource());
 				if (balanceToAttain > existingBalance) {
 					Integer amountToDistribute = balanceToAttain - existingBalance;
 					amountToDistribute = Math.min(amountToDistribute, balanceTracker.getPotBalance());
